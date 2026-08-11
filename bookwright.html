@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Bookwright — Chapter Summaries</title>
+<title>BookNip — Chapter Summaries</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -457,7 +457,7 @@
       <div class="brand-mark">
         <svg viewBox="0 0 24 24" fill="none"><path d="M4 4.5C4 3.7 4.7 3 5.5 3H12V21H5.5C4.7 21 4 20.3 4 19.5V4.5Z" fill="#1B2430"/><path d="M20 4.5C20 3.7 19.3 3 18.5 3H12V21H18.5C19.3 21 20 20.3 20 19.5V4.5Z" fill="#1B2430" fill-opacity="0.55"/></svg>
       </div>
-      Bookwright
+      BookNip
     </div>
     <div class="topbar-sub" id="topbarSub">Dashboard</div>
   </div>
@@ -488,7 +488,7 @@
   <!-- ============ DISCOVER ============ -->
   <div class="page" id="page-discover">
     <h1 class="page-title">Discover</h1>
-    <p class="page-sub">Enter a title and author. Bookwright will build a chapter-by-chapter summary using Gemini.</p>
+    <p class="page-sub">Enter a title and author. BookNip will build a chapter-by-chapter summary using Gemini.</p>
 
     <div class="card">
       <div class="field">
@@ -529,7 +529,7 @@
   <!-- ============ SETTINGS ============ -->
   <div class="page" id="page-settings">
     <h1 class="page-title">Settings</h1>
-    <p class="page-sub">Bookwright runs entirely in your browser. Your key and summaries are stored only on this device.</p>
+    <p class="page-sub">BookNip runs entirely in your browser. Your key and summaries are stored only on this device.</p>
 
     <div class="settings-group">
       <div class="section-label">Gemini API key</div>
@@ -605,7 +605,7 @@
 
 <script>
 /* ============================================================
-   Bookwright — client-only book chapter-summary generator
+   BookNip — client-only book chapter-summary generator
    Storage: localStorage only. No backend.
    ============================================================ */
 
@@ -950,7 +950,7 @@ function exportLibrary(){
   const blob = new Blob([JSON.stringify(state.library, null, 2)], {type:'application/json'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url; a.download = 'bookwright-library.json';
+  a.href = url; a.download = 'BookNip-library.json';
   a.click();
   URL.revokeObjectURL(url);
   showToast('Exported');
@@ -1243,7 +1243,7 @@ function bookToMarkdown(book){
     md += `---\n\n`;
   });
 
-  md += `\n*Generated with Bookwright. AI-generated summary — use as a study aid, not a verified substitute for the source text.*\n`;
+  md += `\n*Generated with BookNip. AI-generated summary — use as a study aid, not a verified substitute for the source text.*\n`;
   return md;
 }
 
@@ -1311,7 +1311,7 @@ function exportPDF(bookId){
     ${book.author ? `<div class="author">by ${escapeHTML(book.author)}</div>` : ''}
     ${book.synopsis ? `<div class="synopsis">${escapeHTML(book.synopsis)}</div>` : ''}
     ${chaptersHTML}
-    <div class="pdf-footer">Generated with Bookwright — AI-generated summary. Use as a study aid, not a verified substitute for the source text.</div>
+    <div class="pdf-footer">Generated with BookNip — AI-generated summary. Use as a study aid, not a verified substitute for the source text.</div>
   </body></html>`);
   printWindow.document.close();
 
