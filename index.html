@@ -657,6 +657,13 @@
       </div>
     </div>
   </div>
+<div class="settings-group" id="installAppSection" style="display:none;">
+      <div class="section-label">App Installation</div>
+      <div class="card">
+        <p class="hint" style="margin-top:0; margin-bottom:12px;">Install BookNip on your device for quick access and offline reading.</p>
+        <button class="btn" id="installAppBtn" onclick="triggerPwaInstall()">Install BookNip App</button>
+      </div>
+    </div>
 
   <!-- ============ READER (summary detail) ============ -->
   <div class="page" id="page-reader">
@@ -1747,6 +1754,45 @@ function escapeHTML(str){
 function escapeAttr(str){
   return String(str ?? '').replace(/'/g, "\\'");
 }
+/* ---------------- PWA Custom Install Prompt ---------------- */
+let deferredPrompt = null;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  
+  const installSection = document.getElementById('installAppSection');
+  if (installSection) {
+    installSection.style.display = 'block';
+  }
+});
+
+async function triggerPwaInstall() {
+  if (!deferredPrompt) return;
+  
+  deferredPrompt.prompt();
+  
+  const { outcome } = await deferredPrompt.userChoice;
+  if (outcome === 'accepted') {
+    showToast('BookNip installed successfully!');
+  }
+  
+  deferredPrompt = null;
+  
+  const installSection = document.getElementById('installAppSection');
+  if (installSection) {
+    installSection.style.display = 'none';
+  }
+}
+
+window.addEventListener('appinstalled', () => {
+  deferredPrompt = null;
+  const installSection = document.getElementById('installAppSection');
+  if (installSection) {
+    installSection.style.display = 'none';
+  }
+  showToast('BookNip is installed');
+});
 /* ---------------- Service Worker Registration ---------------- */
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
