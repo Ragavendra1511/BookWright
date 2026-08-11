@@ -7,6 +7,7 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231B2430'/%3E%3Cpath d='M32 14c-6-4-14-4-20 0v32c6-4 14-4 20 0V14z' fill='%23E0BC3F'/%3E%3Cpath d='M32 14c6-4 14-4 20 0v32c-6-4-14-4-20 0V14z' fill='%23C9A227'/%3E%3Cpath d='M32 14v32' stroke='%231B2430' stroke-width='1.5' opacity='0.4'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/idb-keyval/6.3.0/umd.js"></script>
 <!-- PWA Manifest & iOS Theme Support -->
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#1B2430">
@@ -719,19 +720,40 @@ function openFontControl(bookId){
 const SPINE_COLORS = ['#8a3b2e','#2e5b47','#3d4f7a','#7a5a2e','#5b2e5f','#2e6b6e','#7a2e3f','#4f5b2e'];
 
 let state = {
-  library: loadLibrary(),
+  library: [],
   currentPage: 'dashboard',
   activeReaderId: null
 };
 
-function loadLibrary(){
-  try{
-    const raw = localStorage.getItem(LS_KEYS.library);
-    return raw ? JSON.parse(raw) : [];
-  }catch(e){ return []; }
+/* Updated for IndexedDB with auto-migration from localStorage */
+async function loadLibraryFromDB() {
+  try {
+    // 1. Check IndexedDB first
+    let data = await idbKeyval.get(LS_KEYS.library);
+    if (data) return data;
+
+    // 2. Fallback / Auto-migrate existing user data from localStorage
+    const legacyRaw = localStorage.getItem(LS_KEYS.library);
+    if (legacyRaw) {
+      const parsed = JSON.parse(legacyRaw);
+      await idbKeyval.set(LS_KEYS.library, parsed); // Save to IndexedDB
+      localStorage.removeItem(LS_KEYS.library);   // Clean up legacy storage
+      return parsed;
+    }
+    return [];
+  } catch (e) {
+    console.error('IndexedDB load error:', e);
+    return [];
+  }
 }
-function saveLibraryToStorage(){
-  localStorage.setItem(LS_KEYS.library, JSON.stringify(state.library));
+
+async function saveLibraryToStorage() {
+  try {
+    await idbKeyval.set(LS_KEYS.library, state.library);
+  } catch (e) {
+    console.error('IndexedDB save error:', e);
+    showToast('Error saving data to database');
+  }
 }
 
 function getApiKey(){ return localStorage.getItem(LS_KEYS.apiKey) || ''; }
@@ -1388,6 +1410,7 @@ function renderReader(id){
     <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:16px;">
       <button class="btn btn-secondary" style="width:auto; padding:9px 16px;" onclick="goTo('library')">← Back to Library</button>
       <div style="display:flex; gap:8px;">
+	<button class="icon-btn" onclick="shareBookSummary('${book.id}')" aria-label="Share">➦</button>
         <button class="icon-btn" onclick="openFontControl('${book.id}')" aria-label="Font size">Aa</button>
         <button class="icon-btn ${book.favorite?'active':''}" id="readerFavBtn2" onclick="toggleFavorite('${book.id}')" aria-label="Favorite">${book.favorite ? '★' : '☆'}</button>
       </div>
@@ -1464,6 +1487,7 @@ function chapterBodyHTML(ch, bookId, idx){
     const summaryId = `summary-${bookId}-${idx}`;
     return `<div class="chapter-summary-text" id="${summaryId}">${formatSummary(ch.summary)}</div>` + quoteCalloutHTML(ch.quote) + takeawaysCalloutHTML(ch.takeaways) +
       `<div class="chapter-actions">
+        <button class="btn btn-secondary regen-btn" onclick="event.stopPropagation(); shareChapter('${bookId}', ${idx})">➦ Share</button>
         <button class="btn btn-secondary regen-btn" onclick="event.stopPropagation(); regenerateChapter('${bookId}', ${idx})">↻ Regenerate</button>
         <button class="btn btn-secondary regen-btn" id="${ttsId}" onclick="event.stopPropagation(); toggleListen('${bookId}', ${idx})">🔊 Listen</button>
       </div>`;
@@ -1644,7 +1668,66 @@ function deleteBook(id){
   goTo('library');
   showToast('Deleted');
 }
+/* ---------------- Web Share API ---------------- */
+async function shareBookSummary(bookId) {
+  const book = state.library.find(b => b.id === bookId);
+  if (!book) return;
 
+  const shareData = {
+    title: `${book.title} — Summary`,
+    text: `Check out this summary of "${book.title}"${book.author ? ' by ' + book.author : ''}:\n\n${book.synopsis || ''}`,
+    url: window.location.href
+  };
+
+  if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+    try {
+      await navigator.share(shareData);
+    } catch (err) {
+      if (err.name !== 'AbortError') showToast('Error sharing');
+    }
+  } else {
+    // Fallback: Copy to clipboard
+    try {
+      await navigator.clipboard.writeText(`${shareData.title}\n\n${shareData.text}`);
+      showToast('Book overview copied to clipboard');
+    } catch (e) {
+      showToast('Clipboard copy failed');
+    }
+  }
+}
+
+async function shareChapter(bookId, idx) {
+  const book = state.library.find(b => b.id === bookId);
+  if (!book) return;
+  const ch = book.chapters[idx];
+  if (!ch || ch.status !== 'done') return;
+
+  const title = `${book.title} — Chapter ${ch.number || (idx + 1)}: ${ch.title}`;
+  let text = `Key takeaways from "${ch.title}":\n\n`;
+  if (ch.quote) text += `"${ch.quote}"\n\n`;
+  if (ch.takeaways && ch.takeaways.length) {
+    text += ch.takeaways.map(t => `• ${t}`).join('\n');
+  } else {
+    text += stripMarkdownForSpeech(ch.summary).slice(0, 280) + '...';
+  }
+
+  const shareData = { title, text };
+
+  if (navigator.share) {
+    try {
+      await navigator.share(shareData);
+    } catch (err) {
+      if (err.name !== 'AbortError') showToast('Error sharing');
+    }
+  } else {
+    try {
+      await navigator.clipboard.writeText(`${title}\n\n${text}`);
+      showToast('Chapter takeaway copied to clipboard');
+    } catch (e) {
+      showToast('Clipboard copy failed');
+    }
+  }
+}
 /* ---------------- Export ---------------- */
 function bookToMarkdown(book){
   let md = `# ${book.title}\n\n`;
@@ -1801,9 +1884,21 @@ if ('serviceWorker' in navigator) {
       .catch((err) => console.error('Service Worker registration failed:', err));
   });
 }
-/* ---------------- Init ---------------- */
-setFontSize(getFontSize());
-renderDashboard();
+/* ---------------- Init (Async for IndexedDB & Shortcut Routing) ---------------- */
+async function initApp() {
+  setFontSize(getFontSize());
+  state.library = await loadLibraryFromDB();
+  
+  // Check URL hash for shortcuts (e.g. #discover, #library)
+  const hash = window.location.hash.replace('#', '');
+  if (['discover', 'library', 'settings'].includes(hash)) {
+    goTo(hash);
+  } else {
+    renderDashboard();
+  }
+}
+
+initApp();
 </script>
 </body>
 </html>
