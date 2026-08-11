@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Bookwright — Chapter Summaries</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1B2430;
+    --ink-2:#242F3E;
+    --ink-3:#2E3A4B;
+    --paper:#F7F3E9;
+    --paper-dim:#E9E2D0;
+    --gold:#C9A227;
+    --gold-bright:#E0BC3F;
+    --sage:#6B8F71;
+    --coral:#E0674D;
+    --ink-text:#EDEAE0;
+    --ink-text-dim:#A9B2BE;
+    --line: rgba(237,234,224,0.12);
+    --radius: 14px;
+    --shadow: 0 8px 24px rgba(0,0,0,0.28);
+    --font-display: 'Lora', Georgia, serif;
+    --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body{ height:100%; }
+  body{
+    margin:0;
+    background: var(--ink);
+    color: var(--ink-text);
+    font-family: var(--font-body);
+    -webkit-font-smoothing:antialiased;
+    overscroll-behavior-y: none;
+  }
+
+  /* Subtle paper-grain / vignette backdrop */
+  body::before{
+    content:"";
+    position:fixed; inset:0;
+    background:
+      radial-gradient(ellipse at top, rgba(201,162,39,0.08), transparent 55%),
+      radial-gradient(ellipse at bottom, rgba(107,143,113,0.06), transparent 60%);
+    pointer-events:none;
+    z-index:0;
+  }
+
+  #app{
+    position:relative;
+    z-index:1;
+    max-width:560px;
+    margin:0 auto;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    padding-bottom: 84px;
+  }
+
+  /* ---------- Top bar ---------- */
+  .topbar{
+    position:sticky; top:0; z-index:20;
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 18px 20px 14px;
+    background: linear-gradient(var(--ink) 70%, transparent);
+  }
+  .brand{
+    display:flex; align-items:center; gap:10px;
+    font-family:var(--font-display);
+    font-weight:700; font-size:20px; letter-spacing:0.2px;
+    color: var(--paper);
+  }
+  .brand-mark{
+    width:30px;height:30px;border-radius:7px;
+    background: linear-gradient(155deg, var(--gold-bright), var(--gold) 60%, #8a6d16);
+    display:flex; align-items:center; justify-content:center;
+    box-shadow: 0 3px 10px rgba(201,162,39,0.35);
+    flex-shrink:0;
+  }
+  .brand-mark svg{ width:16px; height:16px; }
+  .topbar-sub{
+    font-size:11px; color:var(--ink-text-dim); font-family:var(--font-mono);
+    letter-spacing:0.08em; text-transform:uppercase;
+  }
+
+  /* ---------- Pages ---------- */
+  .page{ display:none; padding: 4px 20px 24px; animation: fadeIn .28s ease; }
+  .page.active{ display:block; }
+  @keyframes fadeIn{ from{ opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;} }
+  @media (prefers-reduced-motion: reduce){
+    .page{ animation:none; }
+    *{ transition:none !important; animation-duration:0.001s !important; }
+  }
+
+  h1.page-title{
+    font-family:var(--font-display);
+    font-size:26px; font-weight:700;
+    margin: 6px 0 4px;
+    color: var(--paper);
+  }
+  p.page-sub{
+    color:var(--ink-text-dim); font-size:14px; margin:0 0 20px; line-height:1.5;
+  }
+
+  /* ---------- Cards ---------- */
+  .card{
+    background: var(--ink-2);
+    border:1px solid var(--line);
+    border-radius: var(--radius);
+    padding:16px;
+  }
+  .section-label{
+    font-family:var(--font-mono);
+    font-size:11px; text-transform:uppercase; letter-spacing:0.1em;
+    color: var(--gold);
+    display:flex; align-items:center; gap:8px;
+    margin: 26px 0 12px;
+  }
+  .section-label:first-of-type{ margin-top:0; }
+  .section-label::after{
+    content:""; flex:1; height:1px; background:var(--line);
+  }
+
+  /* ---------- Stat row (Dashboard) ---------- */
+  .stat-row{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:8px; }
+  .stat{
+    background: var(--ink-2);
+    border:1px solid var(--line);
+    border-radius: var(--radius);
+    padding:14px 10px;
+    text-align:center;
+  }
+  .stat-num{ font-family:var(--font-display); font-size:24px; font-weight:700; color:var(--paper); }
+  .stat-label{ font-size:10.5px; color:var(--ink-text-dim); margin-top:2px; text-transform:uppercase; letter-spacing:0.06em; }
+
+  /* ---------- Book spine card (list item) ---------- */
+  .book-card{
+    display:flex; gap:12px;
+    background: var(--ink-2);
+    border:1px solid var(--line);
+    border-radius: var(--radius);
+    padding:12px;
+    margin-bottom:10px;
+    cursor:pointer;
+    transition: border-color .15s, transform .15s;
+  }
+  .book-card:active{ transform: scale(0.98); }
+  .book-card:hover{ border-color: rgba(201,162,39,0.4); }
+  .spine{
+    width:44px; min-width:44px; border-radius:6px;
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-display); font-weight:700; font-size:15px;
+    color: rgba(255,255,255,0.92);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    writing-mode: vertical-rl;
+    padding:8px 0;
+    box-shadow: inset -2px 0 0 rgba(0,0,0,0.15), inset 2px 0 0 rgba(255,255,255,0.08);
+  }
+  .book-meta{ flex:1; min-width:0; display:flex; flex-direction:column; justify-content:center; }
+  .book-title{ font-family:var(--font-display); font-weight:700; font-size:16px; color:var(--paper); line-height:1.25; }
+  .book-author{ font-size:12.5px; color:var(--ink-text-dim); margin-top:2px; }
+  .book-progress{ display:flex; align-items:center; gap:6px; margin-top:8px; }
+  .progress-track{ flex:1; height:4px; background:var(--ink-3); border-radius:2px; overflow:hidden; }
+  .progress-fill{ height:100%; background: linear-gradient(90deg, var(--gold), var(--gold-bright)); border-radius:2px; }
+  .progress-text{ font-size:10px; color:var(--ink-text-dim); font-family:var(--font-mono); }
+  .book-chevron{ align-self:center; color:var(--ink-text-dim); font-size:18px; }
+
+  .empty-state{
+    text-align:center; padding: 40px 20px;
+    color: var(--ink-text-dim);
+    border:1px dashed var(--line);
+    border-radius: var(--radius);
+  }
+  .empty-state .icon{ font-size:28px; margin-bottom:8px; opacity:0.6; }
+  .empty-state p{ margin:4px 0; font-size:13.5px; line-height:1.5; }
+
+  /* ---------- Form elements ---------- */
+  .field{ margin-bottom:14px; }
+  .field label{
+    display:block; font-size:12px; color:var(--ink-text-dim);
+    margin-bottom:6px; font-weight:500; text-transform:uppercase; letter-spacing:0.05em;
+  }
+  .field input, .field textarea, .field select{
+    width:100%;
+    background: var(--ink-3);
+    border:1px solid var(--line);
+    color: var(--paper);
+    border-radius:10px;
+    padding:12px 13px;
+    font-size:15px;
+    font-family:var(--font-body);
+    outline:none;
+    transition: border-color .15s;
+  }
+  .field input:focus, .field textarea:focus, .field select:focus{
+    border-color: var(--gold);
+  }
+  .field input::placeholder{ color: #6b7686; }
+  .hint{ font-size:11.5px; color:var(--ink-text-dim); margin-top:6px; line-height:1.5; }
+  .hint a{ color:var(--gold); }
+
+  .btn{
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    width:100%;
+    background: linear-gradient(155deg, var(--gold-bright), var(--gold));
+    color: #241C05;
+    border:none; border-radius:10px;
+    padding:14px 16px;
+    font-size:15px; font-weight:700;
+    font-family:var(--font-body);
+    cursor:pointer;
+    transition: transform .12s, box-shadow .12s, opacity .12s;
+    box-shadow: 0 4px 14px rgba(201,162,39,0.25);
+  }
+  .btn:active{ transform: scale(0.97); }
+  .btn:disabled{ opacity:0.5; cursor:not-allowed; transform:none; }
+  .btn-secondary{
+    background: var(--ink-3);
+    color: var(--paper);
+    box-shadow:none;
+    border:1px solid var(--line);
+  }
+  .btn-danger{
+    background: transparent;
+    color: var(--coral);
+    border:1px solid rgba(224,103,77,0.4);
+    box-shadow:none;
+  }
+  .btn-row{ display:flex; gap:10px; }
+  .btn-row .btn{ flex:1; }
+
+  /* ---------- Chip / suggestion pills (Discover) ---------- */
+  .chip-row{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px; }
+  .chip{
+    background: var(--ink-3);
+    border:1px solid var(--line);
+    color: var(--ink-text-dim);
+    font-size:12.5px;
+    padding:7px 13px;
+    border-radius:100px;
+    cursor:pointer;
+    transition: all .15s;
+  }
+  .chip:hover, .chip.active{
+    border-color: var(--gold);
+    color: var(--gold-bright);
+  }
+
+  /* ---------- Loading state ---------- */
+  .loading-box{
+    text-align:center;
+    padding: 36px 20px;
+  }
+  .book-spinner{
+    width:46px; height:60px; margin: 0 auto 18px;
+    position:relative;
+    perspective: 200px;
+  }
+  .book-spinner .page-flip{
+    position:absolute; top:0; left:0; width:100%; height:100%;
+    background: linear-gradient(135deg, var(--gold-bright), var(--gold));
+    border-radius: 3px 8px 8px 3px;
+    transform-origin: left center;
+    animation: flip 1.1s ease-in-out infinite;
+  }
+  .book-spinner .book-base{
+    position:absolute; top:0; left:0; width:100%; height:100%;
+    background: var(--ink-3);
+    border: 2px solid var(--gold);
+    border-radius: 3px 8px 8px 3px;
+  }
+  @keyframes flip{
+    0%, 100%{ transform: rotateY(0deg); }
+    50%{ transform: rotateY(-140deg); }
+  }
+  .loading-status{ font-family:var(--font-mono); font-size:12px; color:var(--gold); letter-spacing:0.04em; }
+  .loading-sub{ font-size:12.5px; color:var(--ink-text-dim); margin-top:8px; }
+
+  /* ---------- TOC / Chapter accordion (signature element) ---------- */
+  .toc-header{
+    display:flex; align-items:flex-start; gap:14px;
+    background: var(--ink-2);
+    border:1px solid var(--line);
+    border-radius: var(--radius);
+    padding:16px;
+    margin-bottom:18px;
+  }
+  .toc-header .spine{ width:50px; min-width:50px; height:70px; }
+  .toc-header-meta{ flex:1; min-width:0; }
+  .toc-header-title{ font-family:var(--font-display); font-weight:700; font-size:18px; color:var(--paper); line-height:1.3; }
+  .toc-header-author{ font-size:13px; color:var(--ink-text-dim); margin-top:3px; }
+  .toc-header-tags{ display:flex; gap:6px; margin-top:10px; flex-wrap:wrap; }
+  .tag{ font-size:10px; font-family:var(--font-mono); text-transform:uppercase; letter-spacing:0.05em; color:var(--sage); border:1px solid rgba(107,143,113,0.35); padding:3px 8px; border-radius:5px; }
+
+  .toc-list{ border:1px solid var(--line); border-radius: var(--radius); overflow:hidden; }
+  .toc-item{ border-bottom:1px solid var(--line); }
+  .toc-item:last-child{ border-bottom:none; }
+  .toc-item-head{
+    display:flex; align-items:center; gap:12px;
+    padding:14px 15px;
+    cursor:pointer;
+    background: var(--ink-2);
+    transition: background .15s;
+  }
+  .toc-item-head:hover{ background: var(--ink-3); }
+  .toc-num{
+    font-family:var(--font-mono); font-size:11px; color:var(--gold);
+    border:1px solid rgba(201,162,39,0.4);
+    width:26px; height:26px; border-radius:6px;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  .toc-item-title{ flex:1; font-size:14.5px; font-weight:600; color:var(--paper); }
+  .toc-caret{ color:var(--ink-text-dim); transition: transform .2s; font-size:12px; }
+  .toc-item.open .toc-caret{ transform: rotate(180deg); }
+  .toc-item-body{
+    max-height:0; overflow:hidden;
+    transition: max-height .3s ease;
+    background: var(--ink);
+  }
+  .toc-item.open .toc-item-body{ max-height:20000px; }
+  .toc-item-body-inner{
+    padding: 4px 18px 20px 53px;
+    font-size:14px; line-height:1.7;
+    color: var(--ink-text);
+  }
+  .toc-item-body-inner p{ margin:0 0 12px; }
+  .toc-item-body-inner strong{ color: var(--gold-bright); font-weight:600; }
+
+  .summary-heading{
+    font-family:var(--font-display);
+    font-size:15.5px; font-weight:700;
+    color: var(--paper);
+    margin: 18px 0 8px;
+  }
+  .summary-heading:first-child{ margin-top:0; }
+  .summary-list{ margin:0 0 12px; padding-left:20px; }
+  .summary-list li{ margin-bottom:6px; }
+
+  .callout{
+    border-radius:10px;
+    padding:14px 15px;
+    margin-top:16px;
+  }
+  .callout-quote{
+    background: rgba(201,162,39,0.08);
+    border-left:3px solid var(--gold);
+    display:flex; gap:10px; align-items:flex-start;
+  }
+  .callout-quote .callout-icon{
+    font-family:var(--font-display);
+    font-size:22px; color:var(--gold); line-height:1;
+    flex-shrink:0;
+  }
+  .callout-quote .callout-text{
+    font-family:var(--font-display);
+    font-style:italic; font-size:14.5px; line-height:1.55;
+    color: var(--paper);
+  }
+  .callout-takeaways{
+    background: rgba(107,143,113,0.08);
+    border-left:3px solid var(--sage);
+  }
+  .callout-label{
+    font-family:var(--font-mono);
+    font-size:11px; text-transform:uppercase; letter-spacing:0.06em;
+    color: var(--sage);
+    margin-bottom:9px;
+  }
+  .callout-takeaway-list{ margin:0; padding-left:18px; }
+  .callout-takeaway-list li{
+    font-size:13.5px; line-height:1.55; color:var(--ink-text);
+    margin-bottom:7px;
+  }
+  .callout-takeaway-list li::marker{ color: var(--sage); }
+
+  .synopsis-box{
+    font-size:14px; line-height:1.65; color: var(--ink-text-dim);
+    padding-top:2px;
+  }
+
+  /* ---------- Settings ---------- */
+  .settings-group{ margin-bottom:24px; }
+  .key-status{
+    display:flex; align-items:center; gap:8px;
+    font-size:12.5px; margin-top:10px; padding:9px 12px;
+    border-radius:8px;
+  }
+  .key-status.ok{ background: rgba(107,143,113,0.12); color: var(--sage); }
+  .key-status.bad{ background: rgba(224,103,77,0.12); color: var(--coral); }
+  .key-status .dot{ width:7px; height:7px; border-radius:50%; background:currentColor; }
+
+  /* ---------- Toast ---------- */
+  #toast{
+    position:fixed; bottom:96px; left:50%; transform:translateX(-50%) translateY(20px);
+    background: var(--paper); color:var(--ink);
+    padding:11px 20px; border-radius:100px;
+    font-size:13px; font-weight:600;
+    box-shadow: var(--shadow);
+    opacity:0; pointer-events:none;
+    transition: all .25s ease;
+    z-index:100;
+    white-space:nowrap;
+  }
+  #toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+  /* ---------- Bottom nav ---------- */
+  .bottom-nav{
+    position:fixed; bottom:0; left:0; right:0; z-index:30;
+    display:flex;
+    max-width:560px; margin:0 auto;
+    background: rgba(27,36,48,0.92);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-top:1px solid var(--line);
+    padding: 8px 6px calc(8px + env(safe-area-inset-bottom));
+  }
+  .nav-btn{
+    flex:1;
+    display:flex; flex-direction:column; align-items:center; gap:4px;
+    background:none; border:none; color: var(--ink-text-dim);
+    padding:6px 2px;
+    cursor:pointer;
+    font-family:var(--font-body);
+    font-size:10.5px;
+    letter-spacing:0.02em;
+    transition: color .15s;
+  }
+  .nav-btn svg{ width:21px; height:21px; }
+  .nav-btn.active{ color: var(--gold-bright); }
+  .nav-btn .nav-icon-wrap{
+    width:34px; height:26px; border-radius:9px;
+    display:flex; align-items:center; justify-content:center;
+    transition: background .15s;
+  }
+  .nav-btn.active .nav-icon-wrap{ background: rgba(201,162,39,0.14); }
+
+  /* scrollbar tidy */
+  ::-webkit-scrollbar{ width:0; height:0; }
+
+  /* small screens fine-tune */
+  @media (max-width:340px){
+    .stat-row{ gap:7px; }
+    .brand{ font-size:18px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M4 4.5C4 3.7 4.7 3 5.5 3H12V21H5.5C4.7 21 4 20.3 4 19.5V4.5Z" fill="#1B2430"/><path d="M20 4.5C20 3.7 19.3 3 18.5 3H12V21H18.5C19.3 21 20 20.3 20 19.5V4.5Z" fill="#1B2430" fill-opacity="0.55"/></svg>
+      </div>
+      Bookwright
+    </div>
+    <div class="topbar-sub" id="topbarSub">Dashboard</div>
+  </div>
+
+  <!-- ============ DASHBOARD ============ -->
+  <div class="page active" id="page-dashboard">
+    <h1 class="page-title">Welcome back</h1>
+    <p class="page-sub">Your reading room — pick up where you left off, or start something new.</p>
+
+    <div class="stat-row" id="statRow">
+      <div class="stat"><div class="stat-num" id="statTotal">0</div><div class="stat-label">Summaries</div></div>
+      <div class="stat"><div class="stat-num" id="statChapters">0</div><div class="stat-label">Chapters ready</div></div>
+      <div class="stat"><div class="stat-num" id="statContinue">0</div><div class="stat-label">In progress</div></div>
+    </div>
+
+    <div class="section-label">Continue reading</div>
+    <div id="continueList"></div>
+
+    <div class="section-label">Recently added</div>
+    <div id="recentList"></div>
+
+    <div class="section-label">Quick start</div>
+    <div class="btn-row">
+      <button class="btn" onclick="goTo('discover')">＋ Generate summary</button>
+    </div>
+  </div>
+
+  <!-- ============ DISCOVER ============ -->
+  <div class="page" id="page-discover">
+    <h1 class="page-title">Discover</h1>
+    <p class="page-sub">Enter a title and author. Bookwright will build a chapter-by-chapter summary using Gemini.</p>
+
+    <div class="card">
+      <div class="field">
+        <label for="inputTitle">Book title</label>
+        <input id="inputTitle" type="text" placeholder="e.g. Atomic Habits" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="inputAuthor">Author</label>
+        <input id="inputAuthor" type="text" placeholder="e.g. James Clear" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="inputDepth">Summary depth</label>
+        <select id="inputDepth">
+          <option value="standard">Standard — key ideas per chapter</option>
+          <option value="deep" selected>Deep — 80–90% knowledge transfer</option>
+        </select>
+      </div>
+      <button class="btn" id="generateBtn" onclick="startGeneration()">✦ Generate summary</button>
+      <p class="hint" id="apiKeyHint"></p>
+    </div>
+
+    <div class="section-label">Try one of these</div>
+    <div class="chip-row" id="suggestionChips"></div>
+
+    <div id="genStatusArea"></div>
+  </div>
+
+  <!-- ============ LIBRARY ============ -->
+  <div class="page" id="page-library">
+    <h1 class="page-title">Library</h1>
+    <p class="page-sub">Every summary you've generated, saved for later reading.</p>
+    <div class="field" style="margin-bottom:18px;">
+      <input id="librarySearch" type="text" placeholder="Search your library…" oninput="renderLibrary()">
+    </div>
+    <div id="libraryList"></div>
+  </div>
+
+  <!-- ============ SETTINGS ============ -->
+  <div class="page" id="page-settings">
+    <h1 class="page-title">Settings</h1>
+    <p class="page-sub">Bookwright runs entirely in your browser. Your key and summaries are stored only on this device.</p>
+
+    <div class="settings-group">
+      <div class="section-label">Gemini API key</div>
+      <div class="card">
+        <div class="field" style="margin-bottom:8px;">
+          <label for="apiKeyInput">API key</label>
+          <input id="apiKeyInput" type="password" placeholder="Paste your Gemini API key">
+        </div>
+        <div class="field">
+          <label for="modelSelect">Model</label>
+          <select id="modelSelect">
+            <option value="gemini-2.5-flash">gemini-2.5-flash (recommended, free tier)</option>
+            <option value="gemini-2.5-flash-lite">gemini-2.5-flash-lite (highest free quota)</option>
+            <option value="gemini-3.5-flash">gemini-3.5-flash (newer, free tier)</option>
+            <option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite (newer, high quota)</option>
+          </select>
+        </div>
+        <div class="btn-row">
+          <button class="btn" onclick="saveApiKey()">Save key</button>
+          <button class="btn btn-secondary" onclick="testApiKey()">Test</button>
+        </div>
+        <div id="keyStatus"></div>
+        <p class="hint">Get a free key at <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>. Free tier has daily/rate limits — if generation fails, wait a bit and retry.</p>
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <div class="section-label">Data</div>
+      <div class="card">
+        <p class="hint" style="margin-top:0; margin-bottom:14px;">All summaries and your API key live in this browser's local storage only. Nothing is sent anywhere except directly to Google's Gemini API when generating.</p>
+        <div class="btn-row">
+          <button class="btn btn-secondary" onclick="exportLibrary()">Export library</button>
+          <button class="btn btn-danger" onclick="clearLibrary()">Clear all data</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <div class="section-label">About</div>
+      <div class="card">
+        <p class="hint" style="margin:0;">Summaries are generated by an AI model from its training knowledge of each book — it does not read an uploaded copy of the book. For very new, obscure, or niche titles, accuracy may vary. Always treat generated summaries as a study aid, not a verified replacement for the source text.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ READER (summary detail) ============ -->
+  <div class="page" id="page-reader">
+    <div id="readerContent"></div>
+  </div>
+
+</div>
+
+<div id="toast"></div>
+
+<div class="bottom-nav">
+  <button class="nav-btn active" data-page="dashboard" onclick="goTo('dashboard')">
+    <div class="nav-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg></div>
+    Dashboard
+  </button>
+  <button class="nav-btn" data-page="discover" onclick="goTo('discover')">
+    <div class="nav-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></div>
+    Discover
+  </button>
+  <button class="nav-btn" data-page="library" onclick="goTo('library')">
+    <div class="nav-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></div>
+    Library
+  </button>
+  <button class="nav-btn" data-page="settings" onclick="goTo('settings')">
+    <div class="nav-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009.6 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 8.6a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9c.36.24.8.4 1.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></div>
+    Settings
+  </button>
+</div>
+
+<script>
+/* ============================================================
+   Bookwright — client-only book chapter-summary generator
+   Storage: localStorage only. No backend.
+   ============================================================ */
+
+const LS_KEYS = {
+  apiKey: 'bw_gemini_api_key',
+  model: 'bw_gemini_model',
+  library: 'bw_library_v1'
+};
+
+const SPINE_COLORS = ['#8a3b2e','#2e5b47','#3d4f7a','#7a5a2e','#5b2e5f','#2e6b6e','#7a2e3f','#4f5b2e'];
+
+let state = {
+  library: loadLibrary(),
+  currentPage: 'dashboard',
+  activeReaderId: null
+};
+
+function loadLibrary(){
+  try{
+    const raw = localStorage.getItem(LS_KEYS.library);
+    return raw ? JSON.parse(raw) : [];
+  }catch(e){ return []; }
+}
+function saveLibraryToStorage(){
+  localStorage.setItem(LS_KEYS.library, JSON.stringify(state.library));
+}
+
+function getApiKey(){ return localStorage.getItem(LS_KEYS.apiKey) || ''; }
+function getModel(){ return localStorage.getItem(LS_KEYS.model) || 'gemini-2.5-flash'; }
+
+function spineColorFor(str){
+  let h = 0;
+  for(let i=0;i<str.length;i++){ h = str.charCodeAt(i) + ((h<<5)-h); }
+  return SPINE_COLORS[Math.abs(h) % SPINE_COLORS.length];
+}
+function initialsFor(title){
+  return title.trim().split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+}
+
+/* ---------------- Navigation ---------------- */
+function goTo(page){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active', b.dataset.page===page));
+  state.currentPage = page;
+  const titles = {dashboard:'Dashboard', discover:'Discover', library:'Library', settings:'Settings', reader:'Reading'};
+  document.getElementById('topbarSub').textContent = titles[page] || '';
+  window.scrollTo(0,0);
+  if(page==='dashboard') renderDashboard();
+  if(page==='library') renderLibrary();
+  if(page==='discover') renderDiscover();
+  if(page==='settings') renderSettings();
+}
+
+function openReader(id){
+  state.activeReaderId = id;
+  renderReader(id);
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-reader').classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('topbarSub').textContent = 'Reading';
+  window.scrollTo(0,0);
+}
+
+/* ---------------- Toast ---------------- */
+let toastTimer;
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+/* ---------------- Dashboard ---------------- */
+function renderDashboard(){
+  const lib = state.library;
+  document.getElementById('statTotal').textContent = lib.length;
+  document.getElementById('statChapters').textContent = lib.reduce((a,b)=>a+(b.chapters?.filter(c=>c.status==='done').length||0),0);
+  const inProgress = lib.filter(b=>b.progress>0 && b.progress<100);
+  document.getElementById('statContinue').textContent = inProgress.length;
+
+  const continueList = document.getElementById('continueList');
+  if(inProgress.length===0){
+    continueList.innerHTML = `<div class="empty-state"><div class="icon">📖</div><p>Nothing in progress yet.</p></div>`;
+  }else{
+    continueList.innerHTML = inProgress.slice(0,4).map(bookCardHTML).join('');
+  }
+
+  const recentList = document.getElementById('recentList');
+  if(lib.length===0){
+    recentList.innerHTML = `<div class="empty-state"><div class="icon">✦</div><p>No summaries yet.</p><p>Head to Discover to generate your first one.</p></div>`;
+  }else{
+    const recent = [...lib].sort((a,b)=>b.createdAt-a.createdAt).slice(0,4);
+    recentList.innerHTML = recent.map(bookCardHTML).join('');
+  }
+}
+
+function bookCardHTML(book){
+  const color = spineColorFor(book.title);
+  const pct = book.progress || 0;
+  return `
+  <div class="book-card" onclick="openReader('${book.id}')">
+    <div class="spine" style="background:${color}">${escapeHTML(initialsFor(book.title))}</div>
+    <div class="book-meta">
+      <div class="book-title">${escapeHTML(book.title)}</div>
+      <div class="book-author">${escapeHTML(book.author||'Unknown author')}</div>
+      <div class="book-progress">
+        <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+        <div class="progress-text">${pct}%</div>
+      </div>
+    </div>
+    <div class="book-chevron">›</div>
+  </div>`;
+}
+
+/* ---------------- Discover ---------------- */
+const SUGGESTIONS = [
+  {title:'Atomic Habits', author:'James Clear'},
+  {title:'Sapiens', author:'Yuval Noah Harari'},
+  {title:'Thinking, Fast and Slow', author:'Daniel Kahneman'},
+  {title:'Deep Work', author:'Cal Newport'},
+  {title:'The Lean Startup', author:'Eric Ries'},
+  {title:"Man's Search for Meaning", author:'Viktor Frankl'}
+];
+
+function renderDiscover(){
+  const key = getApiKey();
+  const hint = document.getElementById('apiKeyHint');
+  if(!key){
+    hint.innerHTML = `⚠ No Gemini API key set. <a href="#" onclick="goTo('settings');return false;" style="color:var(--coral)">Add one in Settings</a> to generate summaries.`;
+  }else{
+    hint.textContent = '';
+  }
+  const chips = document.getElementById('suggestionChips');
+  chips.innerHTML = SUGGESTIONS.map(s=>`<div class="chip" onclick="fillSuggestion('${escapeAttr(s.title)}','${escapeAttr(s.author)}')">${escapeHTML(s.title)}</div>`).join('');
+}
+function fillSuggestion(title, author){
+  document.getElementById('inputTitle').value = title;
+  document.getElementById('inputAuthor').value = author;
+}
+
+const GEN_STAGES = [
+  'Locating the book…',
+  'Mapping chapter structure…',
+  'Building table of contents…'
+];
+
+async function startGeneration(){
+  const title = document.getElementById('inputTitle').value.trim();
+  const author = document.getElementById('inputAuthor').value.trim();
+  const depth = document.getElementById('inputDepth').value;
+  const key = getApiKey();
+
+  if(!title){ showToast('Enter a book title'); return; }
+  if(!key){ goTo('settings'); showToast('Add your Gemini API key first'); return; }
+
+  const btn = document.getElementById('generateBtn');
+  btn.disabled = true;
+  const statusArea = document.getElementById('genStatusArea');
+  let stageIdx = 0;
+  statusArea.innerHTML = `
+    <div class="loading-box card">
+      <div class="book-spinner"><div class="book-base"></div><div class="page-flip"></div></div>
+      <div class="loading-status" id="genStageText">${GEN_STAGES[0]}</div>
+      <div class="loading-sub">Building the table of contents — chapter summaries generate individually as you open them.</div>
+    </div>`;
+  const stageInterval = setInterval(()=>{
+    stageIdx = Math.min(stageIdx+1, GEN_STAGES.length-1);
+    const el = document.getElementById('genStageText');
+    if(el) el.textContent = GEN_STAGES[stageIdx];
+  }, 2500);
+
+  try{
+    const outline = await generateBookOutline(title, author, key, getModel());
+    clearInterval(stageInterval);
+
+    const book = {
+      id: 'b_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
+      title: outline.title || title,
+      author: outline.author || author,
+      synopsis: outline.synopsis || '',
+      chapters: outline.chapters.map(ch => ({
+        number: ch.number,
+        title: ch.title,
+        summary: null,
+        status: 'pending' // pending | loading | done | error
+      })),
+      progress: 0,
+      readChapters: [],
+      createdAt: Date.now(),
+      depth: depth
+    };
+    state.library.unshift(book);
+    saveLibraryToStorage();
+    statusArea.innerHTML = '';
+    document.getElementById('inputTitle').value = '';
+    document.getElementById('inputAuthor').value = '';
+    showToast('Table of contents ready — tap a chapter to generate its summary');
+    openReader(book.id);
+  }catch(err){
+    clearInterval(stageInterval);
+    console.error(err);
+    statusArea.innerHTML = `<div class="card" style="border-color:rgba(224,103,77,0.4)">
+      <div style="color:var(--coral); font-weight:600; font-size:14px; margin-bottom:6px;">Generation failed</div>
+      <div class="hint" style="margin:0;">${escapeHTML(err.message || 'Something went wrong talking to Gemini.')}</div>
+    </div>`;
+  }finally{
+    btn.disabled = false;
+  }
+}
+
+async function generateBookOutline(title, author, apiKey, model){
+  const prompt = `You are a professional book analyst. A user wants a chapter-by-chapter summary of the book titled "${title}"${author ? ' by ' + author : ''}.
+
+For now, only produce the book's outline — do NOT write chapter summaries yet.
+
+Respond with ONLY valid JSON, no markdown code fences, no commentary, matching exactly this schema:
+{
+  "title": "string - the book's full title",
+  "author": "string - the author's full name",
+  "synopsis": "string - a 3-4 sentence overview of the whole book, its core thesis, and who it's for",
+  "chapters": [
+    { "number": 1, "title": "string - the chapter's actual or descriptive title" }
+  ]
+}
+
+If you are not confident about the book's real chapter structure, construct a reasonable and clearly logical chapter breakdown based on the book's known content and typical structure, using the best available knowledge of this book. Include every chapter or major section you have knowledge of — do not artificially limit the count, but do not fabricate excessive chapters beyond what's reasonable for the book's real length. Respond with ONLY the JSON object.`;
+
+  const parsed = await callGemini(prompt, apiKey, model, 4096);
+  if(!parsed.chapters || !Array.isArray(parsed.chapters) || parsed.chapters.length===0){
+    throw new Error('Gemini did not return a chapter list. Try again, or try a better-known edition/title.');
+  }
+  return parsed;
+}
+
+async function generateChapterSummary(book, chapterIndex, depth, apiKey, model){
+  const chapter = book.chapters[chapterIndex];
+  const depthInstruction = depth === 'deep'
+    ? 'The summary must be thorough and detailed — long enough that a reader who reads ONLY this summary would retain approximately 80-90% of the practical knowledge, arguments, examples, and key takeaways from this specific chapter. Do not just state the topic; explain the actual content, reasoning, evidence, and examples used, across several paragraphs.'
+    : 'The summary should cover the key ideas and main takeaways concisely, in a paragraph or two.';
+
+  const otherTitles = book.chapters.map((c,i)=>`${i+1}. ${c.title}`).join('\n');
+
+  const prompt = `You are a professional book analyst summarizing "${book.title}"${book.author ? ' by ' + book.author : ''}.
+
+Full chapter list for context (so you stay consistent with the book's overall structure and don't repeat content from other chapters):
+${otherTitles}
+
+Now write a detailed summary of ONLY this one chapter:
+Chapter ${chapter.number || (chapterIndex+1)}: "${chapter.title}"
+
+${depthInstruction}
+
+Format the main summary using light markdown for readability: use "## " for a sub-heading if the chapter has distinct sections, "**bold**" for key terms or names, and "- " bullet lines for any lists, frameworks, or steps. Use \\n\\n between paragraphs.
+
+Respond with ONLY valid JSON, no markdown code fences, no commentary, matching exactly this schema:
+{
+  "summary": "string - the detailed chapter summary in lightly-formatted markdown as described above",
+  "quote": "string - the single most representative or striking line, claim, or paraphrased idea from this chapter, written as a short standalone quote-like sentence (do not fabricate this as a verbatim quote from the book; phrase it as the chapter's core idea in a quotable way, under 30 words)",
+  "takeaways": ["string - a short, actionable key takeaway from this chapter", "string - another key takeaway", "string - a third key takeaway"]
+}
+
+"takeaways" must be an array of 3 to 5 short, concrete, practical bullet points (each under 20 words) — the things a reader should remember and could act on. Respond with ONLY the JSON object.`;
+
+  const parsed = await callGemini(prompt, apiKey, model, 4096);
+  if(!parsed.summary) throw new Error('Gemini did not return a summary for this chapter. Try again.');
+  return {
+    summary: parsed.summary,
+    quote: parsed.quote || '',
+    takeaways: Array.isArray(parsed.takeaways) ? parsed.takeaways : []
+  };
+}
+
+async function callGemini(prompt, apiKey, model, maxOutputTokens){
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
+
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: {
+        temperature: 0.4,
+        maxOutputTokens: maxOutputTokens || 8192,
+        responseMimeType: 'application/json'
+      }
+    })
+  });
+
+  if(!res.ok){
+    let msg = `Gemini API error (${res.status})`;
+    try{
+      const errBody = await res.json();
+      if(errBody?.error?.message) msg = errBody.error.message;
+    }catch(e){}
+    if(res.status === 400) msg += ' — check that your API key is correct.';
+    if(res.status === 429) msg += ' — free tier rate limit hit, wait a moment and try again.';
+    if(res.status === 404) msg += ' — this model name may have been retired by Google. Try a different model in Settings.';
+    throw new Error(msg);
+  }
+
+  const data = await res.json();
+  const candidate = data?.candidates?.[0];
+  const finishReason = candidate?.finishReason;
+  const text = candidate?.content?.parts?.map(p=>p.text).join('') || '';
+  if(!text){
+    if(finishReason === 'SAFETY' || finishReason === 'RECITATION'){
+      throw new Error(`Gemini declined to generate this (reason: ${finishReason}). Try a different title/author spelling.`);
+    }
+    throw new Error('Gemini returned an empty response. Try again.');
+  }
+
+  const cleaned = text.trim().replace(/^```json/i,'').replace(/^```/,'').replace(/```$/,'').trim();
+  try{
+    return JSON.parse(cleaned);
+  }catch(e){
+    if(finishReason === 'MAX_TOKENS'){
+      throw new Error('The response was too long and got cut off. Try again — this section will generate on its own.');
+    }
+    throw new Error("Could not parse Gemini's response. Try again — this occasionally happens.");
+  }
+}
+
+/* ---------------- Library ---------------- */
+function renderLibrary(){
+  const q = (document.getElementById('librarySearch').value || '').toLowerCase();
+  const list = document.getElementById('libraryList');
+  let items = [...state.library].sort((a,b)=>b.createdAt-a.createdAt);
+  if(q){
+    items = items.filter(b => b.title.toLowerCase().includes(q) || (b.author||'').toLowerCase().includes(q));
+  }
+  if(items.length===0){
+    list.innerHTML = `<div class="empty-state"><div class="icon">📚</div><p>${state.library.length===0 ? 'Your library is empty.' : 'No matches.'}</p>${state.library.length===0 ? '<p>Generate a summary from the Discover tab to get started.</p>' : ''}</div>`;
+    return;
+  }
+  list.innerHTML = items.map(bookCardHTML).join('');
+}
+
+function exportLibrary(){
+  if(state.library.length===0){ showToast('Library is empty'); return; }
+  const blob = new Blob([JSON.stringify(state.library, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'bookwright-library.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Exported');
+}
+function clearLibrary(){
+  if(!confirm('Delete all saved summaries? This cannot be undone.')) return;
+  state.library = [];
+  saveLibraryToStorage();
+  renderLibrary();
+  renderDashboard();
+  showToast('Library cleared');
+}
+
+/* ---------------- Settings ---------------- */
+function renderSettings(){
+  document.getElementById('apiKeyInput').value = getApiKey();
+  document.getElementById('modelSelect').value = getModel();
+  document.getElementById('keyStatus').innerHTML = '';
+}
+function saveApiKey(){
+  const key = document.getElementById('apiKeyInput').value.trim();
+  const model = document.getElementById('modelSelect').value;
+  if(!key){ showToast('Enter a key first'); return; }
+  localStorage.setItem(LS_KEYS.apiKey, key);
+  localStorage.setItem(LS_KEYS.model, model);
+  showToast('Saved');
+  document.getElementById('keyStatus').innerHTML = '';
+}
+async function testApiKey(){
+  const key = document.getElementById('apiKeyInput').value.trim();
+  const model = document.getElementById('modelSelect').value;
+  const statusEl = document.getElementById('keyStatus');
+  if(!key){ showToast('Enter a key first'); return; }
+  statusEl.innerHTML = `<div class="key-status" style="background:rgba(201,162,39,0.12);color:var(--gold)"><div class="dot"></div>Testing…</div>`;
+  try{
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(key)}`;
+    const res = await fetch(url, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ contents:[{parts:[{text:'Reply with just the word OK.'}]}], generationConfig:{maxOutputTokens:10} })
+    });
+    if(res.ok){
+      statusEl.innerHTML = `<div class="key-status ok"><div class="dot"></div>Key works — connected to ${escapeHTML(model)}</div>`;
+    }else{
+      const body = await res.json().catch(()=>null);
+      statusEl.innerHTML = `<div class="key-status bad"><div class="dot"></div>${escapeHTML(body?.error?.message || 'Key test failed (' + res.status + ')')}</div>`;
+    }
+  }catch(e){
+    statusEl.innerHTML = `<div class="key-status bad"><div class="dot"></div>Network error — check connection</div>`;
+  }
+}
+
+/* ---------------- Reader ---------------- */
+function renderReader(id){
+  const book = state.library.find(b=>b.id===id);
+  const container = document.getElementById('readerContent');
+  if(!book){ container.innerHTML = `<div class="empty-state">Summary not found.</div>`; return; }
+
+  const color = spineColorFor(book.title);
+  const readSet = new Set(book.readChapters || []);
+  const doneCount = book.chapters.filter(c=>c.status==='done').length;
+
+  container.innerHTML = `
+    <button class="btn btn-secondary" style="width:auto; padding:9px 16px; margin-bottom:16px;" onclick="goTo('library')">← Back to Library</button>
+
+    <div class="toc-header">
+      <div class="spine" style="background:${color}">${escapeHTML(initialsFor(book.title))}</div>
+      <div class="toc-header-meta">
+        <div class="toc-header-title">${escapeHTML(book.title)}</div>
+        <div class="toc-header-author">${escapeHTML(book.author || 'Unknown author')}</div>
+        <div class="toc-header-tags">
+          <div class="tag">${book.chapters.length} chapters</div>
+          <div class="tag">${book.depth === 'deep' ? '80–90% depth' : 'standard depth'}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-label">Synopsis</div>
+    <div class="card synopsis-box">${escapeHTML(book.synopsis || 'No synopsis available.')}</div>
+
+    <div class="section-label">Table of contents</div>
+    <p class="hint" style="margin:0 0 12px;">Tap a chapter to generate its detailed summary.</p>
+    <div class="toc-list">
+      ${book.chapters.map((ch,i)=>`
+        <div class="toc-item" id="toc-${book.id}-${i}">
+          <div class="toc-item-head" onclick="toggleChapter('${book.id}', ${i})">
+            <div class="toc-num">${ch.number || (i+1)}</div>
+            <div class="toc-item-title">${escapeHTML(ch.title || 'Chapter ' + (i+1))}</div>
+            ${chapterStatusBadge(ch)}
+            <div class="toc-caret">▾</div>
+          </div>
+          <div class="toc-item-body">
+            <div class="toc-item-body-inner" id="toc-body-${book.id}-${i}">${chapterBodyHTML(ch)}</div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+
+    <div style="height:8px;"></div>
+    <div class="section-label">Export</div>
+    <div class="card">
+      <p class="hint" style="margin-top:0;">${doneCount}/${book.chapters.length} chapters generated${doneCount < book.chapters.length ? ' — ungenerated chapters will be skipped in the export' : ''}.</p>
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="exportMarkdown('${book.id}')" ${doneCount===0?'disabled':''}>⬇ Markdown</button>
+        <button class="btn btn-secondary" onclick="exportPDF('${book.id}')" ${doneCount===0?'disabled':''}>⬇ PDF</button>
+      </div>
+    </div>
+
+    <button class="btn btn-secondary" style="margin-top:20px;" onclick="generateAllChapters('${book.id}')">Generate all remaining chapters</button>
+    <button class="btn btn-danger" style="margin-top:10px;" onclick="deleteBook('${book.id}')">Delete this summary</button>
+  `;
+}
+
+function chapterStatusBadge(ch){
+  if(ch.status === 'loading') return `<div class="tag" style="color:var(--gold); border-color:rgba(201,162,39,0.4)">generating…</div>`;
+  if(ch.status === 'error') return `<div class="tag" style="color:var(--coral); border-color:rgba(224,103,77,0.4)">retry</div>`;
+  if(ch.status === 'done') return '';
+  return `<div class="tag">tap to generate</div>`;
+}
+
+function chapterBodyHTML(ch){
+  if(ch.status === 'done') return formatSummary(ch.summary) + quoteCalloutHTML(ch.quote) + takeawaysCalloutHTML(ch.takeaways);
+  if(ch.status === 'loading') return `<div style="display:flex;align-items:center;gap:10px;color:var(--ink-text-dim);font-size:13px;padding:6px 0;">
+      <div class="book-spinner" style="width:22px;height:28px;margin:0;"><div class="book-base"></div><div class="page-flip"></div></div>
+      Writing this chapter's summary…
+    </div>`;
+  if(ch.status === 'error') return `<div style="color:var(--coral); font-size:13.5px;">${escapeHTML(ch.errorMsg || 'Generation failed.')} Tap the chapter again to retry.</div>`;
+  return `<p style="color:var(--ink-text-dim);">Not generated yet — tap this chapter to write its summary.</p>`;
+}
+
+function formatSummary(text){
+  if(!text) return '<p>No content.</p>';
+  const blocks = text.trim().split(/\n\n+/);
+  let html = '';
+  let inList = false;
+
+  const closeList = () => { if(inList){ html += '</ul>'; inList = false; } };
+  const inlineFormat = (s) => escapeHTML(s).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+
+  for(const block of blocks){
+    const lines = block.split('\n').map(l=>l.trim()).filter(Boolean);
+    for(const line of lines){
+      if(/^##\s+/.test(line)){
+        closeList();
+        html += `<h4 class="summary-heading">${inlineFormat(line.replace(/^##\s+/,''))}</h4>`;
+      }else if(/^[-•]\s+/.test(line)){
+        if(!inList){ html += '<ul class="summary-list">'; inList = true; }
+        html += `<li>${inlineFormat(line.replace(/^[-•]\s+/,''))}</li>`;
+      }else{
+        closeList();
+        html += `<p>${inlineFormat(line)}</p>`;
+      }
+    }
+  }
+  closeList();
+  return html;
+}
+
+function quoteCalloutHTML(quote){
+  if(!quote) return '';
+  return `<div class="callout callout-quote">
+    <div class="callout-icon">❝</div>
+    <div class="callout-text">${escapeHTML(quote)}</div>
+  </div>`;
+}
+
+function takeawaysCalloutHTML(takeaways){
+  if(!takeaways || takeaways.length === 0) return '';
+  return `<div class="callout callout-takeaways">
+    <div class="callout-label">✦ Key takeaways</div>
+    <ul class="callout-takeaway-list">
+      ${takeaways.map(t=>`<li>${escapeHTML(t)}</li>`).join('')}
+    </ul>
+  </div>`;
+}
+
+function toggleChapter(bookId, idx){
+  const el = document.getElementById(`toc-${bookId}-${idx}`);
+  const wasOpen = el.classList.contains('open');
+  el.classList.toggle('open');
+
+  const book = state.library.find(b=>b.id===bookId);
+  if(!book) return;
+  const ch = book.chapters[idx];
+
+  // Mark as read once opened (for progress tracking) regardless of generation state
+  book.readChapters = book.readChapters || [];
+  if(!book.readChapters.includes(idx)){
+    book.readChapters.push(idx);
+    book.progress = Math.round((book.readChapters.length / book.chapters.length) * 100);
+    saveLibraryToStorage();
+  }
+
+  // Trigger generation if opening and not yet done/loading
+  if(!wasOpen && (ch.status === 'pending' || ch.status === 'error' || !ch.status)){
+    generateSingleChapter(bookId, idx);
+  }
+}
+
+async function generateSingleChapter(bookId, idx){
+  const book = state.library.find(b=>b.id===bookId);
+  if(!book) return;
+  const ch = book.chapters[idx];
+  const key = getApiKey();
+  if(!key){ showToast('Add your Gemini API key in Settings'); return; }
+
+  ch.status = 'loading';
+  saveLibraryToStorage();
+  refreshChapterUI(bookId, idx);
+
+  try{
+    const result = await generateChapterSummary(book, idx, book.depth, key, getModel());
+    ch.summary = result.summary;
+    ch.quote = result.quote;
+    ch.takeaways = result.takeaways;
+    ch.status = 'done';
+  }catch(err){
+    console.error(err);
+    ch.status = 'error';
+    ch.errorMsg = err.message || 'Generation failed.';
+  }
+  saveLibraryToStorage();
+  refreshChapterUI(bookId, idx);
+  renderDashboard();
+}
+
+function refreshChapterUI(bookId, idx){
+  const book = state.library.find(b=>b.id===bookId);
+  if(!book || state.activeReaderId !== bookId) return;
+  const ch = book.chapters[idx];
+  const item = document.getElementById(`toc-${bookId}-${idx}`);
+  if(!item) return;
+  const badgeHolder = item.querySelector('.toc-item-head');
+  const oldBadge = badgeHolder.querySelector('.tag');
+  if(oldBadge) oldBadge.remove();
+  const caret = badgeHolder.querySelector('.toc-caret');
+  const badgeHTML = chapterStatusBadge(ch);
+  if(badgeHTML) caret.insertAdjacentHTML('beforebegin', badgeHTML);
+  const bodyEl = document.getElementById(`toc-body-${bookId}-${idx}`);
+  if(bodyEl) bodyEl.innerHTML = chapterBodyHTML(ch);
+}
+
+async function generateAllChapters(bookId){
+  const book = state.library.find(b=>b.id===bookId);
+  if(!book) return;
+  const key = getApiKey();
+  if(!key){ goTo('settings'); showToast('Add your Gemini API key first'); return; }
+
+  const pending = book.chapters
+    .map((ch,i)=>({ch,i}))
+    .filter(x => x.ch.status !== 'done' && x.ch.status !== 'loading');
+
+  if(pending.length===0){ showToast('All chapters already generated'); return; }
+  showToast(`Generating ${pending.length} chapter${pending.length>1?'s':''}…`);
+
+  for(const {i} of pending){
+    // Open the accordion so the user can watch progress, then generate sequentially
+    const el = document.getElementById(`toc-${bookId}-${i}`);
+    if(el && !el.classList.contains('open')) el.classList.add('open');
+    await generateSingleChapter(bookId, i);
+  }
+  showToast('All chapters generated');
+}
+
+function deleteBook(id){
+  if(!confirm('Delete this summary?')) return;
+  state.library = state.library.filter(b=>b.id!==id);
+  saveLibraryToStorage();
+  goTo('library');
+  showToast('Deleted');
+}
+
+/* ---------------- Export ---------------- */
+function bookToMarkdown(book){
+  let md = `# ${book.title}\n\n`;
+  if(book.author) md += `*by ${book.author}*\n\n`;
+  if(book.synopsis) md += `> ${book.synopsis}\n\n`;
+  md += `---\n\n`;
+
+  book.chapters.forEach((ch,i)=>{
+    if(ch.status !== 'done') return;
+    md += `## ${ch.number || (i+1)}. ${ch.title}\n\n`;
+    md += `${(ch.summary||'').replace(/^##\s+/gm, '### ')}\n\n`;
+    if(ch.quote) md += `> ❝ ${ch.quote}\n\n`;
+    if(ch.takeaways && ch.takeaways.length){
+      md += `**Key takeaways:**\n\n`;
+      ch.takeaways.forEach(t => md += `- ${t}\n`);
+      md += `\n`;
+    }
+    md += `---\n\n`;
+  });
+
+  md += `\n*Generated with Bookwright. AI-generated summary — use as a study aid, not a verified substitute for the source text.*\n`;
+  return md;
+}
+
+function exportMarkdown(bookId){
+  const book = state.library.find(b=>b.id===bookId);
+  if(!book) return;
+  const md = bookToMarkdown(book);
+  const blob = new Blob([md], {type:'text/markdown'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${slugify(book.title)}-summary.md`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Markdown downloaded');
+}
+
+function exportPDF(bookId){
+  const book = state.library.find(b=>b.id===bookId);
+  if(!book) return;
+
+  const printWindow = window.open('', '_blank');
+  if(!printWindow){ showToast('Allow pop-ups to export PDF'); return; }
+
+  const chaptersHTML = book.chapters
+    .filter(ch => ch.status === 'done')
+    .map((ch,i) => `
+      <div class="pdf-chapter">
+        <h2>${ch.number || (i+1)}. ${escapeHTML(ch.title)}</h2>
+        <div class="pdf-body">${formatSummary(ch.summary)}</div>
+        ${ch.quote ? `<div class="pdf-quote">❝ ${escapeHTML(ch.quote)}</div>` : ''}
+        ${ch.takeaways && ch.takeaways.length ? `
+          <div class="pdf-takeaways">
+            <div class="pdf-takeaways-label">Key takeaways</div>
+            <ul>${ch.takeaways.map(t=>`<li>${escapeHTML(t)}</li>`).join('')}</ul>
+          </div>` : ''}
+      </div>
+    `).join('');
+
+  printWindow.document.write(`<!DOCTYPE html>
+  <html><head><meta charset="UTF-8"><title>${escapeHTML(book.title)} — Summary</title>
+  <style>
+    @page{ margin: 2.2cm 2cm; }
+    body{ font-family: Georgia, 'Times New Roman', serif; color:#1B2430; line-height:1.6; max-width:720px; margin:0 auto; padding: 20px 10px; }
+    h1{ font-size:28px; margin-bottom:4px; }
+    .author{ color:#666; font-style:italic; margin-bottom:20px; font-size:15px; }
+    .synopsis{ background:#F7F3E9; border-left:3px solid #C9A227; padding:14px 18px; font-size:14px; color:#333; margin-bottom:30px; }
+    .pdf-chapter{ margin-bottom:34px; page-break-inside: avoid; }
+    h2{ font-size:19px; border-bottom:1px solid #ddd; padding-bottom:6px; margin-bottom:12px; }
+    .pdf-body p{ margin:0 0 10px; font-size:13.5px; }
+    .pdf-body h4{ font-size:14.5px; margin:14px 0 6px; }
+    .pdf-body ul{ margin:0 0 10px; padding-left:20px; }
+    .pdf-body li{ font-size:13.5px; margin-bottom:4px; }
+    .pdf-body strong{ color:#8a6d16; }
+    .pdf-quote{ font-style:italic; color:#8a6d16; border-left:3px solid #C9A227; padding:10px 16px; margin:14px 0; font-size:13.5px; background:#FBF8F0; }
+    .pdf-takeaways{ background:#F0F5F1; border-left:3px solid #6B8F71; padding:12px 16px; margin-top:12px; }
+    .pdf-takeaways-label{ font-size:11px; text-transform:uppercase; letter-spacing:0.05em; color:#4a6b50; font-weight:bold; margin-bottom:7px; }
+    .pdf-takeaways ul{ margin:0; padding-left:18px; }
+    .pdf-takeaways li{ font-size:13px; margin-bottom:5px; }
+    .pdf-footer{ margin-top:40px; font-size:11px; color:#999; text-align:center; border-top:1px solid #eee; padding-top:14px; }
+    @media print{ body{ padding:0; } }
+  </style></head>
+  <body>
+    <h1>${escapeHTML(book.title)}</h1>
+    ${book.author ? `<div class="author">by ${escapeHTML(book.author)}</div>` : ''}
+    ${book.synopsis ? `<div class="synopsis">${escapeHTML(book.synopsis)}</div>` : ''}
+    ${chaptersHTML}
+    <div class="pdf-footer">Generated with Bookwright — AI-generated summary. Use as a study aid, not a verified substitute for the source text.</div>
+  </body></html>`);
+  printWindow.document.close();
+
+  printWindow.onload = () => {
+    setTimeout(() => { printWindow.print(); }, 300);
+  };
+  showToast('Opening print dialog — choose "Save as PDF"');
+}
+
+function slugify(str){
+  return String(str).toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,60) || 'summary';
+}
+
+/* ---------------- Utils ---------------- */
+function escapeHTML(str){
+  return String(str ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+function escapeAttr(str){
+  return String(str ?? '').replace(/'/g, "\\'");
+}
+
+/* ---------------- Init ---------------- */
+renderDashboard();
+</script>
+</body>
+</html>
