@@ -14,5 +14,33 @@
       "type": "image/svg+xml",
       "purpose": "any maskable"
     }
+  ],
+  "shortcuts": [
+    {
+      "name": "Generate Summary",
+      "short_name": "Discover",
+      "description": "Generate a new book summary",
+      "url": "./index.html#discover",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231B2430'/%3E%3Ccircle cx='32' cy='32' r='18' stroke='%23E0BC3F' stroke-width='4' fill='none'/%3E%3Cpath d='M44 44l10 10' stroke='%23E0BC3F' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E",
+          "sizes": "192x192",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "My Library",
+      "short_name": "Library",
+      "description": "View saved book summaries",
+      "url": "./index.html#library",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231B2430'/%3E%3Cpath d='M16 16h32v32H16z' fill='none' stroke='%23E0BC3F' stroke-width='4'/%3E%3C/svg%3E",
+          "sizes": "192x192",
+          "type": "image/svg+xml"
+        }
+      ]
+    }
   ]
 }
