@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>BookNip — Chapter Summaries</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231B2430'/%3E%3Cpath d='M32 14c-6-4-14-4-20 0v32c6-4 14-4 20 0V14z' fill='%23E0BC3F'/%3E%3Cpath d='M32 14c6-4 14-4 20 0v32c-6-4-14-4-20 0V14z' fill='%23C9A227'/%3E%3Cpath d='M32 14v32' stroke='%231B2430' stroke-width='1.5' opacity='0.4'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -25,6 +26,7 @@
     --font-display: 'Lora', Georgia, serif;
     --font-body: 'Inter', system-ui, -apple-system, sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
+    --reader-font-size: 14px;
   }
 
   *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
@@ -150,15 +152,24 @@
   .book-card:active{ transform: scale(0.98); }
   .book-card:hover{ border-color: rgba(201,162,39,0.4); }
   .spine{
-    width:44px; min-width:44px; border-radius:6px;
+    width:44px; min-width:44px; height:64px;
+    border-radius:6px;
+    overflow:hidden;
+    position:relative;
+    box-shadow: inset -2px 0 0 rgba(0,0,0,0.15), inset 2px 0 0 rgba(255,255,255,0.08);
+  }
+  .spine-fallback{
+    width:20%; height:20%;
     display:flex; align-items:center; justify-content:center;
     font-family:var(--font-display); font-weight:700; font-size:15px;
     color: rgba(255,255,255,0.92);
     text-shadow: 0 1px 2px rgba(0,0,0,0.3);
     writing-mode: vertical-rl;
     padding:8px 0;
-    box-shadow: inset -2px 0 0 rgba(0,0,0,0.15), inset 2px 0 0 rgba(255,255,255,0.08);
   }
+  .spine-cover-wrap{ display:flex; align-items:center; justify-content:center; }
+  .spine-cover-img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .spine-lg{ width:50px; min-width:50px; height:70px; }
   .book-meta{ flex:1; min-width:0; display:flex; flex-direction:column; justify-content:center; }
   .book-title{ font-family:var(--font-display); font-weight:700; font-size:16px; color:var(--paper); line-height:1.25; }
   .book-author{ font-size:12.5px; color:var(--ink-text-dim); margin-top:2px; }
@@ -167,6 +178,14 @@
   .progress-fill{ height:100%; background: linear-gradient(90deg, var(--gold), var(--gold-bright)); border-radius:2px; }
   .progress-text{ font-size:10px; color:var(--ink-text-dim); font-family:var(--font-mono); }
   .book-chevron{ align-self:center; color:var(--ink-text-dim); font-size:18px; }
+  .fav-btn{
+    align-self:center;
+    background:none; border:none;
+    font-size:19px; color: var(--ink-text-dim);
+    cursor:pointer; padding:4px 2px;
+    line-height:1;
+  }
+  .fav-btn.active{ color: var(--gold-bright); }
 
   .empty-state{
     text-align:center; padding: 40px 20px;
@@ -280,6 +299,31 @@
   .loading-sub{ font-size:12.5px; color:var(--ink-text-dim); margin-top:8px; }
 
   /* ---------- TOC / Chapter accordion (signature element) ---------- */
+  .icon-btn{
+    background: var(--ink-3);
+    border:1px solid var(--line);
+    color: var(--paper);
+    width:38px; height:38px;
+    border-radius:10px;
+    font-size:14px; font-weight:600;
+    cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .icon-btn.active{ color: var(--gold-bright); border-color: rgba(201,162,39,0.4); }
+
+  .font-control{
+    display:flex; align-items:center; gap:10px;
+    background: var(--ink-2);
+    border:1px solid var(--line);
+    border-radius: var(--radius);
+    padding:12px 16px;
+    margin-bottom:18px;
+  }
+  .font-control-label{ color: var(--ink-text-dim); font-size:11px; font-family:var(--font-display); flex-shrink:0; }
+  .font-control input[type="range"]{
+    flex:1; accent-color: var(--gold);
+  }
+
   .toc-header{
     display:flex; align-items:flex-start; gap:14px;
     background: var(--ink-2);
@@ -288,7 +332,6 @@
     padding:16px;
     margin-bottom:18px;
   }
-  .toc-header .spine{ width:50px; min-width:50px; height:70px; }
   .toc-header-meta{ flex:1; min-width:0; }
   .toc-header-title{ font-family:var(--font-display); font-weight:700; font-size:18px; color:var(--paper); line-height:1.3; }
   .toc-header-author{ font-size:13px; color:var(--ink-text-dim); margin-top:3px; }
@@ -296,6 +339,10 @@
   .tag{ font-size:10px; font-family:var(--font-mono); text-transform:uppercase; letter-spacing:0.05em; color:var(--sage); border:1px solid rgba(107,143,113,0.35); padding:3px 8px; border-radius:5px; }
 
   .toc-list{ border:1px solid var(--line); border-radius: var(--radius); overflow:hidden; }
+  .toc-progress{ display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+  .toc-progress-track{ flex:1; height:5px; background:var(--ink-3); border-radius:3px; overflow:hidden; }
+  .toc-progress-fill{ height:100%; background: linear-gradient(90deg, var(--sage), #8bb392); border-radius:3px; transition: width .3s ease; }
+  .toc-progress-text{ font-size:10.5px; color:var(--ink-text-dim); font-family:var(--font-mono); white-space:nowrap; }
   .toc-item{ border-bottom:1px solid var(--line); }
   .toc-item:last-child{ border-bottom:none; }
   .toc-item-head{
@@ -324,11 +371,14 @@
   .toc-item.open .toc-item-body{ max-height:20000px; }
   .toc-item-body-inner{
     padding: 4px 18px 20px 53px;
-    font-size:14px; line-height:1.7;
+    font-size: var(--reader-font-size); line-height:1.7;
     color: var(--ink-text);
   }
   .toc-item-body-inner p{ margin:0 0 12px; }
   .toc-item-body-inner strong{ color: var(--gold-bright); font-weight:600; }
+  .toc-item-body-inner .summary-list li{ font-size: var(--reader-font-size); }
+  .toc-item-body-inner .callout-text{ font-size: calc(var(--reader-font-size) + 0.5px); }
+  .toc-item-body-inner .callout-takeaway-list li{ font-size: calc(var(--reader-font-size) - 0.5px); }
 
   .summary-heading{
     font-family:var(--font-display);
@@ -376,6 +426,18 @@
     margin-bottom:7px;
   }
   .callout-takeaway-list li::marker{ color: var(--sage); }
+
+  .chapter-actions{ display:flex; gap:8px; margin-top:16px; flex-wrap:wrap; }
+  .regen-btn{
+    width:auto !important;
+    flex:none !important;
+    display:inline-flex !important;
+    margin-top:0 !important;
+    padding:8px 14px !important;
+    font-size:12.5px !important;
+    font-weight:600 !important;
+  }
+  .regen-btn.speaking{ color: var(--gold-bright); border-color: rgba(201,162,39,0.4); }
 
   .synopsis-box{
     font-size:14px; line-height:1.65; color: var(--ink-text-dim);
@@ -476,6 +538,9 @@
     <div class="section-label">Continue reading</div>
     <div id="continueList"></div>
 
+    <div class="section-label" id="favoritesSection" style="display:none;">Favorites</div>
+    <div id="favoritesList"></div>
+
     <div class="section-label">Recently added</div>
     <div id="recentList"></div>
 
@@ -562,6 +627,10 @@
         <p class="hint" style="margin-top:0; margin-bottom:14px;">All summaries and your API key live in this browser's local storage only. Nothing is sent anywhere except directly to Google's Gemini API when generating.</p>
         <div class="btn-row">
           <button class="btn btn-secondary" onclick="exportLibrary()">Export library</button>
+          <button class="btn btn-secondary" onclick="document.getElementById('importFileInput').click()">Import library</button>
+        </div>
+        <input type="file" id="importFileInput" accept="application/json,.json" style="display:none;" onchange="handleImportFile(event)">
+        <div class="btn-row" style="margin-top:10px;">
           <button class="btn btn-danger" onclick="clearLibrary()">Clear all data</button>
         </div>
       </div>
@@ -612,8 +681,19 @@
 const LS_KEYS = {
   apiKey: 'bw_gemini_api_key',
   model: 'bw_gemini_model',
-  library: 'bw_library_v1'
+  library: 'bw_library_v1',
+  fontSize: 'bw_font_size'
 };
+
+function getFontSize(){ return parseInt(localStorage.getItem(LS_KEYS.fontSize) || '14', 10); }
+function setFontSize(px){
+  localStorage.setItem(LS_KEYS.fontSize, px);
+  document.documentElement.style.setProperty('--reader-font-size', px + 'px');
+}
+function openFontControl(bookId){
+  const el = document.getElementById(`fontControl-${bookId}`);
+  if(el) el.style.display = el.style.display === 'none' ? 'flex' : 'none';
+}
 
 const SPINE_COLORS = ['#8a3b2e','#2e5b47','#3d4f7a','#7a5a2e','#5b2e5f','#2e6b6e','#7a2e3f','#4f5b2e'];
 
@@ -645,8 +725,40 @@ function initialsFor(title){
   return title.trim().split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
 }
 
+/* Renders a cover image if the book has one cached, falling back to the
+   generated spine tile on load error or when no cover was found. */
+function coverHTML(book, sizeClass){
+  const color = spineColorFor(book.title);
+  const cls = sizeClass ? `spine ${sizeClass}` : 'spine';
+  const fallback = `<div class="${cls} spine-fallback" style="background:${color}">${escapeHTML(initialsFor(book.title))}</div>`;
+  if(!book.coverUrl) return fallback;
+  return `<div class="${cls} spine-cover-wrap" style="background:${color}">
+    <img src="${escapeAttr(book.coverUrl)}" alt="" class="spine-cover-img"
+         onerror="this.parentElement.outerHTML = ${JSON.stringify(fallback)};">
+  </div>`;
+}
+
+async function fetchCoverUrl(title, author){
+  try{
+    const q = encodeURIComponent(`intitle:${title}${author ? ' inauthor:' + author : ''}`);
+    const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${q}&maxResults=1`);
+    if(!res.ok) return null;
+    const data = await res.json();
+    const item = data?.items?.[0];
+    let thumb = item?.volumeInfo?.imageLinks?.thumbnail || item?.volumeInfo?.imageLinks?.smallThumbnail;
+    if(!thumb) return null;
+    // Use https and request a slightly larger image where supported
+    thumb = thumb.replace('http://','https://').replace('zoom=1','zoom=2');
+    return thumb;
+  }catch(e){
+    return null;
+  }
+}
+
 /* ---------------- Navigation ---------------- */
 function goTo(page){
+  if('speechSynthesis' in window) window.speechSynthesis.cancel();
+  resetTtsButton();
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+page).classList.add('active');
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active', b.dataset.page===page));
@@ -662,6 +774,7 @@ function goTo(page){
 
 function openReader(id){
   state.activeReaderId = id;
+  state.currentPage = 'reader';
   renderReader(id);
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-reader').classList.add('active');
@@ -695,6 +808,15 @@ function renderDashboard(){
     continueList.innerHTML = inProgress.slice(0,4).map(bookCardHTML).join('');
   }
 
+  const favSection = document.getElementById('favoritesSection');
+  const favorites = lib.filter(b=>b.favorite);
+  if(favorites.length===0){
+    favSection.style.display = 'none';
+  }else{
+    favSection.style.display = '';
+    document.getElementById('favoritesList').innerHTML = favorites.slice(0,4).map(bookCardHTML).join('');
+  }
+
   const recentList = document.getElementById('recentList');
   if(lib.length===0){
     recentList.innerHTML = `<div class="empty-state"><div class="icon">✦</div><p>No summaries yet.</p><p>Head to Discover to generate your first one.</p></div>`;
@@ -705,11 +827,10 @@ function renderDashboard(){
 }
 
 function bookCardHTML(book){
-  const color = spineColorFor(book.title);
   const pct = book.progress || 0;
   return `
   <div class="book-card" onclick="openReader('${book.id}')">
-    <div class="spine" style="background:${color}">${escapeHTML(initialsFor(book.title))}</div>
+    ${coverHTML(book)}
     <div class="book-meta">
       <div class="book-title">${escapeHTML(book.title)}</div>
       <div class="book-author">${escapeHTML(book.author||'Unknown author')}</div>
@@ -718,8 +839,21 @@ function bookCardHTML(book){
         <div class="progress-text">${pct}%</div>
       </div>
     </div>
+    <button class="fav-btn ${book.favorite?'active':''}" onclick="event.stopPropagation(); toggleFavorite('${book.id}')" aria-label="Favorite">${book.favorite ? '★' : '☆'}</button>
     <div class="book-chevron">›</div>
   </div>`;
+}
+
+function toggleFavorite(bookId){
+  const book = state.library.find(b=>b.id===bookId);
+  if(!book) return;
+  book.favorite = !book.favorite;
+  saveLibraryToStorage();
+  if(state.currentPage==='dashboard') renderDashboard();
+  if(state.currentPage==='library') renderLibrary();
+  if(state.currentPage==='reader' && state.activeReaderId===bookId){
+    renderReader(bookId);
+  }
 }
 
 /* ---------------- Discover ---------------- */
@@ -780,7 +914,10 @@ async function startGeneration(){
   }, 2500);
 
   try{
-    const outline = await generateBookOutline(title, author, key, getModel());
+    const [outline, coverUrl] = await Promise.all([
+      generateBookOutline(title, author, key, getModel()),
+      fetchCoverUrl(title, author)
+    ]);
     clearInterval(stageInterval);
 
     const book = {
@@ -788,6 +925,7 @@ async function startGeneration(){
       title: outline.title || title,
       author: outline.author || author,
       synopsis: outline.synopsis || '',
+      coverUrl: coverUrl || null,
       chapters: outline.chapters.map(ch => ({
         number: ch.number,
         title: ch.title,
@@ -955,6 +1093,67 @@ function exportLibrary(){
   URL.revokeObjectURL(url);
   showToast('Exported');
 }
+
+function handleImportFile(event){
+  const file = event.target.files && event.target.files[0];
+  event.target.value = ''; // reset so the same file can be re-selected later
+  if(!file) return;
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    let imported;
+    try{
+      imported = JSON.parse(reader.result);
+    }catch(e){
+      showToast("That file isn't valid JSON");
+      return;
+    }
+    if(!Array.isArray(imported)){
+      showToast('Unrecognized file format');
+      return;
+    }
+    const validBooks = imported.filter(b => b && typeof b === 'object' && b.id && b.title && Array.isArray(b.chapters));
+    if(validBooks.length === 0){
+      showToast('No valid books found in that file');
+      return;
+    }
+
+    if(state.library.length === 0){
+      state.library = validBooks;
+      saveLibraryToStorage();
+      finishImport(validBooks.length, 0);
+      return;
+    }
+
+    const replaceAll = confirm(
+      `Found ${validBooks.length} book${validBooks.length>1?'s':''} in this file.\n\nOK = Merge with your current library (skips duplicates)\nCancel = Replace your current library entirely`
+    );
+
+    if(replaceAll){
+      const existingIds = new Set(state.library.map(b=>b.id));
+      const newOnes = validBooks.filter(b=>!existingIds.has(b.id));
+      state.library = [...newOnes, ...state.library];
+      saveLibraryToStorage();
+      finishImport(newOnes.length, validBooks.length - newOnes.length);
+    }else{
+      state.library = validBooks;
+      saveLibraryToStorage();
+      finishImport(validBooks.length, 0);
+    }
+  };
+  reader.onerror = () => showToast('Could not read that file');
+  reader.readAsText(file);
+}
+
+function finishImport(addedCount, skippedCount){
+  renderLibrary();
+  renderDashboard();
+  if(state.currentPage === 'settings') renderSettings();
+  let msg = `Imported ${addedCount} book${addedCount!==1?'s':''}`;
+  if(skippedCount>0) msg += ` (${skippedCount} duplicate${skippedCount!==1?'s':''} skipped)`;
+  showToast(msg);
+}
+
 function clearLibrary(){
   if(!confirm('Delete all saved summaries? This cannot be undone.')) return;
   state.library = [];
@@ -1003,21 +1202,87 @@ async function testApiKey(){
   }
 }
 
+/* ---------------- Text-to-speech ---------------- */
+let currentUtterance = null;
+let currentSpeakingBtnId = null;
+
+function stripMarkdownForSpeech(text){
+  return String(text||'')
+    .replace(/^##\s+/gm, '')
+    .replace(/\*\*(.+?)\*\*/g, '$1')
+    .replace(/^[-•]\s+/gm, '')
+    .replace(/\n+/g, '. ');
+}
+
+function toggleListen(bookId, idx){
+  if(!('speechSynthesis' in window)){
+    showToast("Text-to-speech isn't supported in this browser");
+    return;
+  }
+  const btnId = `tts-${bookId}-${idx}`;
+  const btn = document.getElementById(btnId);
+
+  // If this chapter is already speaking, stop it
+  if(currentSpeakingBtnId === btnId){
+    window.speechSynthesis.cancel();
+    resetTtsButton();
+    return;
+  }
+
+  // Stop any other chapter currently speaking first
+  window.speechSynthesis.cancel();
+  resetTtsButton();
+
+  const book = state.library.find(b=>b.id===bookId);
+  if(!book) return;
+  const ch = book.chapters[idx];
+  if(!ch || ch.status !== 'done') return;
+
+  let text = `${ch.title}. ${stripMarkdownForSpeech(ch.summary)}`;
+  if(ch.quote) text += ` Key idea: ${ch.quote}`;
+  if(ch.takeaways && ch.takeaways.length) text += ` Key takeaways: ${ch.takeaways.join('. ')}`;
+
+  const utt = new SpeechSynthesisUtterance(text);
+  utt.rate = 1;
+  utt.onend = resetTtsButton;
+  utt.onerror = resetTtsButton;
+  currentUtterance = utt;
+  currentSpeakingBtnId = btnId;
+  if(btn){ btn.textContent = '⏸ Stop'; btn.classList.add('speaking'); }
+  window.speechSynthesis.speak(utt);
+}
+
+function resetTtsButton(){
+  if(currentSpeakingBtnId){
+    const btn = document.getElementById(currentSpeakingBtnId);
+    if(btn){ btn.textContent = '🔊 Listen'; btn.classList.remove('speaking'); }
+  }
+  currentSpeakingBtnId = null;
+  currentUtterance = null;
+}
+
 /* ---------------- Reader ---------------- */
 function renderReader(id){
   const book = state.library.find(b=>b.id===id);
   const container = document.getElementById('readerContent');
   if(!book){ container.innerHTML = `<div class="empty-state">Summary not found.</div>`; return; }
 
-  const color = spineColorFor(book.title);
   const readSet = new Set(book.readChapters || []);
   const doneCount = book.chapters.filter(c=>c.status==='done').length;
+  const totalCount = book.chapters.length;
+  const progressPct = totalCount ? Math.round((doneCount/totalCount)*100) : 0;
 
   container.innerHTML = `
-    <button class="btn btn-secondary" style="width:auto; padding:9px 16px; margin-bottom:16px;" onclick="goTo('library')">← Back to Library</button>
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:16px;">
+      <button class="btn btn-secondary" style="width:auto; padding:9px 16px;" onclick="goTo('library')">← Back to Library</button>
+      <div style="display:flex; gap:8px;">
+        <button class="icon-btn" onclick="openFontControl('${book.id}')" aria-label="Font size">Aa</button>
+        <button class="icon-btn ${book.favorite?'active':''}" id="readerFavBtn2" onclick="toggleFavorite('${book.id}')" aria-label="Favorite">${book.favorite ? '★' : '☆'}</button>
+      </div>
+    </div>
 
     <div class="toc-header">
-      <div class="spine" style="background:${color}">${escapeHTML(initialsFor(book.title))}</div>
+      ${coverHTML(book, 'spine-lg')}
       <div class="toc-header-meta">
         <div class="toc-header-title">${escapeHTML(book.title)}</div>
         <div class="toc-header-author">${escapeHTML(book.author || 'Unknown author')}</div>
@@ -1028,10 +1293,20 @@ function renderReader(id){
       </div>
     </div>
 
+    <div class="font-control" id="fontControl-${book.id}" style="display:none;">
+      <span class="font-control-label">A</span>
+      <input type="range" min="13" max="20" step="1" value="${getFontSize()}" oninput="setFontSize(this.value)">
+      <span class="font-control-label" style="font-size:18px;">A</span>
+    </div>
+
     <div class="section-label">Synopsis</div>
     <div class="card synopsis-box">${escapeHTML(book.synopsis || 'No synopsis available.')}</div>
 
     <div class="section-label">Table of contents</div>
+    <div class="toc-progress" id="tocProgress-${book.id}">
+      <div class="toc-progress-track"><div class="toc-progress-fill" style="width:${progressPct}%"></div></div>
+      <div class="toc-progress-text" id="tocProgressText-${book.id}">${doneCount}/${totalCount} chapters generated</div>
+    </div>
     <p class="hint" style="margin:0 0 12px;">Tap a chapter to generate its detailed summary.</p>
     <div class="toc-list">
       ${book.chapters.map((ch,i)=>`
@@ -1043,7 +1318,7 @@ function renderReader(id){
             <div class="toc-caret">▾</div>
           </div>
           <div class="toc-item-body">
-            <div class="toc-item-body-inner" id="toc-body-${book.id}-${i}">${chapterBodyHTML(ch)}</div>
+            <div class="toc-item-body-inner" id="toc-body-${book.id}-${i}">${chapterBodyHTML(ch, book.id, i)}</div>
           </div>
         </div>
       `).join('')}
@@ -1071,8 +1346,15 @@ function chapterStatusBadge(ch){
   return `<div class="tag">tap to generate</div>`;
 }
 
-function chapterBodyHTML(ch){
-  if(ch.status === 'done') return formatSummary(ch.summary) + quoteCalloutHTML(ch.quote) + takeawaysCalloutHTML(ch.takeaways);
+function chapterBodyHTML(ch, bookId, idx){
+  if(ch.status === 'done'){
+    const ttsId = `tts-${bookId}-${idx}`;
+    return formatSummary(ch.summary) + quoteCalloutHTML(ch.quote) + takeawaysCalloutHTML(ch.takeaways) +
+      `<div class="chapter-actions">
+        <button class="btn btn-secondary regen-btn" onclick="event.stopPropagation(); regenerateChapter('${bookId}', ${idx})">↻ Regenerate</button>
+        <button class="btn btn-secondary regen-btn" id="${ttsId}" onclick="event.stopPropagation(); toggleListen('${bookId}', ${idx})">🔊 Listen</button>
+      </div>`;
+  }
   if(ch.status === 'loading') return `<div style="display:flex;align-items:center;gap:10px;color:var(--ink-text-dim);font-size:13px;padding:6px 0;">
       <div class="book-spinner" style="width:22px;height:28px;margin:0;"><div class="book-base"></div><div class="page-flip"></div></div>
       Writing this chapter's summary…
@@ -1190,7 +1472,26 @@ function refreshChapterUI(bookId, idx){
   const badgeHTML = chapterStatusBadge(ch);
   if(badgeHTML) caret.insertAdjacentHTML('beforebegin', badgeHTML);
   const bodyEl = document.getElementById(`toc-body-${bookId}-${idx}`);
-  if(bodyEl) bodyEl.innerHTML = chapterBodyHTML(ch);
+  if(bodyEl) bodyEl.innerHTML = chapterBodyHTML(ch, bookId, idx);
+
+  // Refresh progress bar
+  const doneCount = book.chapters.filter(c=>c.status==='done').length;
+  const total = book.chapters.length;
+  const pct = total ? Math.round((doneCount/total)*100) : 0;
+  const fill = document.querySelector(`#tocProgress-${bookId} .toc-progress-fill`);
+  const text = document.getElementById(`tocProgressText-${bookId}`);
+  if(fill) fill.style.width = pct + '%';
+  if(text) text.textContent = `${doneCount}/${total} chapters generated`;
+
+  // Refresh export button enabled state
+  const mdBtn = document.querySelector(`button[onclick="exportMarkdown('${bookId}')"]`);
+  const pdfBtn = document.querySelector(`button[onclick="exportPDF('${bookId}')"]`);
+  if(mdBtn) mdBtn.disabled = doneCount === 0;
+  if(pdfBtn) pdfBtn.disabled = doneCount === 0;
+}
+
+function regenerateChapter(bookId, idx){
+  generateSingleChapter(bookId, idx);
 }
 
 async function generateAllChapters(bookId){
@@ -1334,6 +1635,7 @@ function escapeAttr(str){
 }
 
 /* ---------------- Init ---------------- */
+setFontSize(getFontSize());
 renderDashboard();
 </script>
 </body>
