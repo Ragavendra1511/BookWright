@@ -7,6 +7,13 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231B2430'/%3E%3Cpath d='M32 14c-6-4-14-4-20 0v32c6-4 14-4 20 0V14z' fill='%23E0BC3F'/%3E%3Cpath d='M32 14c6-4 14-4 20 0v32c-6-4-14-4-20 0V14z' fill='%23C9A227'/%3E%3Cpath d='M32 14v32' stroke='%231B2430' stroke-width='1.5' opacity='0.4'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<!-- PWA Manifest & iOS Theme Support -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1B2430">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="BookNip">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231B2430'/%3E%3Cpath d='M32 14c-6-4-14-4-20 0v32c6-4 14-4 20 0V14z' fill='%23E0BC3F'/%3E%3Cpath d='M32 14c6-4 14-4 20 0v32c-6-4-14-4-20 0V14z' fill='%23C9A227'/%3E%3Cpath d='M32 14v32' stroke='%231B2430' stroke-width='1.5' opacity='0.4'/%3E%3C/svg%3E">
 <style>
   :root{
     --ink:#1B2430;
@@ -1740,7 +1747,14 @@ function escapeHTML(str){
 function escapeAttr(str){
   return String(str ?? '').replace(/'/g, "\\'");
 }
-
+/* ---------------- Service Worker Registration ---------------- */
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then((reg) => console.log('Service Worker registered:', reg.scope))
+      .catch((err) => console.error('Service Worker registration failed:', err));
+  });
+}
 /* ---------------- Init ---------------- */
 setFontSize(getFontSize());
 renderDashboard();
