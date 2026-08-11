@@ -439,6 +439,13 @@
   }
   .regen-btn.speaking{ color: var(--gold-bright); border-color: rgba(201,162,39,0.4); }
 
+  .chapter-summary-text .tts-word{ transition: background-color .12s ease, color .12s ease; border-radius:3px; }
+  .chapter-summary-text .tts-word.tts-active{
+    background: rgba(201,162,39,0.32);
+    color: var(--gold-bright);
+    box-shadow: 0 0 0 2px rgba(201,162,39,0.32);
+  }
+
   .synopsis-box{
     font-size:14px; line-height:1.65; color: var(--ink-text-dim);
     padding-top:2px;
@@ -758,6 +765,9 @@ async function fetchCoverUrl(title, author){
 /* ---------------- Navigation ---------------- */
 function goTo(page){
   if('speechSynthesis' in window) window.speechSynthesis.cancel();
+  if(currentHighlightBookId !== null && currentHighlightIdx !== null){
+    restoreSummaryHTML(currentHighlightBookId, currentHighlightIdx);
+  }
   resetTtsButton();
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+page).classList.add('active');
@@ -1205,6 +1215,11 @@ async function testApiKey(){
 /* ---------------- Text-to-speech ---------------- */
 let currentUtterance = null;
 let currentSpeakingBtnId = null;
+let currentHighlightSummaryId = null;
+let currentHighlightWordEls = null;
+let currentHighlightBookId = null;
+let currentHighlightIdx = null;
+let currentSpeechTextOffset = 0; // where the summary portion starts within the full spoken text
 
 function stripMarkdownForSpeech(text){
   return String(text||'')
@@ -1212,6 +1227,28 @@ function stripMarkdownForSpeech(text){
     .replace(/\*\*(.+?)\*\*/g, '$1')
     .replace(/^[-•]\s+/gm, '')
     .replace(/\n+/g, '. ');
+}
+
+/* Rebuilds the summary container's HTML with each word wrapped in a span,
+   using the exact same plain-text string that will be sent to speech
+   synthesis for this segment, so charIndex offsets line up correctly. */
+function buildHighlightableSummary(plainText){
+  const words = plainText.split(/(\s+)/); // keep whitespace as separate tokens
+  let html = '';
+  let charPos = 0;
+  const wordMeta = [];
+  words.forEach(tok => {
+    if(/^\s+$/.test(tok) || tok === ''){
+      html += tok;
+    }else{
+      const start = charPos;
+      const end = charPos + tok.length;
+      wordMeta.push({start, end});
+      html += `<span class="tts-word" data-start="${start}" data-end="${end}">${escapeHTML(tok)}</span>`;
+    }
+    charPos += tok.length;
+  });
+  return { html, wordMeta };
 }
 
 function toggleListen(bookId, idx){
@@ -1238,18 +1275,79 @@ function toggleListen(bookId, idx){
   const ch = book.chapters[idx];
   if(!ch || ch.status !== 'done') return;
 
-  let text = `${ch.title}. ${stripMarkdownForSpeech(ch.summary)}`;
-  if(ch.quote) text += ` Key idea: ${ch.quote}`;
-  if(ch.takeaways && ch.takeaways.length) text += ` Key takeaways: ${ch.takeaways.join('. ')}`;
+  const summaryPlain = stripMarkdownForSpeech(ch.summary);
+  const titlePrefix = `${ch.title}. `;
+  let text = titlePrefix + summaryPlain;
+  let suffix = '';
+  if(ch.quote) suffix += ` Key idea: ${ch.quote}`;
+  if(ch.takeaways && ch.takeaways.length) suffix += ` Key takeaways: ${ch.takeaways.join('. ')}`;
+  text += suffix;
+
+  // Swap the visible summary HTML for a word-spanned version we can highlight
+  const summaryId = `summary-${bookId}-${idx}`;
+  const summaryEl = document.getElementById(summaryId);
+  if(summaryEl){
+    const built = buildHighlightableSummary(summaryPlain);
+    summaryEl.innerHTML = built.html;
+    currentHighlightSummaryId = summaryId;
+    currentHighlightBookId = bookId;
+    currentHighlightIdx = idx;
+    currentSpeechTextOffset = titlePrefix.length;
+  }else{
+    currentHighlightSummaryId = null;
+  }
 
   const utt = new SpeechSynthesisUtterance(text);
   utt.rate = 1;
-  utt.onend = resetTtsButton;
-  utt.onerror = resetTtsButton;
+  utt.onboundary = (e) => handleSpeechBoundary(e, summaryId, summaryPlain.length);
+  utt.onend = () => { resetTtsButton(); restoreSummaryHTML(bookId, idx); };
+  utt.onerror = () => { resetTtsButton(); restoreSummaryHTML(bookId, idx); };
   currentUtterance = utt;
   currentSpeakingBtnId = btnId;
   if(btn){ btn.textContent = '⏸ Stop'; btn.classList.add('speaking'); }
   window.speechSynthesis.speak(utt);
+}
+
+function handleSpeechBoundary(e, summaryId, summaryLen){
+  if(e.name && e.name !== 'word') return; // some engines fire 'sentence' too; word-level only
+  const relativePos = e.charIndex - currentSpeechTextOffset;
+  if(relativePos < 0 || relativePos > summaryLen) return; // outside the summary segment (title or suffix)
+
+  const container = document.getElementById(summaryId);
+  if(!container) return;
+
+  // Clear previous highlight
+  if(currentHighlightWordEls){
+    currentHighlightWordEls.forEach(el => el.classList.remove('tts-active'));
+  }
+
+  const words = container.querySelectorAll('.tts-word');
+  let matched = null;
+  for(const w of words){
+    const start = parseInt(w.dataset.start, 10);
+    const end = parseInt(w.dataset.end, 10);
+    if(relativePos >= start && relativePos < end){ matched = w; break; }
+  }
+  if(matched){
+    matched.classList.add('tts-active');
+    currentHighlightWordEls = [matched];
+    matched.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  }
+}
+
+function restoreSummaryHTML(bookId, idx){
+  const book = state.library.find(b=>b.id===bookId);
+  if(!book) return;
+  const ch = book.chapters[idx];
+  const summaryId = `summary-${bookId}-${idx}`;
+  const summaryEl = document.getElementById(summaryId);
+  if(summaryEl && ch){
+    summaryEl.innerHTML = formatSummary(ch.summary);
+  }
+  currentHighlightSummaryId = null;
+  currentHighlightWordEls = null;
+  currentHighlightBookId = null;
+  currentHighlightIdx = null;
 }
 
 function resetTtsButton(){
@@ -1349,7 +1447,8 @@ function chapterStatusBadge(ch){
 function chapterBodyHTML(ch, bookId, idx){
   if(ch.status === 'done'){
     const ttsId = `tts-${bookId}-${idx}`;
-    return formatSummary(ch.summary) + quoteCalloutHTML(ch.quote) + takeawaysCalloutHTML(ch.takeaways) +
+    const summaryId = `summary-${bookId}-${idx}`;
+    return `<div class="chapter-summary-text" id="${summaryId}">${formatSummary(ch.summary)}</div>` + quoteCalloutHTML(ch.quote) + takeawaysCalloutHTML(ch.takeaways) +
       `<div class="chapter-actions">
         <button class="btn btn-secondary regen-btn" onclick="event.stopPropagation(); regenerateChapter('${bookId}', ${idx})">↻ Regenerate</button>
         <button class="btn btn-secondary regen-btn" id="${ttsId}" onclick="event.stopPropagation(); toggleListen('${bookId}', ${idx})">🔊 Listen</button>
@@ -1491,6 +1590,14 @@ function refreshChapterUI(bookId, idx){
 }
 
 function regenerateChapter(bookId, idx){
+  if(currentHighlightBookId === bookId && currentHighlightIdx === idx){
+    window.speechSynthesis.cancel();
+    resetTtsButton();
+    currentHighlightSummaryId = null;
+    currentHighlightWordEls = null;
+    currentHighlightBookId = null;
+    currentHighlightIdx = null;
+  }
   generateSingleChapter(bookId, idx);
 }
 
