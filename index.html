@@ -178,6 +178,17 @@
   .spine-cover-wrap{ display:flex; align-items:center; justify-content:center; }
   .spine-cover-img{ width:100%; height:100%; object-fit:cover; display:block; }
   .spine-lg{ width:50px; min-width:50px; height:70px; }
+  .spine-retry{ cursor:pointer; position:relative; }
+  .spine-retry-badge{
+    position:absolute; bottom:3px; right:3px;
+    width:16px; height:16px; border-radius:50%;
+    background: var(--ink); border:1px solid var(--gold);
+    color: var(--gold-bright);
+    font-size:9px; font-weight:700;
+    display:flex; align-items:center; justify-content:center;
+    writing-mode:horizontal-tb;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+  }
   .book-meta{ flex:1; min-width:0; display:flex; flex-direction:column; justify-content:center; }
   .book-title{ font-family:var(--font-display); font-weight:700; font-size:16px; color:var(--paper); line-height:1.25; }
   .book-author{ font-size:12.5px; color:var(--ink-text-dim); margin-top:2px; }
@@ -228,6 +239,45 @@
   .field input::placeholder{ color: #6b7686; }
   .hint{ font-size:11.5px; color:var(--ink-text-dim); margin-top:6px; line-height:1.5; }
   .hint a{ color:var(--gold); }
+
+  /* ---------- Title autocomplete ---------- */
+  .suggest-box{
+    position:absolute; top:100%; left:0; right:0; margin-top:4px;
+    background: var(--ink-2);
+    border:1px solid var(--line);
+    border-radius:10px;
+    max-height:280px; overflow-y:auto;
+    z-index:40;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+  }
+  .suggest-item{
+    display:flex; align-items:center; gap:10px;
+    padding:9px 12px; cursor:pointer;
+    border-bottom:1px solid var(--line);
+  }
+  .suggest-item:last-child{ border-bottom:none; }
+  .suggest-item:hover, .suggest-item.active{ background: var(--ink-3); }
+  .suggest-thumb{
+    width:28px; height:40px; object-fit:cover; border-radius:3px;
+    background: var(--ink-3); flex-shrink:0;
+  }
+  .suggest-thumb-placeholder{
+    width:28px; height:40px; border-radius:3px; flex-shrink:0;
+    background: var(--ink-3); display:flex; align-items:center; justify-content:center;
+    color: var(--ink-text-dim); font-size:14px;
+  }
+  .suggest-text{ min-width:0; flex:1; }
+  .suggest-title{
+    font-size:13.5px; color: var(--paper); font-weight:500;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .suggest-author{
+    font-size:11.5px; color: var(--ink-text-dim); margin-top:1px;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .suggest-empty, .suggest-loading{
+    padding:12px; font-size:12.5px; color:var(--ink-text-dim); text-align:center;
+  }
 
   .btn{
     display:flex; align-items:center; justify-content:center; gap:8px;
@@ -387,6 +437,117 @@
   .toc-item-body-inner .summary-list li{ font-size: var(--reader-font-size); }
   .toc-item-body-inner .callout-text{ font-size: calc(var(--reader-font-size) + 0.5px); }
   .toc-item-body-inner .callout-takeaway-list li{ font-size: calc(var(--reader-font-size) - 0.5px); }
+
+  /* ---------- Mind map (tree view) ---------- */
+  .view-toggle{
+    display:flex; gap:6px;
+    background: var(--ink-2);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:4px;
+    margin-bottom:16px;
+  }
+  .view-toggle-btn{
+    flex:1;
+    background:none; border:none;
+    color:var(--ink-text-dim);
+    font-family:var(--font-body); font-size:12.5px; font-weight:600;
+    padding:9px 10px;
+    border-radius:7px;
+    cursor:pointer;
+    transition: background .15s, color .15s;
+  }
+  .view-toggle-btn.active{ background:var(--ink-3); color:var(--gold-bright); }
+
+  .mm-tree-toolbar{ display:flex; gap:6px; margin-bottom:12px; }
+  .mm-tree-toolbar-btn{
+    width:auto !important; flex:1;
+    padding:9px 6px !important;
+    font-size:11.5px !important;
+    white-space:nowrap;
+  }
+
+  .mm-tree-wrap{
+    background: var(--ink-2);
+    border:1px solid var(--line);
+    border-radius: var(--radius);
+    padding:16px 14px 16px 8px;
+    margin-bottom:12px;
+    overflow-x:auto;
+  }
+
+  .mm-tree-root, .mm-tree-children{
+    list-style:none; margin:0; padding:0;
+  }
+  .mm-tree-children{
+    padding-left:20px;
+    border-left:1px dashed var(--line);
+    margin-left:11px;
+  }
+  .mm-tree-node{ position:relative; }
+  .mm-tree-row{
+    display:flex; align-items:center; gap:7px;
+    padding:7px 6px;
+    border-radius:8px;
+    min-width:0;
+  }
+  .mm-tree-row.mm-clickable{ cursor:pointer; }
+  .mm-tree-row.mm-clickable:hover{ background: var(--ink-3); }
+
+  .mm-caret{
+    flex-shrink:0;
+    width:16px; height:16px;
+    display:flex; align-items:center; justify-content:center;
+    color: var(--gold);
+    font-size:11px;
+    transition: transform .18s ease;
+  }
+  .mm-caret.open{ transform: rotate(90deg); }
+  .mm-caret-spacer{ width:16px; flex-shrink:0; }
+
+  .mm-book-title{
+    font-family:var(--font-display); font-weight:700; font-size:16px;
+    color:var(--paper);
+    word-break:break-word;
+  }
+
+  .mm-chapter-num{
+    flex-shrink:0;
+    font-family:var(--font-mono); font-size:10.5px; color:var(--gold);
+    border:1px solid rgba(201,162,39,0.4);
+    width:22px; height:22px; border-radius:6px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .mm-chapter-title{
+    flex:1; min-width:0;
+    font-size:14px; font-weight:600; color:var(--paper);
+    line-height:1.4;
+    word-break:break-word;
+  }
+  .mm-chapter-title:hover{ color:var(--gold-bright); text-decoration:underline; }
+
+  .mm-status-tag{
+    flex-shrink:0;
+    font-family:var(--font-mono); font-size:9.5px; text-transform:uppercase; letter-spacing:0.04em;
+    padding:3px 7px; border-radius:5px;
+    white-space:nowrap;
+  }
+  .mm-status-done{ color:var(--sage); border:1px solid rgba(107,143,113,0.35); }
+  .mm-status-loading{ color:var(--gold); border:1px solid rgba(201,162,39,0.4); }
+  .mm-status-error{ color:var(--coral); border:1px solid rgba(224,103,77,0.4); }
+  .mm-status-pending{ color:var(--ink-text-dim); border:1px solid var(--line); }
+
+  .mm-leaf .mm-tree-row{ padding:6px 6px; align-items:flex-start; }
+  .mm-leaf-icon{
+    flex-shrink:0; color:var(--sage); font-size:12px; line-height:1.5;
+    width:14px; text-align:center;
+  }
+  .mm-quote-leaf .mm-leaf-icon{ color:var(--gold); font-family:var(--font-display); font-size:15px; }
+  .mm-leaf-text{
+    font-size:13px; line-height:1.55; color:var(--ink-text);
+    word-break:break-word;
+  }
+  .mm-quote-leaf .mm-leaf-text{ font-family:var(--font-display); font-style:italic; color:var(--paper); }
 
   .summary-heading{
     font-family:var(--font-display);
@@ -571,9 +732,14 @@
     <p class="page-sub">Enter a title and author. BookNip will build a chapter-by-chapter summary using Gemini.</p>
 
     <div class="card">
-      <div class="field">
+      <div class="field" style="position:relative;">
         <label for="inputTitle">Book title</label>
-        <input id="inputTitle" type="text" placeholder="e.g. Atomic Habits" autocomplete="off">
+        <input id="inputTitle" type="text" placeholder="e.g. Atomic Habits" autocomplete="off"
+          oninput="onTitleInput(this.value)"
+          onkeydown="onTitleKeydown(event)"
+          onblur="scheduleCloseSuggestions()"
+          onfocus="if(this.value.trim().length>=3) onTitleInput(this.value)">
+        <div id="titleSuggestBox" class="suggest-box" style="display:none;"></div>
       </div>
       <div class="field">
         <label for="inputAuthor">Author</label>
@@ -769,31 +935,64 @@ function initialsFor(title){
 }
 
 /* Renders a cover image if the book has one cached, falling back to the
-   generated spine tile on load error or when no cover was found. */
-function coverHTML(book, sizeClass){
+   generated spine tile on load error or when no cover was found.
+   When allowRetry is true, the fallback tile becomes tappable to retry the cover lookup
+   (used in the reader header, where a missing cover is most visible). */
+function coverHTML(book, sizeClass, allowRetry){
   const color = spineColorFor(book.title);
   const cls = sizeClass ? `spine ${sizeClass}` : 'spine';
-  const fallback = `<div class="${cls} spine-fallback" style="background:${color}">${escapeHTML(initialsFor(book.title))}</div>`;
-  if(!book.coverUrl) return fallback;
+  const initials = escapeHTML(initialsFor(book.title));
+
+  function fallbackHTML(){
+    if(allowRetry){
+      return `<div class="${cls} spine-fallback spine-retry" style="background:${color}" onclick="retryCoverFetch('${book.id}')" title="Tap to look up cover art">${initials}<span class="spine-retry-badge">↻</span></div>`;
+    }
+    return `<div class="${cls} spine-fallback" style="background:${color}">${initials}</div>`;
+  }
+
+  if(!book.coverUrl) return fallbackHTML();
+
   return `<div class="${cls} spine-cover-wrap" style="background:${color}">
     <img src="${escapeAttr(book.coverUrl)}" alt="" class="spine-cover-img"
-         onerror="this.parentElement.outerHTML = ${JSON.stringify(fallback)};">
+         onerror="this.parentElement.outerHTML = ${JSON.stringify(fallbackHTML())};">
   </div>`;
+}
+
+async function retryCoverFetch(bookId){
+  const book = state.library.find(b=>b.id===bookId);
+  if(!book) return;
+  showToast('Looking up cover art…');
+  const url = await fetchCoverUrl(book.title, book.author);
+  if(url){
+    book.coverUrl = url;
+    saveLibraryToStorage();
+    showToast('Cover found');
+  }else{
+    showToast('No cover art found for this title');
+  }
+  if(state.activeReaderId === bookId) renderReader(bookId);
+  if(state.currentPage === 'dashboard') renderDashboard();
+  if(state.currentPage === 'library') renderLibrary();
 }
 
 async function fetchCoverUrl(title, author){
   try{
     const q = encodeURIComponent(`intitle:${title}${author ? ' inauthor:' + author : ''}`);
-    const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${q}&maxResults=1`);
+    const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${q}&maxResults=5`);
     if(!res.ok) return null;
     const data = await res.json();
-    const item = data?.items?.[0];
-    let thumb = item?.volumeInfo?.imageLinks?.thumbnail || item?.volumeInfo?.imageLinks?.smallThumbnail;
-    if(!thumb) return null;
-    // Use https and request a slightly larger image where supported
-    thumb = thumb.replace('http://','https://').replace('zoom=1','zoom=2');
-    return thumb;
+    const items = data?.items || [];
+    // Some results lack a thumbnail even when the book matches — scan a few candidates
+    for(const item of items){
+      let thumb = item?.volumeInfo?.imageLinks?.thumbnail || item?.volumeInfo?.imageLinks?.smallThumbnail;
+      if(thumb){
+        thumb = thumb.replace('http://','https://').replace('zoom=1','zoom=2');
+        return thumb;
+      }
+    }
+    return null;
   }catch(e){
+    console.warn('Cover fetch failed:', e);
     return null;
   }
 }
@@ -928,6 +1127,139 @@ function fillSuggestion(title, author){
   document.getElementById('inputAuthor').value = author;
 }
 
+/* ---------------- Title autocomplete (live book search) ---------------- */
+let titleSearchTimer = null;
+let titleSearchToken = 0;
+let titleSuggestResults = [];
+let titleSuggestActiveIndex = -1;
+
+function onTitleInput(value){
+  const q = value.trim();
+  titleSuggestActiveIndex = -1;
+  clearTimeout(titleSearchTimer);
+
+  if(q.length < 3){
+    closeSuggestions();
+    return;
+  }
+
+  // Debounce so we don't fire a request on every keystroke
+  titleSearchTimer = setTimeout(() => runTitleSearch(q), 300);
+}
+
+async function runTitleSearch(q){
+  const myToken = ++titleSearchToken;
+  showSuggestLoading();
+  try{
+    const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&maxResults=8`;
+    const res = await fetch(url);
+    if(myToken !== titleSearchToken) return; // a newer keystroke superseded this request
+    if(!res.ok){ showSuggestEmpty(); return; }
+    const data = await res.json();
+    if(myToken !== titleSearchToken) return;
+
+    const items = data?.items || [];
+    // De-dupe by title+author so we don't show near-identical editions
+    const seen = new Set();
+    const results = [];
+    for(const item of items){
+      const info = item?.volumeInfo || {};
+      const title = info.title;
+      if(!title) continue;
+      const author = (info.authors || []).join(', ');
+      const key = (title + '|' + author).toLowerCase();
+      if(seen.has(key)) continue;
+      seen.add(key);
+      let thumb = info.imageLinks?.smallThumbnail || info.imageLinks?.thumbnail || null;
+      if(thumb) thumb = thumb.replace('http://','https://');
+      results.push({ title, author, thumb });
+      if(results.length >= 6) break;
+    }
+
+    titleSuggestResults = results;
+    if(results.length === 0){
+      showSuggestEmpty();
+    }else{
+      renderSuggestions();
+    }
+  }catch(e){
+    if(myToken === titleSearchToken) showSuggestEmpty();
+  }
+}
+
+function renderSuggestions(){
+  const box = document.getElementById('titleSuggestBox');
+  box.innerHTML = titleSuggestResults.map((r, i) => `
+    <div class="suggest-item${i===titleSuggestActiveIndex ? ' active' : ''}"
+         onmousedown="event.preventDefault(); pickSuggestion(${i})">
+      ${r.thumb
+        ? `<img class="suggest-thumb" src="${escapeAttr(r.thumb)}" alt="">`
+        : `<div class="suggest-thumb-placeholder">📖</div>`}
+      <div class="suggest-text">
+        <div class="suggest-title">${escapeHTML(r.title)}</div>
+        <div class="suggest-author">${escapeHTML(r.author || 'Unknown author')}</div>
+      </div>
+    </div>
+  `).join('');
+  box.style.display = 'block';
+}
+
+function showSuggestLoading(){
+  const box = document.getElementById('titleSuggestBox');
+  box.innerHTML = `<div class="suggest-loading">Searching…</div>`;
+  box.style.display = 'block';
+}
+
+function showSuggestEmpty(){
+  const box = document.getElementById('titleSuggestBox');
+  titleSuggestResults = [];
+  box.innerHTML = `<div class="suggest-empty">No matches — you can still type the full title &amp; author</div>`;
+  box.style.display = 'block';
+}
+
+function closeSuggestions(){
+  const box = document.getElementById('titleSuggestBox');
+  box.style.display = 'none';
+  box.innerHTML = '';
+  titleSuggestResults = [];
+  titleSuggestActiveIndex = -1;
+}
+
+// Delay closing on blur so a click on a suggestion (mousedown) still registers first
+function scheduleCloseSuggestions(){
+  setTimeout(closeSuggestions, 150);
+}
+
+function pickSuggestion(index){
+  const r = titleSuggestResults[index];
+  if(!r) return;
+  document.getElementById('inputTitle').value = r.title;
+  document.getElementById('inputAuthor').value = r.author || '';
+  closeSuggestions();
+}
+
+function onTitleKeydown(event){
+  const box = document.getElementById('titleSuggestBox');
+  if(box.style.display === 'none' || titleSuggestResults.length === 0) return;
+
+  if(event.key === 'ArrowDown'){
+    event.preventDefault();
+    titleSuggestActiveIndex = Math.min(titleSuggestActiveIndex + 1, titleSuggestResults.length - 1);
+    renderSuggestions();
+  }else if(event.key === 'ArrowUp'){
+    event.preventDefault();
+    titleSuggestActiveIndex = Math.max(titleSuggestActiveIndex - 1, 0);
+    renderSuggestions();
+  }else if(event.key === 'Enter'){
+    if(titleSuggestActiveIndex >= 0){
+      event.preventDefault();
+      pickSuggestion(titleSuggestActiveIndex);
+    }
+  }else if(event.key === 'Escape'){
+    closeSuggestions();
+  }
+}
+
 const GEN_STAGES = [
   'Locating the book…',
   'Mapping chapter structure…',
@@ -960,16 +1292,24 @@ async function startGeneration(){
   }, 2500);
 
   try{
-    const [outline, coverUrl] = await Promise.all([
-      generateBookOutline(title, author, key, getModel()),
-      fetchCoverUrl(title, author)
-    ]);
+    const outline = await generateBookOutline(title, author, key, getModel());
     clearInterval(stageInterval);
+
+    const resolvedTitle = outline.title || title;
+    const resolvedAuthor = outline.author || author;
+
+    // Prefer the AI-resolved title/author for the cover lookup (more accurate than raw
+    // user input — catches typos, abbreviations, or missing author), falling back to
+    // what the user typed if that search comes up empty.
+    let coverUrl = await fetchCoverUrl(resolvedTitle, resolvedAuthor);
+    if(!coverUrl && (resolvedTitle !== title || resolvedAuthor !== author)){
+      coverUrl = await fetchCoverUrl(title, author);
+    }
 
     const book = {
       id: 'b_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
-      title: outline.title || title,
-      author: outline.author || author,
+      title: resolvedTitle,
+      author: resolvedAuthor,
       synopsis: outline.synopsis || '',
       coverUrl: coverUrl || null,
       chapters: outline.chapters.map(ch => ({
@@ -1410,14 +1750,14 @@ function renderReader(id){
     <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:16px;">
       <button class="btn btn-secondary" style="width:auto; padding:9px 16px;" onclick="goTo('library')">← Back to Library</button>
       <div style="display:flex; gap:8px;">
-	<button class="icon-btn" onclick="shareBookSummary('${book.id}')" aria-label="Share">➦</button>
         <button class="icon-btn" onclick="openFontControl('${book.id}')" aria-label="Font size">Aa</button>
+        <button class="icon-btn" onclick="openMindMap('${book.id}')" aria-label="Mind map">🕸</button>
         <button class="icon-btn ${book.favorite?'active':''}" id="readerFavBtn2" onclick="toggleFavorite('${book.id}')" aria-label="Favorite">${book.favorite ? '★' : '☆'}</button>
       </div>
     </div>
 
     <div class="toc-header">
-      ${coverHTML(book, 'spine-lg')}
+      ${coverHTML(book, 'spine-lg', true)}
       <div class="toc-header-meta">
         <div class="toc-header-title">${escapeHTML(book.title)}</div>
         <div class="toc-header-author">${escapeHTML(book.author || 'Unknown author')}</div>
@@ -1442,21 +1782,31 @@ function renderReader(id){
       <div class="toc-progress-track"><div class="toc-progress-fill" style="width:${progressPct}%"></div></div>
       <div class="toc-progress-text" id="tocProgressText-${book.id}">${doneCount}/${totalCount} chapters generated</div>
     </div>
-    <p class="hint" style="margin:0 0 12px;">Tap a chapter to generate its detailed summary.</p>
-    <div class="toc-list">
-      ${book.chapters.map((ch,i)=>`
-        <div class="toc-item" id="toc-${book.id}-${i}">
-          <div class="toc-item-head" onclick="toggleChapter('${book.id}', ${i})">
-            <div class="toc-num">${ch.number || (i+1)}</div>
-            <div class="toc-item-title">${escapeHTML(ch.title || 'Chapter ' + (i+1))}</div>
-            ${chapterStatusBadge(ch)}
-            <div class="toc-caret">▾</div>
+
+    <div class="view-toggle" id="viewToggle-${book.id}">
+      <button class="view-toggle-btn active" id="viewToggleList-${book.id}" onclick="setReaderView('${book.id}','list')">☰ List</button>
+      <button class="view-toggle-btn" id="viewToggleMap-${book.id}" onclick="setReaderView('${book.id}','map')">🕸 Mind map</button>
+    </div>
+
+    <div id="mindmapContainer-${book.id}" style="display:none;"></div>
+
+    <div id="tocListView-${book.id}">
+      <p class="hint" style="margin:0 0 12px;">Tap a chapter to generate its detailed summary.</p>
+      <div class="toc-list">
+        ${book.chapters.map((ch,i)=>`
+          <div class="toc-item" id="toc-${book.id}-${i}">
+            <div class="toc-item-head" onclick="toggleChapter('${book.id}', ${i})">
+              <div class="toc-num">${ch.number || (i+1)}</div>
+              <div class="toc-item-title">${escapeHTML(ch.title || 'Chapter ' + (i+1))}</div>
+              ${chapterStatusBadge(ch)}
+              <div class="toc-caret">▾</div>
+            </div>
+            <div class="toc-item-body">
+              <div class="toc-item-body-inner" id="toc-body-${book.id}-${i}">${chapterBodyHTML(ch, book.id, i)}</div>
+            </div>
           </div>
-          <div class="toc-item-body">
-            <div class="toc-item-body-inner" id="toc-body-${book.id}-${i}">${chapterBodyHTML(ch, book.id, i)}</div>
-          </div>
-        </div>
-      `).join('')}
+        `).join('')}
+      </div>
     </div>
 
     <div style="height:8px;"></div>
@@ -1487,7 +1837,6 @@ function chapterBodyHTML(ch, bookId, idx){
     const summaryId = `summary-${bookId}-${idx}`;
     return `<div class="chapter-summary-text" id="${summaryId}">${formatSummary(ch.summary)}</div>` + quoteCalloutHTML(ch.quote) + takeawaysCalloutHTML(ch.takeaways) +
       `<div class="chapter-actions">
-        <button class="btn btn-secondary regen-btn" onclick="event.stopPropagation(); shareChapter('${bookId}', ${idx})">➦ Share</button>
         <button class="btn btn-secondary regen-btn" onclick="event.stopPropagation(); regenerateChapter('${bookId}', ${idx})">↻ Regenerate</button>
         <button class="btn btn-secondary regen-btn" id="${ttsId}" onclick="event.stopPropagation(); toggleListen('${bookId}', ${idx})">🔊 Listen</button>
       </div>`;
@@ -1498,6 +1847,411 @@ function chapterBodyHTML(ch, bookId, idx){
     </div>`;
   if(ch.status === 'error') return `<div style="color:var(--coral); font-size:13.5px;">${escapeHTML(ch.errorMsg || 'Generation failed.')} Tap the chapter again to retry.</div>`;
   return `<p style="color:var(--ink-text-dim);">Not generated yet — tap this chapter to write its summary.</p>`;
+}
+
+function openMindMap(bookId){
+  setReaderView(bookId, 'map');
+  document.getElementById('mindmapContainer-'+bookId)?.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function setReaderView(bookId, view){
+  const listEl = document.getElementById('tocListView-'+bookId);
+  const mapEl = document.getElementById('mindmapContainer-'+bookId);
+  const btnList = document.getElementById('viewToggleList-'+bookId);
+  const btnMap = document.getElementById('viewToggleMap-'+bookId);
+  if(!listEl || !mapEl) return;
+
+  if(view === 'map'){
+    listEl.style.display = 'none';
+    mapEl.style.display = 'block';
+    btnList.classList.remove('active');
+    btnMap.classList.add('active');
+    renderMindMapTree(bookId);
+  }else{
+    listEl.style.display = 'block';
+    mapEl.style.display = 'none';
+    btnMap.classList.remove('active');
+    btnList.classList.add('active');
+  }
+}
+
+function mmStatusMeta(ch){
+  if(ch.status === 'done') return {cls:'done', label:'Generated'};
+  if(ch.status === 'loading') return {cls:'loading', label:'Generating…'};
+  if(ch.status === 'error') return {cls:'error', label:'Retry'};
+  return {cls:'pending', label:'Not generated'};
+}
+
+/* Tracks expand state per book+node so it survives re-renders (e.g. when a chapter finishes generating) */
+const mmTreeState = {};
+function mmNodeKey(bookId, path){ return bookId + '::' + path; }
+function mmIsExpanded(bookId, path, defaultVal){
+  const k = mmNodeKey(bookId, path);
+  return Object.prototype.hasOwnProperty.call(mmTreeState, k) ? mmTreeState[k] : !!defaultVal;
+}
+function mmSetExpanded(bookId, path, val){
+  mmTreeState[mmNodeKey(bookId, path)] = val;
+}
+
+function renderMindMapTree(bookId){
+  const book = state.library.find(b=>b.id===bookId);
+  const container = document.getElementById('mindmapContainer-'+bookId);
+  if(!book || !container) return;
+
+  const chapters = book.chapters;
+  if(chapters.length === 0){
+    container.innerHTML = `<div class="empty-state"><p>No chapters to map yet.</p></div>`;
+    return;
+  }
+
+  const rootExpanded = mmIsExpanded(bookId, 'root', true);
+
+  let chaptersHTML = '';
+  chapters.forEach((ch, i)=>{
+    const path = 'ch' + i;
+    const st = mmStatusMeta(ch);
+    const hasTakeaways = ch.status === 'done' && ch.takeaways && ch.takeaways.length;
+    const hasQuote = ch.status === 'done' && !!ch.quote;
+    const expandable = hasTakeaways || hasQuote;
+    const expanded = expandable && mmIsExpanded(bookId, path, false);
+    const num = ch.number || (i+1);
+    const isLast = i === chapters.length - 1;
+
+    let childrenHTML = '';
+    if(expandable){
+      if(hasQuote){
+        childrenHTML += `
+          <li class="mm-tree-node mm-leaf mm-quote-leaf">
+            <div class="mm-tree-row">
+              <span class="mm-leaf-icon">❝</span>
+              <span class="mm-leaf-text">${escapeHTML(ch.quote)}</span>
+            </div>
+          </li>`;
+      }
+      if(hasTakeaways){
+        ch.takeaways.forEach((tk)=>{
+          childrenHTML += `
+            <li class="mm-tree-node mm-leaf">
+              <div class="mm-tree-row">
+                <span class="mm-leaf-icon">›</span>
+                <span class="mm-leaf-text">${escapeHTML(tk)}</span>
+              </div>
+            </li>`;
+        });
+      }
+    }
+
+    chaptersHTML += `
+      <li class="mm-tree-node ${isLast ? 'mm-last' : ''}">
+        <div class="mm-tree-row ${expandable ? 'mm-clickable' : ''}" ${expandable ? `onclick="mmToggleNode('${bookId}','${path}')"` : ''}>
+          ${expandable ? `<span class="mm-caret ${expanded?'open':''}">▸</span>` : `<span class="mm-caret-spacer"></span>`}
+          <span class="mm-chapter-num">${num}</span>
+          <span class="mm-chapter-title" onclick="event.stopPropagation(); jumpToChapterFromMap('${bookId}', ${i})">${escapeHTML(ch.title || 'Chapter '+num)}</span>
+          <span class="mm-status-tag mm-status-${st.cls}">${st.label}</span>
+        </div>
+        ${expandable ? `<ul class="mm-tree-children" style="display:${expanded?'block':'none'}">${childrenHTML}</ul>` : ''}
+      </li>`;
+  });
+
+  container.innerHTML = `
+    <div class="mm-tree-toolbar">
+      <button class="btn btn-secondary mm-tree-toolbar-btn" onclick="mmExpandAll('${bookId}')">⊞ Expand all</button>
+      <button class="btn btn-secondary mm-tree-toolbar-btn" onclick="mmCollapseAll('${bookId}')">⊟ Collapse all</button>
+      <button class="btn btn-secondary mm-tree-toolbar-btn" onclick="shareMindMap('${bookId}')" aria-label="Share mind map">➦ Share</button>
+    </div>
+    <div class="mm-tree-wrap" id="mmTreeWrap-${bookId}">
+      <ul class="mm-tree-root">
+        <li class="mm-tree-node mm-root-node">
+          <div class="mm-tree-row mm-clickable" onclick="mmToggleNode('${bookId}','root')">
+            <span class="mm-caret ${rootExpanded?'open':''}">▸</span>
+            <span class="mm-book-title">${escapeHTML(book.title)}</span>
+          </div>
+          <ul class="mm-tree-children mm-chapters-list" style="display:${rootExpanded?'block':'none'}">
+            ${chaptersHTML}
+          </ul>
+        </li>
+      </ul>
+    </div>
+    <p class="hint" style="margin:10px 0 18px;">Tap a chapter title to jump to it. Tap the row to expand its takeaways.</p>
+  `;
+}
+
+function mmToggleNode(bookId, path){
+  const current = mmIsExpanded(bookId, path, path==='root');
+  mmSetExpanded(bookId, path, !current);
+  renderMindMapTree(bookId);
+}
+
+function mmExpandAll(bookId){
+  const book = state.library.find(b=>b.id===bookId);
+  if(!book) return;
+  mmSetExpanded(bookId, 'root', true);
+  book.chapters.forEach((ch,i)=> mmSetExpanded(bookId, 'ch'+i, true));
+  renderMindMapTree(bookId);
+}
+
+function mmCollapseAll(bookId){
+  const book = state.library.find(b=>b.id===bookId);
+  if(!book) return;
+  mmSetExpanded(bookId, 'root', true);
+  book.chapters.forEach((ch,i)=> mmSetExpanded(bookId, 'ch'+i, false));
+  renderMindMapTree(bookId);
+}
+
+function jumpToChapterFromMap(bookId, idx){
+  setReaderView(bookId, 'list');
+  const el = document.getElementById(`toc-${bookId}-${idx}`);
+  if(!el) return;
+  if(!el.classList.contains('open')){
+    toggleChapter(bookId, idx);
+  }
+  el.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+/* ---------------- Share mind map as image ---------------- */
+function mmWrapCanvasText(ctx, text, maxWidth){
+  const words = String(text||'').split(/\s+/);
+  const lines = [];
+  let cur = '';
+  words.forEach(w=>{
+    const test = cur ? cur+' '+w : w;
+    if(ctx.measureText(test).width > maxWidth && cur){ lines.push(cur); cur = w; }
+    else cur = test;
+  });
+  if(cur) lines.push(cur);
+  return lines;
+}
+
+async function shareMindMap(bookId){
+  const book = state.library.find(b=>b.id===bookId);
+  if(!book) return;
+  showToast('Preparing image…');
+
+  try{
+    const canvas = buildMindMapCanvas(book, bookId);
+    const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
+    if(!blob){ showToast('Could not create image'); return; }
+
+    const fileName = slugify(book.title) + '-mindmap.png';
+    const file = new File([blob], fileName, {type:'image/png'});
+
+    if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
+      try{
+        await navigator.share({
+          files:[file],
+          title: `${book.title} — Mind map`,
+          text: `Mind map of "${book.title}"${book.author ? ' by '+book.author : ''} — made with BookNip`
+        });
+        return;
+      }catch(err){
+        if(err.name === 'AbortError') return;
+        // fall through to download
+      }
+    }
+
+    // Fallback: download the image directly
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('Mind map image downloaded');
+  }catch(err){
+    console.error(err);
+    showToast('Error creating image');
+  }
+}
+
+function buildMindMapCanvas(book, bookId){
+  const chapters = book.chapters;
+  const scale = 2; // render at 2x for crisp sharing
+  const W = 720;
+  const padX = 28;
+  const rowH = 30;
+  const leafRowH = 24;
+  const indentChapter = 26;
+  const indentLeaf = 50;
+
+  const paperBg = '#1B2430';
+  const cardBg = '#242F3E';
+  const line = 'rgba(237,234,224,0.14)';
+  const gold = '#C9A227';
+  const goldBright = '#E0BC3F';
+  const sage = '#6B8F71';
+  const coral = '#E0674D';
+  const paper = '#F7F3E9';
+  const textDim = '#A9B2BE';
+  const textMain = '#EDEAE0';
+
+  // Measure pass using a scratch canvas/context
+  const measureCanvas = document.createElement('canvas');
+  const mctx = measureCanvas.getContext('2d');
+
+  function statusMeta(ch){
+    if(ch.status === 'done') return {label:'Generated', color:sage};
+    if(ch.status === 'loading') return {label:'Generating…', color:gold};
+    if(ch.status === 'error') return {label:'Retry', color:coral};
+    return {label:'Not generated', color:textDim};
+  }
+
+  // Build a flat list of rows to draw, honoring current expand state
+  const rows = [];
+  rows.push({type:'title', text:book.title});
+
+  chapters.forEach((ch,i)=>{
+    const path = 'ch'+i;
+    const expanded = mmIsExpanded(bookId, path, false);
+    const hasQuote = ch.status === 'done' && !!ch.quote;
+    const hasTakeaways = ch.status === 'done' && ch.takeaways && ch.takeaways.length;
+    rows.push({type:'chapter', num: ch.number || (i+1), text: ch.title || ('Chapter '+(i+1)), status: statusMeta(ch)});
+    if(expanded){
+      if(hasQuote) rows.push({type:'quote', text: ch.quote});
+      if(hasTakeaways) ch.takeaways.forEach(tk => rows.push({type:'takeaway', text: tk}));
+    }
+  });
+
+  mctx.font = '700 20px Georgia, serif';
+  const titleMaxW = W - padX*2;
+  const titleLines = mmWrapCanvasText(mctx, book.title, titleMaxW);
+
+  mctx.font = '600 15px Arial, sans-serif';
+  const chapterMaxW = W - padX*2 - indentChapter - 90;
+
+  mctx.font = 'italic 14px Georgia, serif';
+  const quoteMaxW = W - padX*2 - indentLeaf;
+
+  mctx.font = '13px Arial, sans-serif';
+  const takeawayMaxW = W - padX*2 - indentLeaf;
+
+  // Pre-wrap every row's text and compute total height
+  let y = 40;
+  const wrapped = [];
+  wrapped.push({type:'title', lines: titleLines, lineH: 26});
+  y += titleLines.length * 26 + 24;
+
+  rows.slice(1).forEach(r=>{
+    if(r.type === 'chapter'){
+      mctx.font = '600 15px Arial, sans-serif';
+      const lines = mmWrapCanvasText(mctx, r.text, chapterMaxW);
+      wrapped.push({...r, lines, lineH:20, y: y});
+      y += Math.max(lines.length*20, rowH) + 6;
+    } else if(r.type === 'quote'){
+      mctx.font = 'italic 14px Georgia, serif';
+      const lines = mmWrapCanvasText(mctx, '❝ ' + r.text, quoteMaxW);
+      wrapped.push({...r, lines, lineH:19, y: y});
+      y += lines.length*19 + 10;
+    } else if(r.type === 'takeaway'){
+      mctx.font = '13px Arial, sans-serif';
+      const lines = mmWrapCanvasText(mctx, '›  ' + r.text, takeawayMaxW);
+      wrapped.push({...r, lines, lineH:18, y: y});
+      y += lines.length*18 + 8;
+    }
+  });
+
+  const footerH = 46;
+  const H = Math.ceil(y + footerH);
+
+  const canvas = document.createElement('canvas');
+  canvas.width = W*scale;
+  canvas.height = H*scale;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(scale, scale);
+
+  // Background
+  ctx.fillStyle = paperBg;
+  ctx.fillRect(0,0,W,H);
+
+  // Title block
+  const titleRow = wrapped[0];
+  ctx.fillStyle = paper;
+  ctx.font = '700 20px Georgia, serif';
+  ctx.textBaseline = 'alphabetic';
+  let ty = 44;
+  titleRow.lines.forEach(l=>{
+    ctx.fillText(l, padX, ty);
+    ty += titleRow.lineH;
+  });
+  ctx.strokeStyle = line;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(padX, ty + 4);
+  ctx.lineTo(W - padX, ty + 4);
+  ctx.stroke();
+
+  // Rows
+  wrapped.slice(1).forEach(r=>{
+    if(r.type === 'chapter'){
+      // guide line
+      ctx.strokeStyle = line;
+      ctx.beginPath();
+      ctx.moveTo(padX + 10, r.y - 14);
+      ctx.lineTo(padX + 10, r.y + (r.lines.length-1)*r.lineH + 6);
+      ctx.stroke();
+
+      ctx.fillStyle = gold;
+      ctx.font = '11px "Courier New", monospace';
+      ctx.fillText('▸', padX + 2, r.y);
+
+      ctx.fillStyle = paper;
+      ctx.font = '600 15px Arial, sans-serif';
+      let ly = r.y;
+      r.lines.forEach(l=>{
+        ctx.fillText(l, padX + indentChapter, ly);
+        ly += r.lineH;
+      });
+
+      ctx.font = '10px "Courier New", monospace';
+      ctx.fillStyle = r.status.color;
+      const tagText = r.status.label;
+      const tagW = ctx.measureText(tagText).width + 14;
+      ctx.strokeStyle = r.status.color;
+      ctx.globalAlpha = 0.5;
+      ctx.strokeRect(W - padX - tagW, r.y - 12, tagW, 17);
+      ctx.globalAlpha = 1;
+      ctx.fillText(tagText, W - padX - tagW + 7, r.y);
+    } else if(r.type === 'quote'){
+      ctx.strokeStyle = line;
+      ctx.beginPath();
+      ctx.moveTo(padX + 10, r.y - 12);
+      ctx.lineTo(padX + 10, r.y + (r.lines.length-1)*r.lineH + 4);
+      ctx.stroke();
+
+      ctx.fillStyle = goldBright;
+      ctx.font = 'italic 14px Georgia, serif';
+      let ly = r.y;
+      r.lines.forEach(l=>{
+        ctx.fillText(l, padX + indentLeaf, ly);
+        ly += r.lineH;
+      });
+    } else if(r.type === 'takeaway'){
+      ctx.strokeStyle = line;
+      ctx.beginPath();
+      ctx.moveTo(padX + 10, r.y - 11);
+      ctx.lineTo(padX + 10, r.y + (r.lines.length-1)*r.lineH + 4);
+      ctx.stroke();
+
+      ctx.fillStyle = textMain;
+      ctx.font = '13px Arial, sans-serif';
+      let ly = r.y;
+      r.lines.forEach(l=>{
+        ctx.fillText(l, padX + indentLeaf, ly);
+        ly += r.lineH;
+      });
+    }
+  });
+
+  // Footer
+  ctx.strokeStyle = line;
+  ctx.beginPath();
+  ctx.moveTo(padX, H - footerH + 8);
+  ctx.lineTo(W - padX, H - footerH + 8);
+  ctx.stroke();
+  ctx.fillStyle = textDim;
+  ctx.font = '11px Arial, sans-serif';
+  ctx.fillText('Generated with BookNip — AI-generated summary, use as a study aid.', padX, H - footerH + 28);
+
+  return canvas;
 }
 
 function formatSummary(text){
@@ -1611,6 +2365,12 @@ function refreshChapterUI(bookId, idx){
   const bodyEl = document.getElementById(`toc-body-${bookId}-${idx}`);
   if(bodyEl) bodyEl.innerHTML = chapterBodyHTML(ch, bookId, idx);
 
+  // Re-render mind map tree if it's currently visible, so new takeaways/status appear live
+  const mapEl = document.getElementById('mindmapContainer-'+bookId);
+  if(mapEl && mapEl.style.display !== 'none'){
+    renderMindMapTree(bookId);
+  }
+
   // Refresh progress bar
   const doneCount = book.chapters.filter(c=>c.status==='done').length;
   const total = book.chapters.length;
@@ -1667,66 +2427,6 @@ function deleteBook(id){
   saveLibraryToStorage();
   goTo('library');
   showToast('Deleted');
-}
-/* ---------------- Web Share API ---------------- */
-async function shareBookSummary(bookId) {
-  const book = state.library.find(b => b.id === bookId);
-  if (!book) return;
-
-  const shareData = {
-    title: `${book.title} — Summary`,
-    text: `Check out this summary of "${book.title}"${book.author ? ' by ' + book.author : ''}:\n\n${book.synopsis || ''}`,
-    url: window.location.href
-  };
-
-  if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
-    try {
-      await navigator.share(shareData);
-    } catch (err) {
-      if (err.name !== 'AbortError') showToast('Error sharing');
-    }
-  } else {
-    // Fallback: Copy to clipboard
-    try {
-      await navigator.clipboard.writeText(`${shareData.title}\n\n${shareData.text}`);
-      showToast('Book overview copied to clipboard');
-    } catch (e) {
-      showToast('Clipboard copy failed');
-    }
-  }
-}
-
-async function shareChapter(bookId, idx) {
-  const book = state.library.find(b => b.id === bookId);
-  if (!book) return;
-  const ch = book.chapters[idx];
-  if (!ch || ch.status !== 'done') return;
-
-  const title = `${book.title} — Chapter ${ch.number || (idx + 1)}: ${ch.title}`;
-  let text = `Key takeaways from "${ch.title}":\n\n`;
-  if (ch.quote) text += `"${ch.quote}"\n\n`;
-  if (ch.takeaways && ch.takeaways.length) {
-    text += ch.takeaways.map(t => `• ${t}`).join('\n');
-  } else {
-    text += stripMarkdownForSpeech(ch.summary).slice(0, 280) + '...';
-  }
-
-  const shareData = { title, text };
-
-  if (navigator.share) {
-    try {
-      await navigator.share(shareData);
-    } catch (err) {
-      if (err.name !== 'AbortError') showToast('Error sharing');
-    }
-  } else {
-    try {
-      await navigator.clipboard.writeText(`${title}\n\n${text}`);
-      showToast('Chapter takeaway copied to clipboard');
-    } catch (e) {
-      showToast('Clipboard copy failed');
-    }
-  }
 }
 /* ---------------- Export ---------------- */
 function bookToMarkdown(book){
