@@ -488,6 +488,108 @@
   }
   .view-toggle-btn.active{ background:var(--ink-3); color:var(--gold-bright); }
 
+  /* ---------- Chapter pager (page-by-page reading) ---------- */
+  .pager-head{
+    display:flex; align-items:center; gap:12px;
+    padding:14px 15px;
+    background: var(--ink-2);
+    border:1px solid var(--line);
+    border-radius: var(--radius) var(--radius) 0 0;
+    border-bottom:none;
+  }
+  .pager-title-wrap{ flex:1; min-width:0; }
+  .pager-chapter-of{ font-family:var(--font-mono); font-size:10.5px; color:var(--ink-text-dim); text-transform:uppercase; letter-spacing:0.05em; }
+  .pager-chapter-title{ font-size:15px; font-weight:600; color:var(--paper); margin-top:2px; }
+  .pager-body{
+    padding: 18px 18px 22px;
+    font-size: var(--reader-font-size); line-height:1.7;
+    color: var(--ink-text);
+    background: var(--ink);
+    border:1px solid var(--line);
+    border-top:none;
+    min-height:120px;
+  }
+  .pager-body p{ margin:0 0 12px; }
+  .pager-body strong{ color: var(--gold-bright); font-weight:600; }
+  .pager-nav{
+    display:flex; align-items:center; gap:10px;
+    margin-top:14px;
+  }
+  .pager-nav .btn{ width:auto; flex-shrink:0; padding:9px 16px; }
+  .pager-dots{
+    flex:1; display:flex; align-items:center; justify-content:center; gap:6px;
+    flex-wrap:wrap;
+  }
+  .pager-dot{
+    width:9px; height:9px; border-radius:50%;
+    background: var(--ink-3);
+    border:1px solid var(--line);
+    padding:0; cursor:pointer;
+    transition: background .15s, transform .15s;
+  }
+  .pager-dot.done{ background: var(--sage-a11y); border-color: transparent; }
+
+  /* ---------- Focus mode (distraction-free single-chapter reading) ---------- */
+  .focus-btn{
+    background:none; border:1px solid var(--line); color:var(--ink-text-dim);
+    font-family:var(--font-body); font-size:12px; font-weight:600;
+    padding:7px 12px; border-radius:8px; cursor:pointer; flex-shrink:0;
+    transition: color .15s, border-color .15s;
+  }
+  .focus-btn:hover{ color:var(--gold-bright); border-color:rgba(201,162,39,0.4); }
+  .focus-overlay{
+    position:fixed; inset:0; z-index:200;
+    background: var(--ink);
+    display:flex; flex-direction:column;
+    animation: fadeIn .2s ease;
+  }
+  @media (prefers-reduced-motion: reduce){ .focus-overlay{ animation:none; } }
+  .focus-topbar{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding: max(14px, env(safe-area-inset-top)) 18px 12px;
+    border-bottom:1px solid var(--line);
+    flex-shrink:0;
+  }
+  .focus-topbar-meta{ min-width:0; flex:1; text-align:center; }
+  .focus-chapter-of{ font-family:var(--font-mono); font-size:10px; color:var(--ink-text-dim); text-transform:uppercase; letter-spacing:0.06em; }
+  .focus-chapter-title{ font-size:13.5px; font-weight:600; color:var(--paper); margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .focus-exit-btn, .focus-icon-btn{
+    background:none; border:none; color:var(--ink-text-dim);
+    font-size:20px; line-height:1; padding:6px; border-radius:8px; cursor:pointer;
+    flex-shrink:0; width:34px; height:34px; display:flex; align-items:center; justify-content:center;
+  }
+  .focus-exit-btn:hover, .focus-icon-btn:hover{ color:var(--paper); }
+  .focus-body-scroll{
+    flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch;
+    padding: 26px 24px 40px;
+    max-width:560px; width:100%; margin:0 auto;
+  }
+  .focus-body-scroll .toc-num{ display:none; }
+  .focus-chapter-heading{
+    font-family:var(--font-display); font-size:20px; font-weight:700;
+    color:var(--paper); margin:0 0 18px; line-height:1.3;
+  }
+  .focus-body-scroll .chapter-summary-text,
+  .focus-body-scroll p{
+    font-size: var(--reader-font-size); line-height:1.8; color:var(--ink-text);
+  }
+  .focus-body-scroll .chapter-summary-text p{ margin:0 0 14px; }
+  .focus-body-scroll strong{ color: var(--gold-bright); font-weight:600; }
+  .focus-navbar{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding: 12px 18px max(12px, env(safe-area-inset-bottom));
+    border-top:1px solid var(--line);
+    flex-shrink:0;
+    background: var(--ink);
+  }
+  .focus-navbar .btn{ width:auto; flex-shrink:0; padding:9px 16px; }
+  .focus-progress-text{
+    font-family:var(--font-mono); font-size:10.5px; color:var(--ink-text-dim);
+    letter-spacing:0.04em; flex-shrink:0;
+  }
+  .pager-dot.active{ transform: scale(1.4); border-color: var(--gold); }
+  .pager-dot:focus-visible{ outline: 2px solid var(--focus-ring); outline-offset:2px; }
+
   .mm-tree-toolbar{ display:flex; gap:6px; margin-bottom:12px; }
   .mm-tree-toolbar-btn{
     width:auto !important; flex:1;
@@ -919,6 +1021,11 @@ function openFontControl(bookId){
   if(el) el.style.display = el.style.display === 'none' ? 'flex' : 'none';
 }
 
+function openFocusFontControl(bookId){
+  const el = document.getElementById(`focusFontControl-${bookId}`);
+  if(el) el.style.display = el.style.display === 'none' ? 'flex' : 'none';
+}
+
 const SPINE_COLORS = ['#8a3b2e','#2e5b47','#3d4f7a','#7a5a2e','#5b2e5f','#2e6b6e','#7a2e3f','#4f5b2e'];
 
 let state = {
@@ -932,7 +1039,7 @@ async function loadLibraryFromDB() {
   try {
     // 1. Check IndexedDB first
     let data = await idbKeyval.get(LS_KEYS.library);
-    if (data) return data;
+    if (data) return recomputeAllProgress(data);
 
     // 2. Fallback / Auto-migrate existing user data from localStorage
     const legacyRaw = localStorage.getItem(LS_KEYS.library);
@@ -940,13 +1047,23 @@ async function loadLibraryFromDB() {
       const parsed = JSON.parse(legacyRaw);
       await idbKeyval.set(LS_KEYS.library, parsed); // Save to IndexedDB
       localStorage.removeItem(LS_KEYS.library);   // Clean up legacy storage
-      return parsed;
+      return recomputeAllProgress(parsed);
     }
     return [];
   } catch (e) {
     console.error('IndexedDB load error:', e);
     return [];
   }
+}
+
+/* One-time correction for libraries saved before "book progress" was tied to
+   generated chapters — recalculates every book's progress from its actual
+   chapter statuses so old data isn't stuck showing a stale percentage. */
+function recomputeAllProgress(library){
+  (library || []).forEach(book => {
+    if(book && Array.isArray(book.chapters)) updateBookProgress(book);
+  });
+  return library;
 }
 
 async function saveLibraryToStorage() {
@@ -1034,12 +1151,22 @@ async function fetchCoverUrl(title, author){
 }
 
 /* ---------------- Navigation ---------------- */
-function goTo(page){
+// `skipHash` is set when goTo() is called *from* the hashchange handler itself,
+// so we don't re-write the hash we just read (which would create a redundant
+// history entry / re-trigger the listener).
+function goTo(page, skipHash){
   if('speechSynthesis' in window) window.speechSynthesis.cancel();
   if(currentHighlightBookId !== null && currentHighlightIdx !== null){
     restoreSummaryHTML(currentHighlightBookId, currentHighlightIdx);
   }
   resetTtsButton();
+  if(focusModeState){
+    const overlay = document.getElementById('focusOverlay');
+    if(overlay) overlay.style.display = 'none';
+    document.body.style.overflow = '';
+    document.removeEventListener('keydown', focusModeKeyHandler);
+    focusModeState = null;
+  }
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+page).classList.add('active');
   document.querySelectorAll('.nav-btn').forEach(b=>{
@@ -1048,6 +1175,7 @@ function goTo(page){
     if(isActive) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current');
   });
   state.currentPage = page;
+  state.activeReaderId = null;
   const titles = {dashboard:'Dashboard', discover:'Discover', library:'Library', settings:'Settings', reader:'Reading'};
   document.getElementById('topbarSub').textContent = titles[page] || '';
   window.scrollTo(0,0);
@@ -1056,7 +1184,55 @@ function goTo(page){
   if(page==='discover') renderDiscover();
   if(page==='settings') renderSettings();
   focusPageHeading('page-'+page);
+  if(!skipHash) setHash(page==='dashboard' ? '' : page);
 }
+
+/* Keeps the URL hash in sync with whatever the user is looking at, so a
+   refresh (or a bookmarked/shared link) restores the same page instead of
+   always falling back to the Dashboard. */
+function setHash(value){
+  suppressNextHashRoute = true;
+  if(value){
+    window.location.hash = value;
+  }else{
+    // Clear the hash without adding a new history entry or leaving a stray '#'
+    history.replaceState(null, '', window.location.pathname + window.location.search);
+  }
+}
+
+let suppressNextHashRoute = false;
+
+/* Parses the current hash into a route and (for the reader) a book id, e.g.
+   '#discover' -> {page:'discover'}, '#reader/abc123' -> {page:'reader', id:'abc123'} */
+function parseHash(){
+  const raw = window.location.hash.replace('#','');
+  if(!raw) return {page:'dashboard'};
+  const [page, id] = raw.split('/');
+  if(['dashboard','discover','library','settings'].includes(page)) return {page};
+  if(page === 'reader' && id) return {page:'reader', id};
+  return {page:'dashboard'};
+}
+
+/* Applies whatever route the hash currently points to. Used on load and
+   whenever the hash changes (refresh, back/forward, or a shared link). */
+function routeFromHash(){
+  const route = parseHash();
+  if(route.page === 'reader'){
+    if(state.library.some(b=>b.id===route.id)){
+      openReader(route.id, true);
+    }else{
+      // Book no longer exists (e.g. deleted) — fall back gracefully
+      goTo('library');
+    }
+  }else{
+    goTo(route.page, true);
+  }
+}
+
+window.addEventListener('hashchange', ()=>{
+  if(suppressNextHashRoute){ suppressNextHashRoute = false; return; }
+  routeFromHash();
+});
 
 /* Moves focus to the new page's heading after navigation so keyboard and screen-reader
    users land at the top of the new content instead of on a now-hidden nav button. */
@@ -1068,7 +1244,7 @@ function focusPageHeading(pageId){
   }
 }
 
-function openReader(id){
+function openReader(id, skipHash){
   state.activeReaderId = id;
   state.currentPage = 'reader';
   renderReader(id);
@@ -1079,6 +1255,7 @@ function openReader(id){
   window.scrollTo(0,0);
   const heading = document.getElementById('readerTitleHeading');
   if(heading) heading.focus({preventScroll:true});
+  if(!skipHash) setHash('reader/'+id);
 }
 
 /* ---------------- Toast ---------------- */
@@ -1895,13 +2072,16 @@ function renderReader(id){
     </div>
 
     <div class="view-toggle" id="viewToggle-${book.id}">
-      <button class="view-toggle-btn active" id="viewToggleList-${book.id}" aria-pressed="true" onclick="setReaderView('${book.id}','list')">☰ List</button>
+      <button class="view-toggle-btn active" id="viewTogglePager-${book.id}" aria-pressed="true" onclick="setReaderView('${book.id}','pager')">📖 Pages</button>
+      <button class="view-toggle-btn" id="viewToggleList-${book.id}" aria-pressed="false" onclick="setReaderView('${book.id}','list')">☰ List</button>
       <button class="view-toggle-btn" id="viewToggleMap-${book.id}" aria-pressed="false" onclick="setReaderView('${book.id}','map')">🕸 Mind map</button>
     </div>
 
     <div id="mindmapContainer-${book.id}" style="display:none;"></div>
 
-    <div id="tocListView-${book.id}">
+    <div id="tocPagerView-${book.id}"></div>
+
+    <div id="tocListView-${book.id}" style="display:none;">
       <p class="hint" style="margin:0 0 12px;">Tap a chapter to generate its detailed summary.</p>
       <div class="toc-list">
         ${book.chapters.map((ch,i)=>`
@@ -1915,7 +2095,10 @@ function renderReader(id){
               <div class="toc-caret" aria-hidden="true">▾</div>
             </div>
             <div class="toc-item-body">
-              <div class="toc-item-body-inner" id="toc-body-${book.id}-${i}" role="region" aria-labelledby="toc-head-${book.id}-${i}">${chapterBodyHTML(ch, book.id, i)}</div>
+              <!-- Body content is rendered lazily on first expand (see toggleChapter),
+                   so it doesn't duplicate the summary/TTS element IDs already in use
+                   by the Pages view for the same chapter. -->
+              <div class="toc-item-body-inner" id="toc-body-${book.id}-${i}" role="region" aria-labelledby="toc-head-${book.id}-${i}"></div>
             </div>
           </div>
         `).join('')}
@@ -1935,6 +2118,9 @@ function renderReader(id){
     <button class="btn btn-secondary" style="margin-top:20px;" onclick="generateAllChapters('${book.id}')">Generate all remaining chapters</button>
     <button class="btn btn-danger" style="margin-top:10px;" onclick="deleteBook('${book.id}')">Delete this summary</button>
   `;
+
+  // Default to the page-by-page view; resumes at whichever chapter was last open.
+  setReaderView(book.id, 'pager');
 }
 
 function chapterStatusBadge(ch){
@@ -1968,27 +2154,223 @@ function openMindMap(bookId){
 }
 
 function setReaderView(bookId, view){
+  const pagerEl = document.getElementById('tocPagerView-'+bookId);
   const listEl = document.getElementById('tocListView-'+bookId);
   const mapEl = document.getElementById('mindmapContainer-'+bookId);
+  const btnPager = document.getElementById('viewTogglePager-'+bookId);
   const btnList = document.getElementById('viewToggleList-'+bookId);
   const btnMap = document.getElementById('viewToggleMap-'+bookId);
-  if(!listEl || !mapEl) return;
+  if(!pagerEl || !listEl || !mapEl) return;
+
+  pagerEl.style.display = 'none';
+  listEl.style.display = 'none';
+  mapEl.style.display = 'none';
+  [btnPager, btnList, btnMap].forEach(b=>{ b.classList.remove('active'); b.setAttribute('aria-pressed','false'); });
 
   if(view === 'map'){
-    listEl.style.display = 'none';
     mapEl.style.display = 'block';
-    btnList.classList.remove('active');
     btnMap.classList.add('active');
-    btnList.setAttribute('aria-pressed', 'false');
     btnMap.setAttribute('aria-pressed', 'true');
     renderMindMapTree(bookId);
-  }else{
+  }else if(view === 'list'){
     listEl.style.display = 'block';
-    mapEl.style.display = 'none';
-    btnMap.classList.remove('active');
     btnList.classList.add('active');
-    btnMap.setAttribute('aria-pressed', 'false');
     btnList.setAttribute('aria-pressed', 'true');
+  }else{
+    pagerEl.style.display = 'block';
+    btnPager.classList.add('active');
+    btnPager.setAttribute('aria-pressed', 'true');
+    const book = state.library.find(b=>b.id===bookId);
+    if(book) renderChapterPager(bookId, book.currentPageIdx || 0);
+  }
+}
+
+/* ---------------- Chapter pager (page-by-page reading) ---------------- */
+function renderChapterPager(bookId, idx){
+  const book = state.library.find(b=>b.id===bookId);
+  const pagerEl = document.getElementById('tocPagerView-'+bookId);
+  if(!book || !pagerEl) return;
+
+  const total = book.chapters.length;
+  idx = Math.max(0, Math.min(idx, total - 1));
+  book.currentPageIdx = idx;
+  saveLibraryToStorage();
+
+  // Clear this chapter's list-view copy (if expanded) first, so its summary/TTS
+  // element IDs aren't duplicated once the pager renders the same chapter below.
+  const listBody = document.getElementById(`toc-body-${bookId}-${idx}`);
+  if(listBody) listBody.innerHTML = '';
+  const listItem = document.getElementById(`toc-${bookId}-${idx}`);
+  if(listItem) listItem.classList.remove('open');
+  const listHead = document.getElementById(`toc-head-${bookId}-${idx}`);
+  if(listHead) listHead.setAttribute('aria-expanded', 'false');
+
+  const ch = book.chapters[idx];
+  const isFirst = idx === 0;
+  const isLast = idx === total - 1;
+
+  pagerEl.innerHTML = `
+    <div class="pager-head">
+      <div class="toc-num" aria-hidden="true">${ch.number || (idx+1)}</div>
+      <div class="pager-title-wrap">
+        <div class="pager-chapter-of">Chapter ${idx+1} of ${total}</div>
+        <div class="pager-chapter-title">${escapeHTML(ch.title || 'Chapter ' + (idx+1))}</div>
+      </div>
+      ${chapterStatusBadge(ch)}
+      <button class="focus-btn" onclick="openFocusMode('${bookId}', ${idx})" aria-label="Open distraction-free reading mode">⛶ Focus</button>
+    </div>
+    <div class="pager-body" id="pager-body-${bookId}">${chapterBodyHTML(ch, bookId, idx)}</div>
+    <div class="pager-nav">
+      <button class="btn btn-secondary" ${isFirst?'disabled':''} onclick="pagerGo('${bookId}', ${idx-1})">← Previous</button>
+      <div class="pager-dots" role="tablist" aria-label="Jump to chapter">
+        ${book.chapters.map((c,i)=>`<button class="pager-dot ${i===idx?'active':''} ${c.status==='done'?'done':''}" role="tab" aria-selected="${i===idx}" aria-label="Chapter ${i+1}${c.status==='done'?', generated':''}" onclick="pagerGo('${bookId}', ${i})"></button>`).join('')}
+      </div>
+      <button class="btn btn-secondary" ${isLast?'disabled':''} onclick="pagerGo('${bookId}', ${idx+1})">Next →</button>
+    </div>
+  `;
+
+  // Trigger generation automatically when landing on an ungenerated chapter,
+  // same as tapping it in the list view.
+  book.readChapters = book.readChapters || [];
+  if(!book.readChapters.includes(idx)){
+    book.readChapters.push(idx);
+    saveLibraryToStorage();
+  }
+  if(ch.status === 'pending' || !ch.status){
+    generateSingleChapter(bookId, idx);
+  }
+}
+
+function pagerGo(bookId, idx){
+  const book = state.library.find(b=>b.id===bookId);
+  if(!book) return;
+  if(idx < 0 || idx >= book.chapters.length) return;
+  if('speechSynthesis' in window) window.speechSynthesis.cancel();
+  resetTtsButton();
+  renderChapterPager(bookId, idx);
+  document.getElementById('pager-body-'+bookId)?.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+/* ---------------- Focus mode (distraction-free, e-reader style) ----------------
+   A full-screen overlay showing just the current chapter: no topbar, bottom
+   nav, synopsis, TOC, or view-toggle chrome — only the chapter text and a
+   minimal prev/next bar, like a dedicated e-reader page. */
+let focusModeState = null; // {bookId, idx}
+
+function openFocusMode(bookId, idx){
+  const book = state.library.find(b=>b.id===bookId);
+  if(!book) return;
+  idx = Math.max(0, Math.min(idx, book.chapters.length - 1));
+  focusModeState = { bookId, idx };
+
+  let overlay = document.getElementById('focusOverlay');
+  if(!overlay){
+    overlay = document.createElement('div');
+    overlay.id = 'focusOverlay';
+    overlay.className = 'focus-overlay';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
+    overlay.setAttribute('aria-label', 'Distraction-free reading mode');
+    document.body.appendChild(overlay);
+  }
+  overlay.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  document.addEventListener('keydown', focusModeKeyHandler);
+
+  // Clear the underlying pager's copy of this chapter first, so its
+  // TTS/summary element IDs aren't duplicated once focus mode renders the
+  // same chapter on top (mirrors the pager-vs-list-view guard above).
+  const pagerBody = document.getElementById(`pager-body-${bookId}`);
+  if(pagerBody) pagerBody.innerHTML = '';
+
+  renderFocusMode();
+}
+
+function closeFocusMode(){
+  const overlay = document.getElementById('focusOverlay');
+  if(overlay) overlay.style.display = 'none';
+  document.body.style.overflow = '';
+  document.removeEventListener('keydown', focusModeKeyHandler);
+  if('speechSynthesis' in window) window.speechSynthesis.cancel();
+  resetTtsButton();
+
+  // Keep the pager view in sync with whatever chapter focus mode ended on
+  // (this also repopulates the pager body we cleared on open).
+  if(focusModeState){
+    const { bookId, idx } = focusModeState;
+    renderChapterPager(bookId, idx);
+  }
+  focusModeState = null;
+}
+
+function focusModeKeyHandler(e){
+  if(!focusModeState) return;
+  if(e.key === 'Escape'){ e.preventDefault(); closeFocusMode(); return; }
+  if(e.key === 'ArrowRight'){ e.preventDefault(); focusModeGo(focusModeState.idx + 1); return; }
+  if(e.key === 'ArrowLeft'){ e.preventDefault(); focusModeGo(focusModeState.idx - 1); return; }
+}
+
+function focusModeGo(idx){
+  const { bookId } = focusModeState;
+  const book = state.library.find(b=>b.id===bookId);
+  if(!book) return;
+  if(idx < 0 || idx >= book.chapters.length) return;
+  if('speechSynthesis' in window) window.speechSynthesis.cancel();
+  resetTtsButton();
+  focusModeState.idx = idx;
+  renderFocusMode();
+}
+
+function renderFocusMode(){
+  const overlay = document.getElementById('focusOverlay');
+  if(!overlay || !focusModeState) return;
+  const { bookId, idx } = focusModeState;
+  const book = state.library.find(b=>b.id===bookId);
+  if(!book){ closeFocusMode(); return; }
+
+  const total = book.chapters.length;
+  const ch = book.chapters[idx];
+  const isFirst = idx === 0;
+  const isLast = idx === total - 1;
+
+  book.currentPageIdx = idx;
+  saveLibraryToStorage();
+  book.readChapters = book.readChapters || [];
+  if(!book.readChapters.includes(idx)){
+    book.readChapters.push(idx);
+    saveLibraryToStorage();
+  }
+
+  overlay.innerHTML = `
+    <div class="focus-topbar">
+      <button class="focus-exit-btn" onclick="closeFocusMode()" aria-label="Exit distraction-free mode">✕</button>
+      <div class="focus-topbar-meta">
+        <div class="focus-chapter-of">Chapter ${idx+1} of ${total}</div>
+        <div class="focus-chapter-title">${escapeHTML(book.title)}</div>
+      </div>
+      <button class="focus-icon-btn" onclick="openFocusFontControl('${bookId}')" aria-label="Font size">Aa</button>
+    </div>
+    <div class="focus-body-scroll" id="focusBodyScroll" tabindex="-1">
+      <h2 class="focus-chapter-heading" id="focusChapterHeading">${escapeHTML(ch.title || 'Chapter ' + (idx+1))}</h2>
+      <div class="font-control" id="focusFontControl-${bookId}" style="display:none;">
+        <span class="font-control-label">A</span>
+        <input type="range" min="13" max="20" step="1" value="${getFontSize()}" oninput="setFontSize(this.value)">
+        <span class="font-control-label" style="font-size:18px;">A</span>
+      </div>
+      ${chapterBodyHTML(ch, bookId, idx)}
+    </div>
+    <div class="focus-navbar">
+      <button class="btn btn-secondary" ${isFirst?'disabled':''} onclick="focusModeGo(${idx-1})">← Previous</button>
+      <div class="focus-progress-text">${idx+1} / ${total}</div>
+      <button class="btn btn-secondary" ${isLast?'disabled':''} onclick="focusModeGo(${idx+1})">Next →</button>
+    </div>
+  `;
+
+  document.getElementById('focusBodyScroll')?.scrollTo(0,0);
+  document.getElementById('focusChapterHeading')?.focus({preventScroll:true});
+
+  if(ch.status === 'pending' || !ch.status){
+    generateSingleChapter(bookId, idx);
   }
 }
 
@@ -2434,11 +2816,20 @@ function toggleChapter(bookId, idx){
   if(!book) return;
   const ch = book.chapters[idx];
 
+  // Render (or clear) the body lazily so its summary/TTS element IDs only
+  // ever exist in one place in the DOM at a time — see note above in renderReader.
+  const bodyEl = document.getElementById(`toc-body-${bookId}-${idx}`);
+  if(!wasOpen && book.currentPageIdx === idx){
+    // The pager currently holds this same chapter's copy — clear it first.
+    const pagerBody = document.getElementById(`pager-body-${bookId}`);
+    if(pagerBody) pagerBody.innerHTML = '';
+  }
+  if(bodyEl) bodyEl.innerHTML = wasOpen ? '' : chapterBodyHTML(ch, bookId, idx);
+
   // Mark as read once opened (for progress tracking) regardless of generation state
   book.readChapters = book.readChapters || [];
   if(!book.readChapters.includes(idx)){
     book.readChapters.push(idx);
-    book.progress = Math.round((book.readChapters.length / book.chapters.length) * 100);
     saveLibraryToStorage();
   }
 
@@ -2472,9 +2863,21 @@ async function generateSingleChapter(bookId, idx){
     ch.errorMsg = err.message || 'Generation failed.';
     announceStatus(`Generation failed for chapter ${ch.number || (idx+1)}. ${ch.errorMsg}`);
   }
+  // "Book progress" (shown on Dashboard/Library cards) reflects how many
+  // chapters have an actual generated summary — not just how many were opened.
+  updateBookProgress(book);
   saveLibraryToStorage();
   refreshChapterUI(bookId, idx);
   renderDashboard();
+}
+
+/* Recomputes book.progress from generated chapters only (status === 'done'),
+   so "100%" always means every chapter's summary has actually been written —
+   not just that every chapter was opened/viewed. */
+function updateBookProgress(book){
+  const total = book.chapters.length;
+  const done = book.chapters.filter(c=>c.status==='done').length;
+  book.progress = total ? Math.round((done/total)*100) : 0;
 }
 
 /* Announces a status update to assistive tech without moving focus or showing a visual toast
@@ -2501,6 +2904,21 @@ function refreshChapterUI(bookId, idx){
   if(badgeHTML) caret.insertAdjacentHTML('beforebegin', badgeHTML);
   const bodyEl = document.getElementById(`toc-body-${bookId}-${idx}`);
   if(bodyEl) bodyEl.innerHTML = chapterBodyHTML(ch, bookId, idx);
+
+  // If focus mode is open on this exact chapter, it owns the live element
+  // IDs (pager body is cleared while focus mode is open — see openFocusMode),
+  // so refresh only the overlay to avoid rendering duplicate IDs.
+  const focusOwnsThisChapter = focusModeState && focusModeState.bookId === bookId && focusModeState.idx === idx;
+  if(focusOwnsThisChapter){
+    renderFocusMode();
+  }else if(book.currentPageIdx === idx){
+    // Otherwise, if the pager view is open on this exact chapter, refresh it
+    // in place (status badge + body) so a background generation shows up live.
+    const pagerEl = document.getElementById('tocPagerView-'+bookId);
+    if(pagerEl && pagerEl.style.display !== 'none'){
+      renderChapterPager(bookId, idx);
+    }
+  }
 
   // Re-render mind map tree if it's currently visible, so new takeaways/status appear live
   const mapEl = document.getElementById('mindmapContainer-'+bookId);
@@ -2549,13 +2967,16 @@ async function generateAllChapters(bookId){
   if(pending.length===0){ showToast('All chapters already generated'); return; }
   showToast(`Generating ${pending.length} chapter${pending.length>1?'s':''}…`);
 
-  for(const {i} of pending){
-    // Open the accordion so the user can watch progress, then generate sequentially
+  for(const {ch, i} of pending){
+    // If the list view is open, expand that chapter's accordion so the user
+    // can watch progress there too, then generate sequentially.
     const el = document.getElementById(`toc-${bookId}-${i}`);
     if(el && !el.classList.contains('open')){
       el.classList.add('open');
       const headEl = document.getElementById(`toc-head-${bookId}-${i}`);
       if(headEl) headEl.setAttribute('aria-expanded', 'true');
+      const bodyEl = document.getElementById(`toc-body-${bookId}-${i}`);
+      if(bodyEl && book.currentPageIdx !== i) bodyEl.innerHTML = chapterBodyHTML(ch, bookId, i);
     }
     await generateSingleChapter(bookId, i);
   }
@@ -2729,14 +3150,10 @@ if ('serviceWorker' in navigator) {
 async function initApp() {
   setFontSize(getFontSize());
   state.library = await loadLibraryFromDB();
-  
-  // Check URL hash for shortcuts (e.g. #discover, #library)
-  const hash = window.location.hash.replace('#', '');
-  if (['discover', 'library', 'settings'].includes(hash)) {
-    goTo(hash);
-  } else {
-    renderDashboard();
-  }
+
+  // Restore whichever page (and, for the reader, which book) the hash points
+  // to, so refreshing stays put instead of always landing on the Dashboard.
+  routeFromHash();
 }
 
 initApp();
