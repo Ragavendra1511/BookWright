@@ -26,6 +26,10 @@
     --gold-bright:#E0BC3F;
     --sage:#6B8F71;
     --coral:#E0674D;
+    /* WCAG 2.2 AA (4.5:1) contrast-safe variants of sage/coral for text on dark backgrounds */
+    --sage-a11y:#93AE97;
+    --coral-a11y:#EB9481;
+    --focus-ring:#7FC4FF;
     --ink-text:#EDEAE0;
     --ink-text-dim:#A9B2BE;
     --line: rgba(237,234,224,0.12);
@@ -39,6 +43,27 @@
 
   *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   html,body{ height:100%; }
+
+  /* ---------- Focus visibility (WCAG 2.2 2.4.7 / 2.4.11) ---------- */
+  :focus{ outline:none; }
+  :focus-visible{
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible,
+  textarea:focus-visible, [tabindex]:focus-visible, [role="button"]:focus-visible{
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+  .fav-btn:focus-visible{ outline-offset: 1px; border-radius:6px; }
+  .nav-btn:focus-visible{ outline-offset: -3px; }
+
+  /* ---------- Screen-reader-only utility ---------- */
+  .sr-only{
+    position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+    overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
+  }
   body{
     margin:0;
     background: var(--ink);
@@ -236,6 +261,10 @@
   .field input:focus, .field textarea:focus, .field select:focus{
     border-color: var(--gold);
   }
+  .field input:focus-visible, .field textarea:focus-visible, .field select:focus-visible{
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 1px;
+  }
   .field input::placeholder{ color: #6b7686; }
   .hint{ font-size:11.5px; color:var(--ink-text-dim); margin-top:6px; line-height:1.5; }
   .hint a{ color:var(--gold); }
@@ -302,7 +331,7 @@
   }
   .btn-danger{
     background: transparent;
-    color: var(--coral);
+    color: var(--coral-a11y);
     border:1px solid rgba(224,103,77,0.4);
     box-shadow:none;
   }
@@ -394,7 +423,7 @@
   .toc-header-title{ font-family:var(--font-display); font-weight:700; font-size:18px; color:var(--paper); line-height:1.3; }
   .toc-header-author{ font-size:13px; color:var(--ink-text-dim); margin-top:3px; }
   .toc-header-tags{ display:flex; gap:6px; margin-top:10px; flex-wrap:wrap; }
-  .tag{ font-size:10px; font-family:var(--font-mono); text-transform:uppercase; letter-spacing:0.05em; color:var(--sage); border:1px solid rgba(107,143,113,0.35); padding:3px 8px; border-radius:5px; }
+  .tag{ font-size:10px; font-family:var(--font-mono); text-transform:uppercase; letter-spacing:0.05em; color:var(--sage-a11y); border:1px solid rgba(107,143,113,0.35); padding:3px 8px; border-radius:5px; }
 
   .toc-list{ border:1px solid var(--line); border-radius: var(--radius); overflow:hidden; }
   .toc-progress{ display:flex; align-items:center; gap:10px; margin-bottom:6px; }
@@ -532,14 +561,14 @@
     padding:3px 7px; border-radius:5px;
     white-space:nowrap;
   }
-  .mm-status-done{ color:var(--sage); border:1px solid rgba(107,143,113,0.35); }
+  .mm-status-done{ color:var(--sage-a11y); border:1px solid rgba(107,143,113,0.35); }
   .mm-status-loading{ color:var(--gold); border:1px solid rgba(201,162,39,0.4); }
-  .mm-status-error{ color:var(--coral); border:1px solid rgba(224,103,77,0.4); }
+  .mm-status-error{ color:var(--coral-a11y); border:1px solid rgba(224,103,77,0.4); }
   .mm-status-pending{ color:var(--ink-text-dim); border:1px solid var(--line); }
 
   .mm-leaf .mm-tree-row{ padding:6px 6px; align-items:flex-start; }
   .mm-leaf-icon{
-    flex-shrink:0; color:var(--sage); font-size:12px; line-height:1.5;
+    flex-shrink:0; color:var(--sage-a11y); font-size:12px; line-height:1.5;
     width:14px; text-align:center;
   }
   .mm-quote-leaf .mm-leaf-icon{ color:var(--gold); font-family:var(--font-display); font-size:15px; }
@@ -586,7 +615,7 @@
   .callout-label{
     font-family:var(--font-mono);
     font-size:11px; text-transform:uppercase; letter-spacing:0.06em;
-    color: var(--sage);
+    color: var(--sage-a11y);
     margin-bottom:9px;
   }
   .callout-takeaway-list{ margin:0; padding-left:18px; }
@@ -594,7 +623,7 @@
     font-size:13.5px; line-height:1.55; color:var(--ink-text);
     margin-bottom:7px;
   }
-  .callout-takeaway-list li::marker{ color: var(--sage); }
+  .callout-takeaway-list li::marker{ color: var(--sage-a11y); }
 
   .chapter-actions{ display:flex; gap:8px; margin-top:16px; flex-wrap:wrap; }
   .regen-btn{
@@ -627,8 +656,8 @@
     font-size:12.5px; margin-top:10px; padding:9px 12px;
     border-radius:8px;
   }
-  .key-status.ok{ background: rgba(107,143,113,0.12); color: var(--sage); }
-  .key-status.bad{ background: rgba(224,103,77,0.12); color: var(--coral); }
+  .key-status.ok{ background: rgba(107,143,113,0.12); color: var(--sage-a11y); }
+  .key-status.bad{ background: rgba(224,103,77,0.12); color: var(--coral-a11y); }
   .key-status .dot{ width:7px; height:7px; border-radius:50%; background:currentColor; }
 
   /* ---------- Toast ---------- */
@@ -735,11 +764,12 @@
       <div class="field" style="position:relative;">
         <label for="inputTitle">Book title</label>
         <input id="inputTitle" type="text" placeholder="e.g. Atomic Habits" autocomplete="off"
+          role="combobox" aria-expanded="false" aria-controls="titleSuggestBox" aria-autocomplete="list" aria-haspopup="listbox"
           oninput="onTitleInput(this.value)"
           onkeydown="onTitleKeydown(event)"
           onblur="scheduleCloseSuggestions()"
           onfocus="if(this.value.trim().length>=3) onTitleInput(this.value)">
-        <div id="titleSuggestBox" class="suggest-box" style="display:none;"></div>
+        <div id="titleSuggestBox" class="suggest-box" role="listbox" aria-label="Title suggestions" style="display:none;"></div>
       </div>
       <div class="field">
         <label for="inputAuthor">Author</label>
@@ -787,10 +817,11 @@
         <div class="field">
           <label for="modelSelect">Model</label>
           <select id="modelSelect">
-            <option value="gemini-2.5-flash">gemini-2.5-flash (recommended, free tier)</option>
+            <option value="gemini-3.6-flash">gemini-3.6-flash (recommended, free tier)</option>
+            <option value="gemini-2.5-flash">gemini-2.5-flash (free tier)</option>
             <option value="gemini-2.5-flash-lite">gemini-2.5-flash-lite (highest free quota)</option>
-            <option value="gemini-3.5-flash">gemini-3.5-flash (newer, free tier)</option>
-            <option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite (newer, high quota)</option>
+            <option value="gemini-3.5-flash">gemini-3.5-flash</option>
+            <option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite (high quota)</option>
           </select>
         </div>
         <div class="btn-row">
@@ -806,6 +837,10 @@
       <div class="section-label">Data</div>
       <div class="card">
         <p class="hint" style="margin-top:0; margin-bottom:14px;">All summaries and your API key live in this browser's local storage only. Nothing is sent anywhere except directly to Google's Gemini API when generating.</p>
+        <div class="field" style="display:flex; flex-direction:row; align-items:center; gap:8px; margin-bottom:12px;">
+          <input type="checkbox" id="exportIncludeKey" style="width:auto; margin:0;">
+          <label for="exportIncludeKey" style="display:inline; margin:0; text-transform:none; letter-spacing:normal; font-size:13.5px; cursor:pointer;">Include my Gemini API key in the export file</label>
+        </div>
         <div class="btn-row">
           <button class="btn btn-secondary" onclick="exportLibrary()">Export library</button>
           <button class="btn btn-secondary" onclick="document.getElementById('importFileInput').click()">Import library</button>
@@ -839,7 +874,8 @@
 
 </div>
 
-<div id="toast"></div>
+<div id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+<div id="statusAnnouncer" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
 
 <div class="bottom-nav">
   <button class="nav-btn active" data-page="dashboard" onclick="goTo('dashboard')">
@@ -923,7 +959,7 @@ async function saveLibraryToStorage() {
 }
 
 function getApiKey(){ return localStorage.getItem(LS_KEYS.apiKey) || ''; }
-function getModel(){ return localStorage.getItem(LS_KEYS.model) || 'gemini-2.5-flash'; }
+function getModel(){ return localStorage.getItem(LS_KEYS.model) || 'gemini-3.6-flash'; }
 
 function spineColorFor(str){
   let h = 0;
@@ -945,15 +981,15 @@ function coverHTML(book, sizeClass, allowRetry){
 
   function fallbackHTML(){
     if(allowRetry){
-      return `<div class="${cls} spine-fallback spine-retry" style="background:${color}" onclick="retryCoverFetch('${book.id}')" title="Tap to look up cover art">${initials}<span class="spine-retry-badge">↻</span></div>`;
+      return `<div class="${cls} spine-fallback spine-retry" role="button" tabindex="0" style="background:${color}" onclick="retryCoverFetch('${book.id}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault(); retryCoverFetch('${book.id}');}" title="Tap to look up cover art" aria-label="No cover art found for ${escapeAttr(book.title)}. Activate to look up cover art.">${initials}<span class="spine-retry-badge" aria-hidden="true">↻</span></div>`;
     }
-    return `<div class="${cls} spine-fallback" style="background:${color}">${initials}</div>`;
+    return `<div class="${cls} spine-fallback" style="background:${color}" role="img" aria-label="Cover placeholder for ${escapeAttr(book.title)}">${initials}</div>`;
   }
 
   if(!book.coverUrl) return fallbackHTML();
 
   return `<div class="${cls} spine-cover-wrap" style="background:${color}">
-    <img src="${escapeAttr(book.coverUrl)}" alt="" class="spine-cover-img"
+    <img src="${escapeAttr(book.coverUrl)}" alt="Cover of ${escapeAttr(book.title)}" class="spine-cover-img"
          onerror="this.parentElement.outerHTML = ${JSON.stringify(fallbackHTML())};">
   </div>`;
 }
@@ -1006,7 +1042,11 @@ function goTo(page){
   resetTtsButton();
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+page).classList.add('active');
-  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active', b.dataset.page===page));
+  document.querySelectorAll('.nav-btn').forEach(b=>{
+    const isActive = b.dataset.page===page;
+    b.classList.toggle('active', isActive);
+    if(isActive) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current');
+  });
   state.currentPage = page;
   const titles = {dashboard:'Dashboard', discover:'Discover', library:'Library', settings:'Settings', reader:'Reading'};
   document.getElementById('topbarSub').textContent = titles[page] || '';
@@ -1015,6 +1055,17 @@ function goTo(page){
   if(page==='library') renderLibrary();
   if(page==='discover') renderDiscover();
   if(page==='settings') renderSettings();
+  focusPageHeading('page-'+page);
+}
+
+/* Moves focus to the new page's heading after navigation so keyboard and screen-reader
+   users land at the top of the new content instead of on a now-hidden nav button. */
+function focusPageHeading(pageId){
+  const heading = document.querySelector(`#${pageId} .page-title`);
+  if(heading){
+    if(!heading.hasAttribute('tabindex')) heading.setAttribute('tabindex','-1');
+    heading.focus({preventScroll:true});
+  }
 }
 
 function openReader(id){
@@ -1023,9 +1074,11 @@ function openReader(id){
   renderReader(id);
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-reader').classList.add('active');
-  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>{ b.classList.remove('active'); b.removeAttribute('aria-current'); });
   document.getElementById('topbarSub').textContent = 'Reading';
   window.scrollTo(0,0);
+  const heading = document.getElementById('readerTitleHeading');
+  if(heading) heading.focus({preventScroll:true});
 }
 
 /* ---------------- Toast ---------------- */
@@ -1073,19 +1126,23 @@ function renderDashboard(){
 
 function bookCardHTML(book){
   const pct = book.progress || 0;
+  const titleText = escapeHTML(book.title);
+  const authorText = escapeHTML(book.author||'Unknown author');
   return `
-  <div class="book-card" onclick="openReader('${book.id}')">
+  <div class="book-card" role="button" tabindex="0" aria-label="Open ${escapeAttr(book.title)}, ${pct}% complete"
+       onclick="openReader('${book.id}')"
+       onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault(); openReader('${book.id}');}">
     ${coverHTML(book)}
     <div class="book-meta">
-      <div class="book-title">${escapeHTML(book.title)}</div>
-      <div class="book-author">${escapeHTML(book.author||'Unknown author')}</div>
+      <div class="book-title">${titleText}</div>
+      <div class="book-author">${authorText}</div>
       <div class="book-progress">
-        <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
-        <div class="progress-text">${pct}%</div>
+        <div class="progress-track" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100" aria-label="Reading progress"><div class="progress-fill" style="width:${pct}%"></div></div>
+        <div class="progress-text" aria-hidden="true">${pct}%</div>
       </div>
     </div>
-    <button class="fav-btn ${book.favorite?'active':''}" onclick="event.stopPropagation(); toggleFavorite('${book.id}')" aria-label="Favorite">${book.favorite ? '★' : '☆'}</button>
-    <div class="book-chevron">›</div>
+    <button class="fav-btn ${book.favorite?'active':''}" onclick="event.stopPropagation(); toggleFavorite('${book.id}')" aria-pressed="${book.favorite?'true':'false'}" aria-label="${book.favorite?'Remove from favorites':'Add to favorites'}">${book.favorite ? '★' : '☆'}</button>
+    <div class="book-chevron" aria-hidden="true">›</div>
   </div>`;
 }
 
@@ -1115,12 +1172,12 @@ function renderDiscover(){
   const key = getApiKey();
   const hint = document.getElementById('apiKeyHint');
   if(!key){
-    hint.innerHTML = `⚠ No Gemini API key set. <a href="#" onclick="goTo('settings');return false;" style="color:var(--coral)">Add one in Settings</a> to generate summaries.`;
+    hint.innerHTML = `⚠ No Gemini API key set. <a href="#" onclick="goTo('settings');return false;" style="color:var(--coral-a11y)">Add one in Settings</a> to generate summaries.`;
   }else{
     hint.textContent = '';
   }
   const chips = document.getElementById('suggestionChips');
-  chips.innerHTML = SUGGESTIONS.map(s=>`<div class="chip" onclick="fillSuggestion('${escapeAttr(s.title)}','${escapeAttr(s.author)}')">${escapeHTML(s.title)}</div>`).join('');
+  chips.innerHTML = SUGGESTIONS.map(s=>`<div class="chip" role="button" tabindex="0" aria-label="Fill in ${escapeAttr(s.title)} by ${escapeAttr(s.author)}" onclick="fillSuggestion('${escapeAttr(s.title)}','${escapeAttr(s.author)}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault(); fillSuggestion('${escapeAttr(s.title)}','${escapeAttr(s.author)}');}">${escapeHTML(s.title)}</div>`).join('');
 }
 function fillSuggestion(title, author){
   document.getElementById('inputTitle').value = title;
@@ -1189,12 +1246,14 @@ async function runTitleSearch(q){
 
 function renderSuggestions(){
   const box = document.getElementById('titleSuggestBox');
+  const input = document.getElementById('inputTitle');
   box.innerHTML = titleSuggestResults.map((r, i) => `
     <div class="suggest-item${i===titleSuggestActiveIndex ? ' active' : ''}"
+         id="suggest-opt-${i}" role="option" aria-selected="${i===titleSuggestActiveIndex ? 'true' : 'false'}"
          onmousedown="event.preventDefault(); pickSuggestion(${i})">
       ${r.thumb
         ? `<img class="suggest-thumb" src="${escapeAttr(r.thumb)}" alt="">`
-        : `<div class="suggest-thumb-placeholder">📖</div>`}
+        : `<div class="suggest-thumb-placeholder" aria-hidden="true">📖</div>`}
       <div class="suggest-text">
         <div class="suggest-title">${escapeHTML(r.title)}</div>
         <div class="suggest-author">${escapeHTML(r.author || 'Unknown author')}</div>
@@ -1202,12 +1261,15 @@ function renderSuggestions(){
     </div>
   `).join('');
   box.style.display = 'block';
+  input.setAttribute('aria-expanded', 'true');
+  input.setAttribute('aria-activedescendant', titleSuggestActiveIndex >= 0 ? `suggest-opt-${titleSuggestActiveIndex}` : '');
 }
 
 function showSuggestLoading(){
   const box = document.getElementById('titleSuggestBox');
   box.innerHTML = `<div class="suggest-loading">Searching…</div>`;
   box.style.display = 'block';
+  document.getElementById('inputTitle').setAttribute('aria-expanded', 'true');
 }
 
 function showSuggestEmpty(){
@@ -1215,6 +1277,9 @@ function showSuggestEmpty(){
   titleSuggestResults = [];
   box.innerHTML = `<div class="suggest-empty">No matches — you can still type the full title &amp; author</div>`;
   box.style.display = 'block';
+  const input = document.getElementById('inputTitle');
+  input.setAttribute('aria-expanded', 'true');
+  input.setAttribute('aria-activedescendant', '');
 }
 
 function closeSuggestions(){
@@ -1223,6 +1288,9 @@ function closeSuggestions(){
   box.innerHTML = '';
   titleSuggestResults = [];
   titleSuggestActiveIndex = -1;
+  const input = document.getElementById('inputTitle');
+  input.setAttribute('aria-expanded', 'false');
+  input.setAttribute('aria-activedescendant', '');
 }
 
 // Delay closing on blur so a click on a suggestion (mousedown) still registers first
@@ -1334,7 +1402,7 @@ async function startGeneration(){
     clearInterval(stageInterval);
     console.error(err);
     statusArea.innerHTML = `<div class="card" style="border-color:rgba(224,103,77,0.4)">
-      <div style="color:var(--coral); font-weight:600; font-size:14px; margin-bottom:6px;">Generation failed</div>
+      <div style="color:var(--coral-a11y); font-weight:600; font-size:14px; margin-bottom:6px;">Generation failed</div>
       <div class="hint" style="margin:0;">${escapeHTML(err.message || 'Something went wrong talking to Gemini.')}</div>
     </div>`;
   }finally{
@@ -1471,13 +1539,27 @@ function renderLibrary(){
 
 function exportLibrary(){
   if(state.library.length===0){ showToast('Library is empty'); return; }
-  const blob = new Blob([JSON.stringify(state.library, null, 2)], {type:'application/json'});
+  const includeKey = document.getElementById('exportIncludeKey')?.checked;
+  const payload = {
+    format: 'booknip-export',
+    version: 2,
+    exportedAt: new Date().toISOString(),
+    library: state.library
+  };
+  if(includeKey){
+    const key = getApiKey();
+    if(key){
+      payload.apiKey = key;
+      payload.model = getModel();
+    }
+  }
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url; a.download = 'BookNip-library.json';
   a.click();
   URL.revokeObjectURL(url);
-  showToast('Exported');
+  showToast(includeKey ? 'Exported (includes API key)' : 'Exported');
 }
 
 function handleImportFile(event){
@@ -1487,27 +1569,55 @@ function handleImportFile(event){
 
   const reader = new FileReader();
   reader.onload = () => {
-    let imported;
+    let parsed;
     try{
-      imported = JSON.parse(reader.result);
+      parsed = JSON.parse(reader.result);
     }catch(e){
       showToast("That file isn't valid JSON");
       return;
     }
-    if(!Array.isArray(imported)){
+
+    // Support both the current object format ({library:[...], apiKey?}) and
+    // the older format where the file was just a bare array of books.
+    let imported, importedKey, importedModel;
+    if(Array.isArray(parsed)){
+      imported = parsed;
+    }else if(parsed && typeof parsed === 'object' && Array.isArray(parsed.library)){
+      imported = parsed.library;
+      importedKey = typeof parsed.apiKey === 'string' ? parsed.apiKey : null;
+      importedModel = typeof parsed.model === 'string' ? parsed.model : null;
+    }else{
       showToast('Unrecognized file format');
       return;
     }
+
     const validBooks = imported.filter(b => b && typeof b === 'object' && b.id && b.title && Array.isArray(b.chapters));
     if(validBooks.length === 0){
       showToast('No valid books found in that file');
       return;
     }
 
+    function applyImportedKey(){
+      if(!importedKey) return;
+      const overwrite = confirm(
+        'This file also includes a Gemini API key.\n\nOK = Use this key (replaces your current saved key)\nCancel = Keep my current key'
+      );
+      if(overwrite){
+        localStorage.setItem(LS_KEYS.apiKey, importedKey);
+        if(importedModel) localStorage.setItem(LS_KEYS.model, importedModel);
+        const keyInput = document.getElementById('apiKeyInput');
+        if(keyInput) keyInput.value = importedKey;
+        const modelSelect = document.getElementById('modelSelect');
+        if(modelSelect && importedModel) modelSelect.value = importedModel;
+        showToast('API key updated');
+      }
+    }
+
     if(state.library.length === 0){
       state.library = validBooks;
       saveLibraryToStorage();
       finishImport(validBooks.length, 0);
+      applyImportedKey();
       return;
     }
 
@@ -1526,6 +1636,7 @@ function handleImportFile(event){
       saveLibraryToStorage();
       finishImport(validBooks.length, 0);
     }
+    applyImportedKey();
   };
   reader.onerror = () => showToast('Could not read that file');
   reader.readAsText(file);
@@ -1759,7 +1870,7 @@ function renderReader(id){
     <div class="toc-header">
       ${coverHTML(book, 'spine-lg', true)}
       <div class="toc-header-meta">
-        <div class="toc-header-title">${escapeHTML(book.title)}</div>
+        <h1 class="toc-header-title" id="readerTitleHeading" tabindex="-1">${escapeHTML(book.title)}</h1>
         <div class="toc-header-author">${escapeHTML(book.author || 'Unknown author')}</div>
         <div class="toc-header-tags">
           <div class="tag">${book.chapters.length} chapters</div>
@@ -1784,8 +1895,8 @@ function renderReader(id){
     </div>
 
     <div class="view-toggle" id="viewToggle-${book.id}">
-      <button class="view-toggle-btn active" id="viewToggleList-${book.id}" onclick="setReaderView('${book.id}','list')">☰ List</button>
-      <button class="view-toggle-btn" id="viewToggleMap-${book.id}" onclick="setReaderView('${book.id}','map')">🕸 Mind map</button>
+      <button class="view-toggle-btn active" id="viewToggleList-${book.id}" aria-pressed="true" onclick="setReaderView('${book.id}','list')">☰ List</button>
+      <button class="view-toggle-btn" id="viewToggleMap-${book.id}" aria-pressed="false" onclick="setReaderView('${book.id}','map')">🕸 Mind map</button>
     </div>
 
     <div id="mindmapContainer-${book.id}" style="display:none;"></div>
@@ -1795,14 +1906,16 @@ function renderReader(id){
       <div class="toc-list">
         ${book.chapters.map((ch,i)=>`
           <div class="toc-item" id="toc-${book.id}-${i}">
-            <div class="toc-item-head" onclick="toggleChapter('${book.id}', ${i})">
-              <div class="toc-num">${ch.number || (i+1)}</div>
+            <div class="toc-item-head" role="button" tabindex="0" aria-expanded="false" aria-controls="toc-body-${book.id}-${i}" id="toc-head-${book.id}-${i}"
+                 onclick="toggleChapter('${book.id}', ${i})"
+                 onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault(); toggleChapter('${book.id}', ${i});}">
+              <div class="toc-num" aria-hidden="true">${ch.number || (i+1)}</div>
               <div class="toc-item-title">${escapeHTML(ch.title || 'Chapter ' + (i+1))}</div>
               ${chapterStatusBadge(ch)}
-              <div class="toc-caret">▾</div>
+              <div class="toc-caret" aria-hidden="true">▾</div>
             </div>
             <div class="toc-item-body">
-              <div class="toc-item-body-inner" id="toc-body-${book.id}-${i}">${chapterBodyHTML(ch, book.id, i)}</div>
+              <div class="toc-item-body-inner" id="toc-body-${book.id}-${i}" role="region" aria-labelledby="toc-head-${book.id}-${i}">${chapterBodyHTML(ch, book.id, i)}</div>
             </div>
           </div>
         `).join('')}
@@ -1826,7 +1939,7 @@ function renderReader(id){
 
 function chapterStatusBadge(ch){
   if(ch.status === 'loading') return `<div class="tag" style="color:var(--gold); border-color:rgba(201,162,39,0.4)">generating…</div>`;
-  if(ch.status === 'error') return `<div class="tag" style="color:var(--coral); border-color:rgba(224,103,77,0.4)">retry</div>`;
+  if(ch.status === 'error') return `<div class="tag" style="color:var(--coral-a11y); border-color:rgba(224,103,77,0.4)">retry</div>`;
   if(ch.status === 'done') return '';
   return `<div class="tag">tap to generate</div>`;
 }
@@ -1845,7 +1958,7 @@ function chapterBodyHTML(ch, bookId, idx){
       <div class="book-spinner" style="width:22px;height:28px;margin:0;"><div class="book-base"></div><div class="page-flip"></div></div>
       Writing this chapter's summary…
     </div>`;
-  if(ch.status === 'error') return `<div style="color:var(--coral); font-size:13.5px;">${escapeHTML(ch.errorMsg || 'Generation failed.')} Tap the chapter again to retry.</div>`;
+  if(ch.status === 'error') return `<div style="color:var(--coral-a11y); font-size:13.5px;">${escapeHTML(ch.errorMsg || 'Generation failed.')} Tap the chapter again to retry.</div>`;
   return `<p style="color:var(--ink-text-dim);">Not generated yet — tap this chapter to write its summary.</p>`;
 }
 
@@ -1866,12 +1979,16 @@ function setReaderView(bookId, view){
     mapEl.style.display = 'block';
     btnList.classList.remove('active');
     btnMap.classList.add('active');
+    btnList.setAttribute('aria-pressed', 'false');
+    btnMap.setAttribute('aria-pressed', 'true');
     renderMindMapTree(bookId);
   }else{
     listEl.style.display = 'block';
     mapEl.style.display = 'none';
     btnMap.classList.remove('active');
     btnList.classList.add('active');
+    btnMap.setAttribute('aria-pressed', 'false');
+    btnList.setAttribute('aria-pressed', 'true');
   }
 }
 
@@ -1923,7 +2040,7 @@ function renderMindMapTree(bookId){
         childrenHTML += `
           <li class="mm-tree-node mm-leaf mm-quote-leaf">
             <div class="mm-tree-row">
-              <span class="mm-leaf-icon">❝</span>
+              <span class="mm-leaf-icon" aria-hidden="true">❝</span>
               <span class="mm-leaf-text">${escapeHTML(ch.quote)}</span>
             </div>
           </li>`;
@@ -1933,7 +2050,7 @@ function renderMindMapTree(bookId){
           childrenHTML += `
             <li class="mm-tree-node mm-leaf">
               <div class="mm-tree-row">
-                <span class="mm-leaf-icon">›</span>
+                <span class="mm-leaf-icon" aria-hidden="true">›</span>
                 <span class="mm-leaf-text">${escapeHTML(tk)}</span>
               </div>
             </li>`;
@@ -1941,15 +2058,18 @@ function renderMindMapTree(bookId){
       }
     }
 
+    const rowId = `mm-row-${bookId}-${path}`;
+    const childrenId = `mm-children-${bookId}-${path}`;
     chaptersHTML += `
       <li class="mm-tree-node ${isLast ? 'mm-last' : ''}">
-        <div class="mm-tree-row ${expandable ? 'mm-clickable' : ''}" ${expandable ? `onclick="mmToggleNode('${bookId}','${path}')"` : ''}>
-          ${expandable ? `<span class="mm-caret ${expanded?'open':''}">▸</span>` : `<span class="mm-caret-spacer"></span>`}
-          <span class="mm-chapter-num">${num}</span>
-          <span class="mm-chapter-title" onclick="event.stopPropagation(); jumpToChapterFromMap('${bookId}', ${i})">${escapeHTML(ch.title || 'Chapter '+num)}</span>
+        <div class="mm-tree-row ${expandable ? 'mm-clickable' : ''}"
+             ${expandable ? `role="button" tabindex="0" id="${rowId}" aria-expanded="${expanded?'true':'false'}" aria-controls="${childrenId}" onclick="mmToggleNode('${bookId}','${path}')" onkeydown="if(event.target===this && (event.key==='Enter'||event.key===' ')){event.preventDefault(); mmToggleNode('${bookId}','${path}');}"` : ''}>
+          ${expandable ? `<span class="mm-caret ${expanded?'open':''}" aria-hidden="true">▸</span>` : `<span class="mm-caret-spacer" aria-hidden="true"></span>`}
+          <span class="mm-chapter-num" aria-hidden="true">${num}</span>
+          <span class="mm-chapter-title" role="button" tabindex="0" aria-label="Jump to chapter: ${escapeAttr(ch.title || 'Chapter '+num)}" onclick="event.stopPropagation(); jumpToChapterFromMap('${bookId}', ${i})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault(); event.stopPropagation(); jumpToChapterFromMap('${bookId}', ${i});}">${escapeHTML(ch.title || 'Chapter '+num)}</span>
           <span class="mm-status-tag mm-status-${st.cls}">${st.label}</span>
         </div>
-        ${expandable ? `<ul class="mm-tree-children" style="display:${expanded?'block':'none'}">${childrenHTML}</ul>` : ''}
+        ${expandable ? `<ul class="mm-tree-children" id="${childrenId}" style="display:${expanded?'block':'none'}">${childrenHTML}</ul>` : ''}
       </li>`;
   });
 
@@ -1962,11 +2082,12 @@ function renderMindMapTree(bookId){
     <div class="mm-tree-wrap" id="mmTreeWrap-${bookId}">
       <ul class="mm-tree-root">
         <li class="mm-tree-node mm-root-node">
-          <div class="mm-tree-row mm-clickable" onclick="mmToggleNode('${bookId}','root')">
-            <span class="mm-caret ${rootExpanded?'open':''}">▸</span>
+          <div class="mm-tree-row mm-clickable" role="button" tabindex="0" id="mm-row-${bookId}-root" aria-expanded="${rootExpanded?'true':'false'}" aria-controls="mm-children-${bookId}-root"
+               onclick="mmToggleNode('${bookId}','root')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault(); mmToggleNode('${bookId}','root');}">
+            <span class="mm-caret ${rootExpanded?'open':''}" aria-hidden="true">▸</span>
             <span class="mm-book-title">${escapeHTML(book.title)}</span>
           </div>
-          <ul class="mm-tree-children mm-chapters-list" style="display:${rootExpanded?'block':'none'}">
+          <ul class="mm-tree-children mm-chapters-list" id="mm-children-${bookId}-root" style="display:${rootExpanded?'block':'none'}">
             ${chaptersHTML}
           </ul>
         </li>
@@ -1980,6 +2101,8 @@ function mmToggleNode(bookId, path){
   const current = mmIsExpanded(bookId, path, path==='root');
   mmSetExpanded(bookId, path, !current);
   renderMindMapTree(bookId);
+  const rowEl = document.getElementById(`mm-row-${bookId}-${path}`);
+  if(rowEl) rowEl.focus();
 }
 
 function mmExpandAll(bookId){
@@ -2078,8 +2201,8 @@ function buildMindMapCanvas(book, bookId){
   const line = 'rgba(237,234,224,0.14)';
   const gold = '#C9A227';
   const goldBright = '#E0BC3F';
-  const sage = '#6B8F71';
-  const coral = '#E0674D';
+  const sage = '#93AE97';
+  const coral = '#EB9481';
   const paper = '#F7F3E9';
   const textDim = '#A9B2BE';
   const textMain = '#EDEAE0';
@@ -2304,6 +2427,8 @@ function toggleChapter(bookId, idx){
   const el = document.getElementById(`toc-${bookId}-${idx}`);
   const wasOpen = el.classList.contains('open');
   el.classList.toggle('open');
+  const headEl = document.getElementById(`toc-head-${bookId}-${idx}`);
+  if(headEl) headEl.setAttribute('aria-expanded', wasOpen ? 'false' : 'true');
 
   const book = state.library.find(b=>b.id===bookId);
   if(!book) return;
@@ -2340,14 +2465,26 @@ async function generateSingleChapter(bookId, idx){
     ch.quote = result.quote;
     ch.takeaways = result.takeaways;
     ch.status = 'done';
+    announceStatus(`Summary ready for chapter ${ch.number || (idx+1)}: ${ch.title || ''}`);
   }catch(err){
     console.error(err);
     ch.status = 'error';
     ch.errorMsg = err.message || 'Generation failed.';
+    announceStatus(`Generation failed for chapter ${ch.number || (idx+1)}. ${ch.errorMsg}`);
   }
   saveLibraryToStorage();
   refreshChapterUI(bookId, idx);
   renderDashboard();
+}
+
+/* Announces a status update to assistive tech without moving focus or showing a visual toast
+   (use for background/async completions where a toast would be redundant or too frequent). */
+function announceStatus(msg){
+  const region = document.getElementById('statusAnnouncer');
+  if(!region) return;
+  region.textContent = '';
+  // Force a DOM mutation so repeated identical messages are still announced
+  requestAnimationFrame(()=>{ region.textContent = msg; });
 }
 
 function refreshChapterUI(bookId, idx){
@@ -2415,7 +2552,11 @@ async function generateAllChapters(bookId){
   for(const {i} of pending){
     // Open the accordion so the user can watch progress, then generate sequentially
     const el = document.getElementById(`toc-${bookId}-${i}`);
-    if(el && !el.classList.contains('open')) el.classList.add('open');
+    if(el && !el.classList.contains('open')){
+      el.classList.add('open');
+      const headEl = document.getElementById(`toc-head-${bookId}-${i}`);
+      if(headEl) headEl.setAttribute('aria-expanded', 'true');
+    }
     await generateSingleChapter(bookId, i);
   }
   showToast('All chapters generated');
