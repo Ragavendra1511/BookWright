@@ -48,7 +48,7 @@ self.addEventListener('fetch', (event) => {
         // Cache external static assets dynamically (e.g. Google Fonts, book cover thumbnails)
         if (
           networkResponse.status === 200 &&
-          (url.hostname.includes('googleapis.com') || url.hostname.includes('gstatic.com') || url.hostname.includes('google.com'))
+          (url.hostname.includes('googleapis.com') || url.hostname.includes('gstatic.com') || url.hostname.includes('google.com') || url.hostname.includes('openlibrary.org'))
         ) {
           const responseClone = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone));
