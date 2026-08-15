@@ -561,7 +561,7 @@
   .focus-exit-btn:hover, .focus-icon-btn:hover{ color:var(--paper); }
   .focus-body-scroll{
     flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch;
-    padding: 26px 24px 40px;
+    padding: 26px 24px 160px;
     max-width:560px; width:100%; margin:0 auto;
   }
   .focus-body-scroll .toc-num{ display:none; }
@@ -810,10 +810,159 @@
   /* scrollbar tidy */
   ::-webkit-scrollbar{ width:0; height:0; }
 
+  /* ---------- TTS Media Player Bar ---------- */
+  .tts-player-bar {
+    position: fixed;
+    bottom: calc(54px + env(safe-area-inset-bottom));
+    left: 0; right: 0;
+    z-index: 300;
+    max-width: 560px;
+    margin: 0 auto;
+    background: rgba(27, 36, 48, 0.96);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-top: 1px solid var(--gold);
+    box-shadow: 0 -8px 24px rgba(0,0,0,0.45);
+    padding: 10px 14px 12px;
+    border-radius: 16px 16px 0 0;
+    animation: slideUp .22s ease;
+  }
+  @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+  .tts-player-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .tts-track-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    flex: 1;
+  }
+  .tts-track-cover {
+    width: 32px; height: 44px;
+    border-radius: 4px;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: var(--ink-3);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .tts-track-cover img { width: 100%; height: 100%; object-fit: cover; }
+  .tts-track-info { min-width: 0; flex: 1; }
+  .tts-track-title {
+    font-size: 13.5px; font-weight: 600; color: var(--paper);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .tts-track-sub {
+    font-size: 11px; color: var(--ink-text-dim);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px;
+  }
+  .tts-controls {
+    display: flex; align-items: center; gap: 4px; flex-shrink: 0;
+  }
+  .tts-ctrl-btn {
+    background: var(--ink-3);
+    border: 1px solid var(--line);
+    color: var(--paper);
+    border-radius: 8px;
+    padding: 0 6px;
+    height: 32px; min-width: 30px;
+    font-size: 11.5px; font-weight: 600;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background .15s, color .15s, border-color .15s;
+  }
+  .tts-ctrl-btn:hover { background: var(--ink-2); color: var(--gold-bright); border-color: rgba(201,162,39,0.4); }
+  .tts-play-btn {
+    background: linear-gradient(155deg, var(--gold-bright), var(--gold));
+    color: #241C05;
+    border: none;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    font-size: 14px; font-weight: 700;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 3px 10px rgba(201,162,39,0.35);
+    transition: transform .12s;
+  }
+  .tts-play-btn:active { transform: scale(0.95); }
+  .tts-close-btn { color: var(--ink-text-dim); font-size: 14px; width: 28px; height: 28px; border-radius: 50%; background: none; border: none; }
+  .tts-close-btn:hover { color: var(--coral-a11y); background: rgba(224,103,77,0.12); }
+
+  .tts-player-bottom {
+    margin-top: 8px;
+  }
+  .tts-progress-wrap {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .tts-progress-bar {
+    flex: 1; height: 5px;
+    background: var(--ink-3);
+    border-radius: 3px;
+    overflow: hidden;
+    cursor: pointer;
+    position: relative;
+  }
+  .tts-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold), var(--gold-bright));
+    width: 0%;
+    border-radius: 3px;
+    transition: width .15s ease-out;
+  }
+  .tts-time-text {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--gold);
+    flex-shrink: 0;
+    min-width: 30px; text-align: right;
+  }
+
+  .tts-options-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    margin-top: 8px; padding-top: 8px;
+    border-top: 1px solid var(--line);
+  }
+  .tts-opt-label { font-size: 10.5px; color: var(--ink-text-dim); font-family: var(--font-mono); text-transform: uppercase; margin-right: 2px; }
+  .tts-rate-group { display: flex; align-items: center; gap: 4px; }
+  .tts-rate-pill {
+    background: var(--ink-3);
+    border: 1px solid var(--line);
+    color: var(--ink-text-dim);
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    padding: 3px 6px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .tts-rate-pill:hover, .tts-rate-pill.active {
+    color: var(--gold-bright);
+    border-color: rgba(201,162,39,0.5);
+    background: rgba(201,162,39,0.15);
+  }
+  .tts-voice-group { flex: 1; max-width: 180px; display: flex; justify-content: flex-end; }
+  .tts-voice-select {
+    width: 100%;
+    background: var(--ink-3);
+    border: 1px solid var(--line);
+    color: var(--paper);
+    font-size: 11px;
+    padding: 4px 6px;
+    border-radius: 6px;
+    outline: none;
+    cursor: pointer;
+  }
+  .tts-voice-select:focus { border-color: var(--gold); }
+
   /* small screens fine-tune */
   @media (max-width:340px){
     .stat-row{ gap:7px; }
     .brand{ font-size:18px; }
+    .tts-voice-group{ max-width: 130px; }
   }
 </style>
 </head>
@@ -952,6 +1101,27 @@
           <button class="btn btn-danger" onclick="clearLibrary()">Clear all data</button>
         </div>
       </div>
+    <div class="settings-group">
+      <div class="section-label">Cloud Sync (Cloudflare Worker)</div>
+      <div class="card">
+        <p class="hint" style="margin-top:0;">Sync your book summaries automatically across your family's devices using your free Cloudflare Worker backend.</p>
+        <div class="field">
+          <label for="syncUrlInput">Worker Sync URL</label>
+          <input type="url" id="syncUrlInput" placeholder="https://booknip-sync.yourname.workers.dev" autocomplete="off" spellcheck="false">
+          <p class="hint">Your deployed Cloudflare Worker endpoint URL.</p>
+        </div>
+        <div class="field" style="margin-top:12px;">
+          <label for="familyPinInput">Family Secret PIN</label>
+          <input type="password" id="familyPinInput" placeholder="e.g. FamilySecret123!" autocomplete="off">
+          <p class="hint">Shared secret PIN configured in your Cloudflare environment variables (`FAMILY_SECRET_PIN`).</p>
+        </div>
+        <div class="btn-row" style="margin-top:16px;">
+          <button class="btn btn-secondary" onclick="saveSyncSettings()">Save Credentials</button>
+          <button class="btn btn-secondary" onclick="testCloudSync()">Test Connection</button>
+          <button class="btn" onclick="syncWithCloud(true)">Sync Now</button>
+        </div>
+        <div id="syncStatus" style="margin-top:10px;"></div>
+      </div>
     </div>
 
     <div class="settings-group">
@@ -977,7 +1147,51 @@
 </div>
 
 <div id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
-<div id="statusAnnouncer" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
+<!-- ============ TTS MEDIA PLAYER BAR ============ -->
+<div id="ttsMediaPlayer" class="tts-player-bar" style="display:none;" role="region" aria-label="Audio player">
+  <div class="tts-player-top">
+    <div class="tts-track-meta">
+      <div id="ttsTrackCover" class="tts-track-cover"></div>
+      <div class="tts-track-info">
+        <div id="ttsTrackChapter" class="tts-track-title">Chapter Title</div>
+        <div id="ttsTrackBook" class="tts-track-sub">Book Title</div>
+      </div>
+    </div>
+    <div class="tts-controls">
+      <button class="tts-ctrl-btn" onclick="ttsPrevChapter()" title="Previous Chapter" aria-label="Previous Chapter">⏮</button>
+      <button class="tts-ctrl-btn" onclick="skipTts(-10)" title="Rewind 10 seconds" aria-label="Rewind 10 seconds">↺ 10s</button>
+      <button class="tts-play-btn" id="ttsPlayPauseBtn" onclick="toggleTtsPlayPause()" title="Play or Pause" aria-label="Play or Pause">▶</button>
+      <button class="tts-ctrl-btn" onclick="skipTts(10)" title="Forward 10 seconds" aria-label="Forward 10 seconds">↻ 10s</button>
+      <button class="tts-ctrl-btn" onclick="ttsNextChapter()" title="Next Chapter" aria-label="Next Chapter">⏭</button>
+      <button class="tts-ctrl-btn tts-close-btn" onclick="stopTts()" title="Close Player" aria-label="Close Player">✕</button>
+    </div>
+  </div>
+
+  <div class="tts-player-bottom">
+    <div class="tts-progress-wrap">
+      <div class="tts-progress-bar" id="ttsProgressBar" onclick="seekTtsFromClick(event)" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Playback progress">
+        <div class="tts-progress-fill" id="ttsProgressFill"></div>
+      </div>
+      <div class="tts-time-text" id="ttsTimeText">0%</div>
+    </div>
+  </div>
+
+  <div class="tts-options-row">
+    <div class="tts-rate-group" role="group" aria-label="Playback rate">
+      <span class="tts-opt-label">Speed:</span>
+      <button class="tts-rate-pill" data-rate="0.75" onclick="setTtsRate(0.75)">0.75x</button>
+      <button class="tts-rate-pill active" data-rate="1.0" onclick="setTtsRate(1.0)">1.0x</button>
+      <button class="tts-rate-pill" data-rate="1.25" onclick="setTtsRate(1.25)">1.25x</button>
+      <button class="tts-rate-pill" data-rate="1.5" onclick="setTtsRate(1.5)">1.5x</button>
+      <button class="tts-rate-pill" data-rate="2.0" onclick="setTtsRate(2.0)">2.0x</button>
+    </div>
+    <div class="tts-voice-group">
+      <select id="ttsVoiceSelect" class="tts-voice-select" onchange="setTtsVoice(this.value)" aria-label="Select Voice">
+        <option value="">Default Voice</option>
+      </select>
+    </div>
+  </div>
+</div>
 
 <div class="bottom-nav">
   <button class="nav-btn active" data-page="dashboard" onclick="goTo('dashboard')">
@@ -1008,7 +1222,9 @@ const LS_KEYS = {
   apiKey: 'bw_gemini_api_key',
   model: 'bw_gemini_model',
   library: 'bw_library_v1',
-  fontSize: 'bw_font_size'
+  fontSize: 'bw_font_size',
+  syncUrl: 'bw_sync_url',
+  familyPin: 'bw_family_pin'
 };
 
 function getFontSize(){ return parseInt(localStorage.getItem(LS_KEYS.fontSize) || '14', 10); }
@@ -1275,10 +1491,22 @@ function openReader(id, skipHash){
   document.getElementById('page-reader').classList.add('active');
   document.querySelectorAll('.nav-btn').forEach(b=>{ b.classList.remove('active'); b.removeAttribute('aria-current'); });
   document.getElementById('topbarSub').textContent = 'Reading';
-  window.scrollTo(0,0);
+  
   const heading = document.getElementById('readerTitleHeading');
   if(heading) heading.focus({preventScroll:true});
   if(!skipHash) setHash('reader/'+id);
+
+  // Smoothly scroll to the active reading position (in Pager view or List view)
+  const book = state.library.find(b=>b.id===id);
+  if(book && (book.currentPageIdx || 0) > 0){
+    const lastIdx = book.currentPageIdx;
+    setTimeout(() => {
+      const listTarget = document.getElementById(`toc-${id}-${lastIdx}`);
+      const pagerTarget = document.getElementById(`tocPagerView-${id}`);
+      const target = (listTarget && listTarget.style.display !== 'none' && listTarget.offsetParent) ? listTarget : pagerTarget;
+      if(target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 180);
+  }
 }
 
 /* ---------------- Toast ---------------- */
@@ -1897,6 +2125,165 @@ function renderSettings(){
   document.getElementById('apiKeyInput').value = getApiKey();
   document.getElementById('modelSelect').value = getModel();
   document.getElementById('keyStatus').innerHTML = '';
+  document.getElementById('syncUrlInput').value = getSyncUrl();
+  document.getElementById('familyPinInput').value = getFamilyPin();
+  document.getElementById('syncStatus').innerHTML = '';
+}
+
+/* ---------------- Cloudflare Worker + KV Cloud Sync Engine ---------------- */
+function normalizeUrl(url) {
+  let u = (url || '').trim().replace(/\/+$/, '');
+  if(u && !/^https?:\/\//i.test(u)){
+    u = 'https://' + u;
+  }
+  return u;
+}
+
+function getSyncUrl() { return normalizeUrl(localStorage.getItem(LS_KEYS.syncUrl) || ''); }
+function getFamilyPin() { return (localStorage.getItem(LS_KEYS.familyPin) || '').trim(); }
+
+function saveSyncSettings() {
+  const rawUrl = document.getElementById('syncUrlInput').value;
+  const url = normalizeUrl(rawUrl);
+  const pin = document.getElementById('familyPinInput').value.trim();
+  localStorage.setItem(LS_KEYS.syncUrl, url);
+  localStorage.setItem(LS_KEYS.familyPin, pin);
+  document.getElementById('syncUrlInput').value = url;
+  showToast('Cloud Sync settings saved');
+  document.getElementById('syncStatus').innerHTML = '';
+}
+
+async function testCloudSync() {
+  const rawUrl = document.getElementById('syncUrlInput').value;
+  const url = normalizeUrl(rawUrl);
+  const pin = document.getElementById('familyPinInput').value.trim();
+  const statusEl = document.getElementById('syncStatus');
+  if(!url){ showToast('Enter your Worker Sync URL first'); return; }
+  document.getElementById('syncUrlInput').value = url;
+  statusEl.innerHTML = `<div class="key-status" style="background:rgba(201,162,39,0.12);color:var(--gold)"><div class="dot"></div>Connecting to Cloudflare Worker…</div>`;
+
+  try {
+    const res = await fetch(`${url}/api/test`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Family-Pin': pin
+      }
+    });
+
+    if(res.status === 401) {
+      statusEl.innerHTML = `<div class="key-status bad"><div class="dot"></div>Unauthorized — Incorrect Family PIN</div>`;
+      return;
+    }
+
+    if(res.ok) {
+      const data = await res.json();
+      statusEl.innerHTML = `<div class="key-status ok"><div class="dot"></div>Connected! ${escapeHTML(data.message || 'Worker reachable.')}</div>`;
+    } else {
+      statusEl.innerHTML = `<div class="key-status bad"><div class="dot"></div>Worker connection error (HTTP ${res.status})</div>`;
+    }
+  } catch(e) {
+    statusEl.innerHTML = `<div class="key-status bad"><div class="dot"></div>Network error — could not reach Worker URL</div>`;
+  }
+}
+
+function mergeLibraries(localBooks = [], cloudBooks = []) {
+  const bookMap = new Map();
+  
+  // 1. Add local books
+  localBooks.forEach(b => {
+    if(b && b.id) bookMap.set(b.id, { ...b, chapters: Array.isArray(b.chapters) ? [...b.chapters] : [] });
+  });
+
+  // 2. Merge cloud books
+  cloudBooks.forEach(c => {
+    if(!c || !c.id) return;
+    if(!bookMap.has(c.id)) {
+      bookMap.set(c.id, { ...c });
+    } else {
+      const existing = bookMap.get(c.id);
+      const mergedChapters = (existing.chapters || []).map((lCh, idx) => {
+        const cCh = (c.chapters || [])[idx];
+        if(!cCh) return lCh;
+        if(lCh.status === 'done') return lCh;
+        if(cCh.status === 'done') return cCh;
+        return lCh;
+      });
+      if(Array.isArray(c.chapters) && c.chapters.length > mergedChapters.length) {
+        for(let i = mergedChapters.length; i < c.chapters.length; i++) {
+          mergedChapters.push(c.chapters[i]);
+        }
+      }
+      existing.chapters = mergedChapters;
+      existing.readChapters = Array.from(new Set([...(existing.readChapters || []), ...(c.readChapters || [])]));
+      if(c.currentPageIdx !== undefined && (existing.currentPageIdx === undefined || c.currentPageIdx > existing.currentPageIdx)) {
+        existing.currentPageIdx = c.currentPageIdx;
+      }
+      bookMap.set(c.id, existing);
+    }
+  });
+
+  return Array.from(bookMap.values());
+}
+
+async function syncWithCloud(manual = false) {
+  const syncUrl = getSyncUrl();
+  const pin = getFamilyPin();
+
+  if(!syncUrl) {
+    if(manual) showToast('Configure your Cloudflare Worker Sync URL in Settings first');
+    return;
+  }
+
+  if(manual) showToast('Syncing with Cloudflare Worker…');
+
+  try {
+    // 1. Fetch remote cloud library
+    const getRes = await fetch(`${syncUrl}/api/books`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Family-Pin': pin
+      }
+    });
+
+    if(getRes.status === 401) {
+      if(manual) showToast('Sync failed: Incorrect Family PIN');
+      return;
+    }
+
+    if(!getRes.ok) {
+      if(manual) showToast(`Sync failed (HTTP ${getRes.status})`);
+      return;
+    }
+
+    const cloudPayload = await getRes.json();
+    const cloudBooks = Array.isArray(cloudPayload.books) ? cloudPayload.books : [];
+
+    // 2. Merge local + cloud books
+    const merged = mergeLibraries(state.library, cloudBooks);
+    state.library = merged;
+    await saveLibraryToStorage();
+
+    // 3. Push merged library back to cloud KV
+    const postRes = await fetch(`${syncUrl}/api/books`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Family-Pin': pin
+      },
+      body: JSON.stringify(merged)
+    });
+
+    if(postRes.ok) {
+      renderLibrary();
+      renderDashboard();
+      if(manual) showToast(`Synced! ${merged.length} book${merged.length!==1?'s':''} in cloud.`);
+    }
+  } catch(e) {
+    console.warn('Cloud sync error:', e);
+    if(manual) showToast('Cloud sync failed — check network connection');
+  }
 }
 function saveApiKey(){
   const key = document.getElementById('apiKeyInput').value.trim();
@@ -1931,14 +2318,72 @@ async function testApiKey(){
   }
 }
 
-/* ---------------- Text-to-speech ---------------- */
-let currentUtterance = null;
-let currentSpeakingBtnId = null;
+/* ---------------- Text-to-speech Media Player Engine ---------------- */
+const LS_TTS_KEYS = {
+  rate: 'bw_tts_rate',
+  voice: 'bw_tts_voice'
+};
+
 let currentHighlightSummaryId = null;
 let currentHighlightWordEls = null;
 let currentHighlightBookId = null;
 let currentHighlightIdx = null;
-let currentSpeechTextOffset = 0; // where the summary portion starts within the full spoken text
+let currentSpeechTextOffset = 0;
+
+let ttsState = {
+  bookId: null,
+  chapterIdx: null,
+  isPlaying: false,
+  isPaused: false,
+  rate: parseFloat(localStorage.getItem(LS_TTS_KEYS.rate) || '1.0'),
+  voiceURI: localStorage.getItem(LS_TTS_KEYS.voice) || '',
+  charIndex: 0,
+  totalChars: 0,
+  text: '',
+  summaryPlain: '',
+  titlePrefixLength: 0,
+  utterance: null,
+  availableVoices: [],
+  lastBoundaryTime: 0,
+  lastBoundaryChar: 0
+};
+
+let ttsTimer = null;
+
+function initTtsVoices(){
+  if(!('speechSynthesis' in window)) return;
+  const loadVoices = () => {
+    const voices = window.speechSynthesis.getVoices() || [];
+    ttsState.availableVoices = voices;
+    const select = document.getElementById('ttsVoiceSelect');
+    if(!select) return;
+    select.innerHTML = '<option value="">Default Voice</option>' +
+      voices.map(v => `<option value="${escapeAttr(v.voiceURI)}"${v.voiceURI === ttsState.voiceURI ? ' selected' : ''}>${escapeHTML(v.name)} (${v.lang})</option>`).join('');
+  };
+  loadVoices();
+  if(window.speechSynthesis.onvoiceschanged !== undefined){
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+  }
+}
+
+function setTtsRate(rate){
+  ttsState.rate = rate;
+  localStorage.setItem(LS_TTS_KEYS.rate, rate);
+  document.querySelectorAll('.tts-rate-pill').forEach(btn => {
+    btn.classList.toggle('active', parseFloat(btn.dataset.rate) === rate);
+  });
+  if(ttsState.isPlaying || ttsState.isPaused){
+    restartTtsFromCurrentChar();
+  }
+}
+
+function setTtsVoice(voiceURI){
+  ttsState.voiceURI = voiceURI;
+  localStorage.setItem(LS_TTS_KEYS.voice, voiceURI);
+  if(ttsState.isPlaying || ttsState.isPaused){
+    restartTtsFromCurrentChar();
+  }
+}
 
 function stripMarkdownForSpeech(text){
   return String(text||'')
@@ -1948,11 +2393,8 @@ function stripMarkdownForSpeech(text){
     .replace(/\n+/g, '. ');
 }
 
-/* Rebuilds the summary container's HTML with each word wrapped in a span,
-   using the exact same plain-text string that will be sent to speech
-   synthesis for this segment, so charIndex offsets line up correctly. */
 function buildHighlightableSummary(plainText){
-  const words = plainText.split(/(\s+)/); // keep whitespace as separate tokens
+  const words = plainText.split(/(\s+)/);
   let html = '';
   let charPos = 0;
   const wordMeta = [];
@@ -1970,74 +2412,162 @@ function buildHighlightableSummary(plainText){
   return { html, wordMeta };
 }
 
+function ensureHighlightableSummary(bookId, idx){
+  if(bookId === null || idx === null || idx === undefined) return;
+  const summaryId = `summary-${bookId}-${idx}`;
+  const summaryEl = document.getElementById(summaryId);
+  if(!summaryEl) return;
+  
+  if(!summaryEl.querySelector('.tts-word')){
+    const book = state.library.find(b=>b.id===bookId);
+    if(book && book.chapters[idx] && book.chapters[idx].summary){
+      const plain = stripMarkdownForSpeech(book.chapters[idx].summary);
+      const built = buildHighlightableSummary(plain);
+      summaryEl.innerHTML = built.html;
+    }
+  }
+  currentHighlightSummaryId = summaryId;
+  currentHighlightBookId = bookId;
+  currentHighlightIdx = idx;
+}
+
 function toggleListen(bookId, idx){
   if(!('speechSynthesis' in window)){
     showToast("Text-to-speech isn't supported in this browser");
     return;
   }
-  const btnId = `tts-${bookId}-${idx}`;
-  const btn = document.getElementById(btnId);
-
-  // If this chapter is already speaking, stop it
-  if(currentSpeakingBtnId === btnId){
-    window.speechSynthesis.cancel();
-    resetTtsButton();
+  if(ttsState.bookId === bookId && ttsState.chapterIdx === idx){
+    toggleTtsPlayPause();
     return;
   }
+  playTtsChapter(bookId, idx);
+}
 
-  // Stop any other chapter currently speaking first
-  window.speechSynthesis.cancel();
-  resetTtsButton();
-
+function playTtsChapter(bookId, idx, startCharPos = 0){
   const book = state.library.find(b=>b.id===bookId);
   if(!book) return;
   const ch = book.chapters[idx];
   if(!ch || ch.status !== 'done') return;
 
+  stopTts(true);
+
   const summaryPlain = stripMarkdownForSpeech(ch.summary);
   const titlePrefix = `${ch.title}. `;
-  let text = titlePrefix + summaryPlain;
+  let fullText = titlePrefix + summaryPlain;
   let suffix = '';
   if(ch.quote) suffix += ` Key idea: ${ch.quote}`;
   if(ch.takeaways && ch.takeaways.length) suffix += ` Key takeaways: ${ch.takeaways.join('. ')}`;
-  text += suffix;
+  fullText += suffix;
 
-  // Swap the visible summary HTML for a word-spanned version we can highlight
-  const summaryId = `summary-${bookId}-${idx}`;
-  const summaryEl = document.getElementById(summaryId);
-  if(summaryEl){
-    const built = buildHighlightableSummary(summaryPlain);
-    summaryEl.innerHTML = built.html;
-    currentHighlightSummaryId = summaryId;
-    currentHighlightBookId = bookId;
-    currentHighlightIdx = idx;
-    currentSpeechTextOffset = titlePrefix.length;
-  }else{
-    currentHighlightSummaryId = null;
+  ttsState.bookId = bookId;
+  ttsState.chapterIdx = idx;
+  ttsState.text = fullText;
+  ttsState.summaryPlain = summaryPlain;
+  ttsState.titlePrefixLength = titlePrefix.length;
+  ttsState.totalChars = fullText.length;
+  ttsState.charIndex = Math.min(startCharPos, fullText.length);
+  currentSpeechTextOffset = titlePrefix.length;
+
+  ensureHighlightableSummary(bookId, idx);
+  updateTtsPlayerBarMeta(book, ch);
+  startUtterance(startCharPos);
+}
+
+function startUtterance(startOffset = 0){
+  if(!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  stopTtsTimer();
+
+  ensureHighlightableSummary(ttsState.bookId, ttsState.chapterIdx);
+
+  const speakText = startOffset > 0 ? ttsState.text.slice(startOffset) : ttsState.text;
+  const utt = new SpeechSynthesisUtterance(speakText);
+  utt.rate = ttsState.rate;
+
+  if(ttsState.voiceURI && ttsState.availableVoices.length){
+    const voice = ttsState.availableVoices.find(v => v.voiceURI === ttsState.voiceURI);
+    if(voice) utt.voice = voice;
   }
 
-  const utt = new SpeechSynthesisUtterance(text);
-  utt.rate = 1;
-  utt.onboundary = (e) => handleSpeechBoundary(e, summaryId, summaryPlain.length);
-  utt.onend = () => { resetTtsButton(); restoreSummaryHTML(bookId, idx); };
-  utt.onerror = () => { resetTtsButton(); restoreSummaryHTML(bookId, idx); };
-  currentUtterance = utt;
-  currentSpeakingBtnId = btnId;
-  if(btn){ btn.textContent = '⏸ Stop'; btn.classList.add('speaking'); }
+  ttsState.lastBoundaryTime = Date.now();
+  ttsState.lastBoundaryChar = startOffset;
+
+  utt.onboundary = (e) => {
+    const absPos = startOffset + (e.charIndex || 0);
+    ttsState.charIndex = absPos;
+    ttsState.lastBoundaryTime = Date.now();
+    ttsState.lastBoundaryChar = absPos;
+    updateTtsProgressUI(absPos);
+    updateHighlightForCharIndex(absPos);
+  };
+
+  utt.onend = () => {
+    stopTtsTimer();
+    ttsState.isPlaying = false;
+    ttsState.isPaused = false;
+    updateTtsPlayPauseButton();
+    updateAllInlineTtsButtons();
+    restoreSummaryHTML(ttsState.bookId, ttsState.chapterIdx);
+    updateTtsProgressUI(ttsState.totalChars);
+  };
+
+  utt.onerror = (e) => {
+    if(e.error !== 'interrupted' && e.error !== 'canceled'){
+      console.warn('TTS error:', e);
+      stopTtsTimer();
+      ttsState.isPlaying = false;
+      ttsState.isPaused = false;
+      updateTtsPlayPauseButton();
+      updateAllInlineTtsButtons();
+      restoreSummaryHTML(ttsState.bookId, ttsState.chapterIdx);
+    }
+  };
+
+  ttsState.utterance = utt;
+  ttsState.isPlaying = true;
+  ttsState.isPaused = false;
+  updateTtsPlayPauseButton();
+  updateAllInlineTtsButtons();
+  startTtsTimer(startOffset);
+
+  const bar = document.getElementById('ttsMediaPlayer');
+  if(bar) bar.style.display = 'block';
+
   window.speechSynthesis.speak(utt);
 }
 
-function handleSpeechBoundary(e, summaryId, summaryLen){
-  if(e.name && e.name !== 'word') return; // some engines fire 'sentence' too; word-level only
-  const relativePos = e.charIndex - currentSpeechTextOffset;
-  if(relativePos < 0 || relativePos > summaryLen) return; // outside the summary segment (title or suffix)
+function startTtsTimer(startOffset){
+  stopTtsTimer();
+  ttsTimer = setInterval(() => {
+    if(!ttsState.isPlaying || ttsState.isPaused) return;
+    const elapsedSec = (Date.now() - ttsState.lastBoundaryTime) / 1000;
+    const estimatedChars = Math.round(elapsedSec * 15 * ttsState.rate);
+    const pos = Math.min(ttsState.totalChars, ttsState.lastBoundaryChar + estimatedChars);
+    ttsState.charIndex = pos;
+    updateTtsProgressUI(pos);
+    updateHighlightForCharIndex(pos);
+  }, 120);
+}
 
+function stopTtsTimer(){
+  if(ttsTimer){ clearInterval(ttsTimer); ttsTimer = null; }
+}
+
+function updateHighlightForCharIndex(absPos){
+  if(ttsState.bookId === null || ttsState.chapterIdx === null) return;
+  const summaryId = `summary-${ttsState.bookId}-${ttsState.chapterIdx}`;
   const container = document.getElementById(summaryId);
   if(!container) return;
 
-  // Clear previous highlight
-  if(currentHighlightWordEls){
-    currentHighlightWordEls.forEach(el => el.classList.remove('tts-active'));
+  ensureHighlightableSummary(ttsState.bookId, ttsState.chapterIdx);
+
+  const relativePos = absPos - ttsState.titlePrefixLength;
+  if(relativePos < 0 || relativePos > ttsState.summaryPlain.length){
+    if(currentHighlightWordEls){
+      currentHighlightWordEls.forEach(el => el.classList.remove('tts-active'));
+      currentHighlightWordEls = null;
+    }
+    return;
   }
 
   const words = container.querySelectorAll('.tts-word');
@@ -2047,11 +2577,170 @@ function handleSpeechBoundary(e, summaryId, summaryLen){
     const end = parseInt(w.dataset.end, 10);
     if(relativePos >= start && relativePos < end){ matched = w; break; }
   }
-  if(matched){
+
+  if(matched && !matched.classList.contains('tts-active')){
+    if(currentHighlightWordEls){
+      currentHighlightWordEls.forEach(el => el.classList.remove('tts-active'));
+    }
     matched.classList.add('tts-active');
     currentHighlightWordEls = [matched];
-    matched.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    matched.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   }
+}
+
+function toggleTtsPlayPause(){
+  if(!('speechSynthesis' in window)) return;
+  if(ttsState.isPaused){
+    window.speechSynthesis.resume();
+    ttsState.isPlaying = true;
+    ttsState.isPaused = false;
+    ttsState.lastBoundaryTime = Date.now();
+  }else if(ttsState.isPlaying){
+    window.speechSynthesis.pause();
+    ttsState.isPlaying = false;
+    ttsState.isPaused = true;
+    stopTtsTimer();
+  }else if(ttsState.bookId){
+    playTtsChapter(ttsState.bookId, ttsState.chapterIdx, ttsState.charIndex);
+  }
+  updateTtsPlayPauseButton();
+  updateAllInlineTtsButtons();
+}
+
+function restartTtsFromCurrentChar(){
+  if(ttsState.bookId === null) return;
+  ensureHighlightableSummary(ttsState.bookId, ttsState.chapterIdx);
+  startUtterance(ttsState.charIndex);
+}
+
+function skipTts(seconds){
+  if(!ttsState.bookId || !ttsState.text) return;
+  const charsPerSec = 15 * ttsState.rate;
+  const deltaChars = Math.round(seconds * charsPerSec);
+  const newPos = Math.max(0, Math.min(ttsState.totalChars - 10, ttsState.charIndex + deltaChars));
+  ttsState.charIndex = newPos;
+  startUtterance(newPos);
+}
+
+function seekTtsFromClick(e){
+  const bar = document.getElementById('ttsProgressBar');
+  if(!bar || !ttsState.totalChars) return;
+  const rect = bar.getBoundingClientRect();
+  const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+  const newPos = Math.round(pct * ttsState.totalChars);
+  ttsState.charIndex = newPos;
+  startUtterance(newPos);
+}
+
+function ttsPrevChapter(){
+  if(!ttsState.bookId) return;
+  const book = state.library.find(b=>b.id===ttsState.bookId);
+  if(!book) return;
+  const prevIdx = ttsState.chapterIdx - 1;
+  if(prevIdx >= 0 && book.chapters[prevIdx].status === 'done'){
+    playTtsChapter(ttsState.bookId, prevIdx);
+    if(state.currentPage === 'reader' && book.currentPageIdx !== undefined){
+      pagerGo(ttsState.bookId, prevIdx);
+    }
+  }else{
+    showToast('No previous generated chapter');
+  }
+}
+
+function ttsNextChapter(){
+  if(!ttsState.bookId) return;
+  const book = state.library.find(b=>b.id===ttsState.bookId);
+  if(!book) return;
+  const nextIdx = ttsState.chapterIdx + 1;
+  if(nextIdx < book.chapters.length && book.chapters[nextIdx].status === 'done'){
+    playTtsChapter(ttsState.bookId, nextIdx);
+    if(state.currentPage === 'reader' && book.currentPageIdx !== undefined){
+      pagerGo(ttsState.bookId, nextIdx);
+    }
+  }else{
+    showToast('No next generated chapter');
+  }
+}
+
+function stopTts(keepBarHidden = false){
+  stopTtsTimer();
+  if('speechSynthesis' in window) window.speechSynthesis.cancel();
+  if(ttsState.bookId !== null && ttsState.chapterIdx !== null){
+    restoreSummaryHTML(ttsState.bookId, ttsState.chapterIdx);
+  }
+  ttsState.isPlaying = false;
+  ttsState.isPaused = false;
+  ttsState.utterance = null;
+  updateAllInlineTtsButtons();
+
+  if(!keepBarHidden){
+    const bar = document.getElementById('ttsMediaPlayer');
+    if(bar) bar.style.display = 'none';
+    ttsState.bookId = null;
+    ttsState.chapterIdx = null;
+    ttsState.charIndex = 0;
+  }
+}
+
+function resetTtsButton(){
+  stopTts(true);
+}
+
+function updateTtsPlayPauseButton(){
+  const btn = document.getElementById('ttsPlayPauseBtn');
+  if(btn){
+    btn.textContent = ttsState.isPlaying ? '⏸' : '▶';
+    btn.setAttribute('aria-label', ttsState.isPlaying ? 'Pause' : 'Play');
+  }
+}
+
+function updateTtsProgressUI(charIndex){
+  const total = ttsState.totalChars || 1;
+  const pct = Math.min(100, Math.round((charIndex / total) * 100));
+  const fill = document.getElementById('ttsProgressFill');
+  const text = document.getElementById('ttsTimeText');
+  const bar = document.getElementById('ttsProgressBar');
+  if(fill) fill.style.width = pct + '%';
+  if(text) text.textContent = pct + '%';
+  if(bar) bar.setAttribute('aria-valuenow', pct);
+}
+
+function updateTtsPlayerBarMeta(book, chapter){
+  const titleEl = document.getElementById('ttsTrackChapter');
+  const bookEl = document.getElementById('ttsTrackBook');
+  const coverEl = document.getElementById('ttsTrackCover');
+
+  if(titleEl) titleEl.textContent = `Ch ${chapter.number || (ttsState.chapterIdx+1)}: ${chapter.title || ''}`;
+  if(bookEl) bookEl.textContent = book.title;
+  if(coverEl) coverEl.innerHTML = coverHTML(book, 'spine');
+}
+
+function updateAllInlineTtsButtons(){
+  document.querySelectorAll('.regen-btn[id^="tts-"]').forEach(btn => {
+    const parts = btn.id.split('-');
+    const bId = parts[1];
+    const cIdx = parseInt(parts[2], 10);
+    const isThis = ttsState.bookId === bId && ttsState.chapterIdx === cIdx;
+    if(isThis && ttsState.isPlaying){
+      btn.textContent = '⏸ Pause';
+      btn.classList.add('speaking');
+    }else if(isThis && ttsState.isPaused){
+      btn.textContent = '▶ Resume';
+      btn.classList.add('speaking');
+    }else{
+      btn.textContent = '🔊 Listen';
+      btn.classList.remove('speaking');
+    }
+  });
+}
+
+function handleSpeechBoundary(e, summaryId, summaryLen, startOffset = 0){
+  const absIndex = (startOffset || 0) + (e.charIndex || 0);
+  ttsState.charIndex = absIndex;
+  ttsState.lastBoundaryTime = Date.now();
+  ttsState.lastBoundaryChar = absIndex;
+  updateTtsProgressUI(absIndex);
+  updateHighlightForCharIndex(absIndex);
 }
 
 function restoreSummaryHTML(bookId, idx){
@@ -2067,15 +2756,6 @@ function restoreSummaryHTML(bookId, idx){
   currentHighlightWordEls = null;
   currentHighlightBookId = null;
   currentHighlightIdx = null;
-}
-
-function resetTtsButton(){
-  if(currentSpeakingBtnId){
-    const btn = document.getElementById(currentSpeakingBtnId);
-    if(btn){ btn.textContent = '🔊 Listen'; btn.classList.remove('speaking'); }
-  }
-  currentSpeakingBtnId = null;
-  currentUtterance = null;
 }
 
 /* ---------------- Reader ---------------- */
@@ -2217,6 +2897,9 @@ function setReaderView(bookId, view){
   const btnMap = document.getElementById('viewToggleMap-'+bookId);
   if(!pagerEl || !listEl || !mapEl) return;
 
+  const book = state.library.find(b=>b.id===bookId);
+  const lastIdx = book ? (book.currentPageIdx || 0) : 0;
+
   pagerEl.style.display = 'none';
   listEl.style.display = 'none';
   mapEl.style.display = 'none';
@@ -2231,12 +2914,25 @@ function setReaderView(bookId, view){
     listEl.style.display = 'block';
     btnList.classList.add('active');
     btnList.setAttribute('aria-pressed', 'true');
+    if(book){
+      const el = document.getElementById(`toc-${bookId}-${lastIdx}`);
+      if(el && !el.classList.contains('open')){
+        toggleChapter(bookId, lastIdx);
+      }
+      setTimeout(() => {
+        document.getElementById(`toc-${bookId}-${lastIdx}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
   }else{
     pagerEl.style.display = 'block';
     btnPager.classList.add('active');
     btnPager.setAttribute('aria-pressed', 'true');
-    const book = state.library.find(b=>b.id===bookId);
-    if(book) renderChapterPager(bookId, book.currentPageIdx || 0);
+    if(book){
+      renderChapterPager(bookId, lastIdx);
+      setTimeout(() => {
+        document.getElementById(`tocPagerView-${bookId}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
   }
 }
 
@@ -2300,10 +2996,12 @@ function pagerGo(bookId, idx){
   const book = state.library.find(b=>b.id===bookId);
   if(!book) return;
   if(idx < 0 || idx >= book.chapters.length) return;
-  if('speechSynthesis' in window) window.speechSynthesis.cancel();
-  resetTtsButton();
+  const wasPlaying = ttsState.isPlaying && ttsState.bookId === bookId;
   renderChapterPager(bookId, idx);
   document.getElementById('pager-body-'+bookId)?.scrollIntoView({behavior:'smooth', block:'start'});
+  if(wasPlaying && book.chapters[idx].status === 'done'){
+    playTtsChapter(bookId, idx);
+  }
 }
 
 /* ---------------- Focus mode (distraction-free, e-reader style) ----------------
@@ -2332,13 +3030,14 @@ function openFocusMode(bookId, idx){
   document.body.style.overflow = 'hidden';
   document.addEventListener('keydown', focusModeKeyHandler);
 
-  // Clear the underlying pager's copy of this chapter first, so its
-  // TTS/summary element IDs aren't duplicated once focus mode renders the
-  // same chapter on top (mirrors the pager-vs-list-view guard above).
   const pagerBody = document.getElementById(`pager-body-${bookId}`);
   if(pagerBody) pagerBody.innerHTML = '';
 
   renderFocusMode();
+
+  if(ttsState.isPlaying && ttsState.bookId === bookId && ttsState.chapterIdx === idx){
+    ensureHighlightableSummary(bookId, idx);
+  }
 }
 
 function closeFocusMode(){
@@ -2346,14 +3045,13 @@ function closeFocusMode(){
   if(overlay) overlay.style.display = 'none';
   document.body.style.overflow = '';
   document.removeEventListener('keydown', focusModeKeyHandler);
-  if('speechSynthesis' in window) window.speechSynthesis.cancel();
-  resetTtsButton();
 
-  // Keep the pager view in sync with whatever chapter focus mode ended on
-  // (this also repopulates the pager body we cleared on open).
   if(focusModeState){
     const { bookId, idx } = focusModeState;
     renderChapterPager(bookId, idx);
+    if(ttsState.isPlaying && ttsState.bookId === bookId && ttsState.chapterIdx === idx){
+      ensureHighlightableSummary(bookId, idx);
+    }
   }
   focusModeState = null;
 }
@@ -2370,10 +3068,12 @@ function focusModeGo(idx){
   const book = state.library.find(b=>b.id===bookId);
   if(!book) return;
   if(idx < 0 || idx >= book.chapters.length) return;
-  if('speechSynthesis' in window) window.speechSynthesis.cancel();
-  resetTtsButton();
+  const wasPlaying = ttsState.isPlaying && ttsState.bookId === bookId;
   focusModeState.idx = idx;
   renderFocusMode();
+  if(wasPlaying && book.chapters[idx].status === 'done'){
+    playTtsChapter(bookId, idx);
+  }
 }
 
 function renderFocusMode(){
@@ -2871,6 +3571,10 @@ function toggleChapter(bookId, idx){
   if(!book) return;
   const ch = book.chapters[idx];
 
+  if(!wasOpen){
+    book.currentPageIdx = idx;
+  }
+
   // Render (or clear) the body lazily so its summary/TTS element IDs only
   // ever exist in one place in the DOM at a time — see note above in renderReader.
   const bodyEl = document.getElementById(`toc-body-${bookId}-${idx}`);
@@ -3205,10 +3909,14 @@ if ('serviceWorker' in navigator) {
 async function initApp() {
   setFontSize(getFontSize());
   state.library = await loadLibraryFromDB();
+  initTtsVoices();
 
   // Restore whichever page (and, for the reader, which book) the hash points
   // to, so refreshing stays put instead of always landing on the Dashboard.
   routeFromHash();
+
+  // Background Cloud Sync (if Cloudflare Worker URL & PIN are configured)
+  syncWithCloud(false);
 }
 
 initApp();
