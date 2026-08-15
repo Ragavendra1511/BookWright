@@ -3,6 +3,9 @@ const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './manifest.json',
+  './icon-192.png',
+  './icon-512.png',
+  './icon-maskable-512.png',
   'https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap'
 ];
 
