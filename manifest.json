@@ -3,7 +3,7 @@
   "name": "BookNip — Chapter Summaries",
   "short_name": "BookNip",
   "description": "Generate chapter-by-chapter book summaries using AI.",
-  "start_url": "./index.html",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#1B2430",
   "theme_color": "#1B2430",
@@ -33,7 +33,7 @@
       "name": "Generate Summary",
       "short_name": "Discover",
       "description": "Generate a new book summary",
-      "url": "./index.html",
+      "url": "./",
       "icons": [
         {
           "src": "./icon-192.png",
@@ -46,7 +46,7 @@
       "name": "My Library",
       "short_name": "Library",
       "description": "View saved book summaries",
-      "url": "./index.html",
+      "url": "./",
       "icons": [
         {
           "src": "./icon-192.png",
