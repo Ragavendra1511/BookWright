@@ -80,6 +80,11 @@ export default {
         );
       }
 
+      // Serve static assets if env.ASSETS is present (Cloudflare Workers Assets / Pages)
+      if (env.ASSETS) {
+        return await env.ASSETS.fetch(request);
+      }
+
       return new Response(
         JSON.stringify({ error: 'Endpoint not found' }),
         { status: 404, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } }
