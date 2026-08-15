@@ -1107,7 +1107,7 @@ function coverHTML(book, sizeClass, allowRetry){
 
   return `<div class="${cls} spine-cover-wrap" style="background:${color}">
     <img src="${escapeAttr(book.coverUrl)}" alt="Cover of ${escapeAttr(book.title)}" class="spine-cover-img"
-         onerror="this.parentElement.outerHTML = ${JSON.stringify(fallbackHTML())};">
+         onerror="this.parentElement.outerHTML = ${escapeHTML(JSON.stringify(fallbackHTML()))};">
   </div>`;
 }
 
@@ -1129,25 +1129,48 @@ async function retryCoverFetch(bookId){
 }
 
 async function fetchCoverUrl(title, author){
+  // 1. Try Google Books API with clean query
   try{
-    const q = encodeURIComponent(`intitle:${title}${author ? ' inauthor:' + author : ''}`);
+    const cleanTitle = (title || '').replace(/[:?#]/g, ' ').trim();
+    const cleanAuthor = (author || '').replace(/[:?#]/g, ' ').trim();
+    const q = encodeURIComponent(`${cleanTitle}${cleanAuthor ? ' ' + cleanAuthor : ''}`);
     const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${q}&maxResults=5`);
-    if(!res.ok) return null;
-    const data = await res.json();
-    const items = data?.items || [];
-    // Some results lack a thumbnail even when the book matches — scan a few candidates
-    for(const item of items){
-      let thumb = item?.volumeInfo?.imageLinks?.thumbnail || item?.volumeInfo?.imageLinks?.smallThumbnail;
-      if(thumb){
-        thumb = thumb.replace('http://','https://').replace('zoom=1','zoom=2');
-        return thumb;
+    if(res.ok){
+      const data = await res.json();
+      const items = data?.items || [];
+      for(const item of items){
+        let thumb = item?.volumeInfo?.imageLinks?.thumbnail || item?.volumeInfo?.imageLinks?.smallThumbnail;
+        if(thumb){
+          thumb = thumb.replace('http://','https://');
+          return thumb;
+        }
       }
     }
-    return null;
   }catch(e){
-    console.warn('Cover fetch failed:', e);
-    return null;
+    console.warn('Google Books cover fetch failed, trying fallback:', e);
   }
+
+  // 2. Fallback to Open Library API if Google Books fails, returns 429 quota error, or has no thumbnail
+  try{
+    const q = encodeURIComponent(`${title}${author ? ' ' + author : ''}`);
+    const res = await fetch(`https://openlibrary.org/search.json?q=${q}&limit=5`);
+    if(res.ok){
+      const data = await res.json();
+      const docs = data?.docs || [];
+      for(const doc of docs){
+        if(doc.cover_i){
+          return `https://covers.openlibrary.org/b/id/${doc.cover_i}-L.jpg`;
+        }
+        if(doc.isbn && doc.isbn.length > 0){
+          return `https://covers.openlibrary.org/b/isbn/${doc.isbn[0]}-L.jpg`;
+        }
+      }
+    }
+  }catch(e){
+    console.warn('OpenLibrary cover fetch failed:', e);
+  }
+
+  return null;
 }
 
 /* ---------------- Navigation ---------------- */
@@ -1381,43 +1404,73 @@ function onTitleInput(value){
   titleSearchTimer = setTimeout(() => runTitleSearch(q), 300);
 }
 
+let selectedSuggestionThumb = null;
+
 async function runTitleSearch(q){
   const myToken = ++titleSearchToken;
   showSuggestLoading();
+  let results = [];
+
+  // 1. Try Google Books API
   try{
     const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&maxResults=8`;
     const res = await fetch(url);
-    if(myToken !== titleSearchToken) return; // a newer keystroke superseded this request
-    if(!res.ok){ showSuggestEmpty(); return; }
-    const data = await res.json();
     if(myToken !== titleSearchToken) return;
-
-    const items = data?.items || [];
-    // De-dupe by title+author so we don't show near-identical editions
-    const seen = new Set();
-    const results = [];
-    for(const item of items){
-      const info = item?.volumeInfo || {};
-      const title = info.title;
-      if(!title) continue;
-      const author = (info.authors || []).join(', ');
-      const key = (title + '|' + author).toLowerCase();
-      if(seen.has(key)) continue;
-      seen.add(key);
-      let thumb = info.imageLinks?.smallThumbnail || info.imageLinks?.thumbnail || null;
-      if(thumb) thumb = thumb.replace('http://','https://');
-      results.push({ title, author, thumb });
-      if(results.length >= 6) break;
-    }
-
-    titleSuggestResults = results;
-    if(results.length === 0){
-      showSuggestEmpty();
-    }else{
-      renderSuggestions();
+    if(res.ok){
+      const data = await res.json();
+      const items = data?.items || [];
+      const seen = new Set();
+      for(const item of items){
+        const info = item?.volumeInfo || {};
+        const title = info.title;
+        if(!title) continue;
+        const author = (info.authors || []).join(', ');
+        const key = (title + '|' + author).toLowerCase();
+        if(seen.has(key)) continue;
+        seen.add(key);
+        let thumb = info.imageLinks?.smallThumbnail || info.imageLinks?.thumbnail || null;
+        if(thumb) thumb = thumb.replace('http://','https://');
+        results.push({ title, author, thumb });
+        if(results.length >= 6) break;
+      }
     }
   }catch(e){
-    if(myToken === titleSearchToken) showSuggestEmpty();
+    console.warn('Google Books autocomplete error:', e);
+  }
+
+  // 2. Fallback to Open Library if Google Books returns 0 results or 429 quota error
+  if(results.length === 0 && myToken === titleSearchToken){
+    try{
+      const url = `https://openlibrary.org/search.json?q=${encodeURIComponent(q)}&limit=8`;
+      const res = await fetch(url);
+      if(myToken !== titleSearchToken) return;
+      if(res.ok){
+        const data = await res.json();
+        const docs = data?.docs || [];
+        const seen = new Set();
+        for(const doc of docs){
+          const title = doc.title;
+          if(!title) continue;
+          const author = (doc.author_name || []).join(', ');
+          const key = (title + '|' + author).toLowerCase();
+          if(seen.has(key)) continue;
+          seen.add(key);
+          let thumb = doc.cover_i ? `https://covers.openlibrary.org/b/id/${doc.cover_i}-M.jpg` : null;
+          results.push({ title, author, thumb });
+          if(results.length >= 6) break;
+        }
+      }
+    }catch(e){
+      console.warn('OpenLibrary autocomplete error:', e);
+    }
+  }
+
+  if(myToken !== titleSearchToken) return;
+  titleSuggestResults = results;
+  if(results.length === 0){
+    showSuggestEmpty();
+  }else{
+    renderSuggestions();
   }
 }
 
@@ -1480,6 +1533,7 @@ function pickSuggestion(index){
   if(!r) return;
   document.getElementById('inputTitle').value = r.title;
   document.getElementById('inputAuthor').value = r.author || '';
+  selectedSuggestionThumb = r.thumb || null;
   closeSuggestions();
 }
 
@@ -1543,12 +1597,13 @@ async function startGeneration(){
     const resolvedTitle = outline.title || title;
     const resolvedAuthor = outline.author || author;
 
-    // Prefer the AI-resolved title/author for the cover lookup (more accurate than raw
-    // user input — catches typos, abbreviations, or missing author), falling back to
-    // what the user typed if that search comes up empty.
-    let coverUrl = await fetchCoverUrl(resolvedTitle, resolvedAuthor);
-    if(!coverUrl && (resolvedTitle !== title || resolvedAuthor !== author)){
-      coverUrl = await fetchCoverUrl(title, author);
+    let coverUrl = selectedSuggestionThumb;
+    selectedSuggestionThumb = null;
+    if(!coverUrl){
+      coverUrl = await fetchCoverUrl(resolvedTitle, resolvedAuthor);
+      if(!coverUrl && (resolvedTitle !== title || resolvedAuthor !== author)){
+        coverUrl = await fetchCoverUrl(title, author);
+      }
     }
 
     const book = {
@@ -3097,7 +3152,7 @@ function escapeHTML(str){
   return String(str ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 }
 function escapeAttr(str){
-  return String(str ?? '').replace(/'/g, "\\'");
+  return String(str ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 }
 /* ---------------- PWA Custom Install Prompt ---------------- */
 let deferredPrompt = null;
