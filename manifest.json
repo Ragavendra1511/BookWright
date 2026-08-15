@@ -33,7 +33,7 @@
       "name": "Generate Summary",
       "short_name": "Discover",
       "description": "Generate a new book summary",
-      "url": "./index.html#discover",
+      "url": "./index.html",
       "icons": [
         {
           "src": "./icon-192.png",
@@ -46,7 +46,7 @@
       "name": "My Library",
       "short_name": "Library",
       "description": "View saved book summaries",
-      "url": "./index.html#library",
+      "url": "./index.html",
       "icons": [
         {
           "src": "./icon-192.png",
