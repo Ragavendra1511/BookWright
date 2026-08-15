@@ -6,8 +6,8 @@
 <title>BookNip — Chapter Summaries</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231B2430'/%3E%3Cpath d='M32 14c-6-4-14-4-20 0v32c6-4 14-4 20 0V14z' fill='%23E0BC3F'/%3E%3Cpath d='M32 14c6-4 14-4 20 0v32c-6-4-14-4-20 0V14z' fill='%23C9A227'/%3E%3Cpath d='M32 14v32' stroke='%231B2430' stroke-width='1.5' opacity='0.4'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/idb-keyval/6.3.0/umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <!-- PWA Manifest & iOS Theme Support -->
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#1B2430">
@@ -39,6 +39,46 @@
     --font-body: 'Inter', system-ui, -apple-system, sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
     --reader-font-size: 14px;
+  }
+
+  /* ---------- Sepia / Warm Paper Theme ---------- */
+  [data-theme="sepia"] {
+    --ink: #F4ECD8;
+    --ink-2: #EAE0C8;
+    --ink-3: #DFD4B8;
+    --paper: #3A2B1C;
+    --paper-dim: #54412D;
+    --gold: #A66E19;
+    --gold-bright: #C98A26;
+    --sage: #4E7354;
+    --coral: #C54C34;
+    --sage-a11y: #3D6143;
+    --coral-a11y: #A83C25;
+    --focus-ring: #B87B28;
+    --ink-text: #2D2013;
+    --ink-text-dim: #6E5A47;
+    --line: rgba(62,44,28,0.14);
+    --shadow: 0 8px 24px rgba(62,44,28,0.15);
+  }
+
+  /* ---------- Crisp Light Theme ---------- */
+  [data-theme="light"] {
+    --ink: #F8FAFC;
+    --ink-2: #FFFFFF;
+    --ink-3: #EDF2F7;
+    --paper: #0F172A;
+    --paper-dim: #334155;
+    --gold: #B45309;
+    --gold-bright: #D97706;
+    --sage: #15803D;
+    --coral: #DC2626;
+    --sage-a11y: #166534;
+    --coral-a11y: #991B1B;
+    --focus-ring: #2563EB;
+    --ink-text: #1E293B;
+    --ink-text-dim: #64748B;
+    --line: rgba(0,0,0,0.09);
+    --shadow: 0 8px 24px rgba(0,0,0,0.08);
   }
 
   *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
@@ -119,6 +159,64 @@
   .topbar-sub{
     font-size:11px; color:var(--ink-text-dim); font-family:var(--font-mono);
     letter-spacing:0.08em; text-transform:uppercase;
+  }
+  .topbar-right{
+    display:flex; align-items:center; gap:8px;
+  }
+  .theme-toggle-btn{
+    background:var(--ink-2); border:1px solid var(--line); color:var(--paper);
+    width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center;
+    cursor:pointer; font-size:14px; transition:all 0.2s ease;
+  }
+  .theme-toggle-btn:hover{ border-color:var(--gold); }
+
+  /* ---------- Theme Options UI ---------- */
+  .theme-options{
+    display:flex; gap:8px; margin-top:8px;
+  }
+  .theme-btn{
+    flex:1; padding:8px 12px; font-size:13px; font-weight:600;
+    background:var(--ink-3); border:1px solid var(--line); color:var(--ink-text);
+    border-radius:8px; cursor:pointer; text-align:center; transition:all 0.2s ease;
+  }
+  .theme-btn:hover{ background:rgba(201,162,39,0.15); border-color:var(--gold); }
+  .theme-btn.active{
+    background:var(--gold); color:#1B2430; border-color:var(--gold-bright); font-weight:700;
+  }
+
+  /* ---------- Quote Bookmark UI ---------- */
+  .quote-actions{
+    display:flex; justify-content:flex-end; margin-top:6px;
+  }
+  .save-quote-btn{
+    background:none; border:none; color:var(--ink-text-dim); font-size:12px;
+    font-weight:500; cursor:pointer; padding:4px 8px; border-radius:4px; display:inline-flex; align-items:center; gap:4px;
+    transition:all 0.2s ease;
+  }
+  .save-quote-btn:hover{ color:var(--gold); background:rgba(201,162,39,0.1); }
+  .save-quote-btn.saved{ color:var(--gold); font-weight:600; }
+
+  /* ---------- Library Sub-Tab Toggle ---------- */
+  .lib-tab-toggle{
+    display:flex; gap:6px; background:var(--ink-2); padding:4px; border-radius:10px; border:1px solid var(--line); margin-bottom:16px;
+  }
+  .lib-tab-btn{
+    flex:1; padding:8px 12px; font-size:13px; font-weight:600; border:none; background:none; color:var(--ink-text-dim); border-radius:7px; cursor:pointer; transition:all 0.2s ease;
+  }
+  .lib-tab-btn.active{ background:var(--ink-3); color:var(--paper); box-shadow:0 2px 6px rgba(0,0,0,0.15); }
+
+  /* ---------- Quote Card ---------- */
+  .quote-card{
+    background:var(--ink-2); border:1px solid var(--line); border-radius:var(--radius); padding:14px 16px; margin-bottom:12px; position:relative;
+  }
+  .quote-card-meta{
+    font-size:12px; color:var(--gold); font-weight:600; margin-bottom:6px; display:flex; align-items:center; justify-content:space-between;
+  }
+  .quote-card-text{
+    font-family:var(--font-display); font-style:italic; font-size:14.5px; color:var(--paper); line-height:1.5; margin-bottom:10px;
+  }
+  .quote-card-actions{
+    display:flex; gap:8px; justify-content:flex-end;
   }
 
   /* ---------- Pages ---------- */
@@ -968,16 +1066,17 @@
 </head>
 <body>
 
-<div id="app">
-
-  <div class="topbar">
+<div id="app">  <div class="topbar">
     <div class="brand">
       <div class="brand-mark">
         <svg viewBox="0 0 24 24" fill="none"><path d="M4 4.5C4 3.7 4.7 3 5.5 3H12V21H5.5C4.7 21 4 20.3 4 19.5V4.5Z" fill="#1B2430"/><path d="M20 4.5C20 3.7 19.3 3 18.5 3H12V21H18.5C19.3 21 20 20.3 20 19.5V4.5Z" fill="#1B2430" fill-opacity="0.55"/></svg>
       </div>
       BookNip
     </div>
-    <div class="topbar-sub" id="topbarSub">Dashboard</div>
+    <div class="topbar-right">
+      <button class="theme-toggle-btn" id="topbarThemeBtn" onclick="cycleTheme()" title="Switch visual theme" aria-label="Switch visual theme">🌙</button>
+      <div class="topbar-sub" id="topbarSub">Dashboard</div>
+    </div>
   </div>
 
   <!-- ============ DASHBOARD ============ -->
@@ -991,35 +1090,37 @@
       <div class="stat"><div class="stat-num" id="statContinue">0</div><div class="stat-label">In progress</div></div>
     </div>
 
-    <div class="section-label">Continue reading</div>
-    <div id="continueList"></div>
-
-    <div class="section-label" id="favoritesSection" style="display:none;">Favorites</div>
-    <div id="favoritesList"></div>
-
-    <div class="section-label">Recently added</div>
-    <div id="recentList"></div>
-
-    <div class="section-label">Quick start</div>
-    <div class="btn-row">
-      <button class="btn" onclick="goTo('discover')">＋ Generate summary</button>
+    <div id="dashContinueSection" style="display:none;">
+      <div class="section-label">Continue reading</div>
+      <div class="card continue-card" id="dashContinueCard" onclick="continueReading()">
+        <div id="dashContinueCover"></div>
+        <div class="continue-meta">
+          <div class="continue-title" id="dashContinueTitle">Title</div>
+          <div class="continue-author" id="dashContinueAuthor">Author</div>
+          <div class="continue-progress" id="dashContinueProgressText">0 of 0 chapters</div>
+          <div class="progress-track"><div class="progress-fill" id="dashContinueFill" style="width:0%"></div></div>
+        </div>
+      </div>
     </div>
+
+    <div class="section-label" style="display:flex; justify-content:space-between; align-items:center;">
+      <span>Recent summaries</span>
+      <button class="icon-btn" style="width:auto; padding:0 8px; font-size:12px;" onclick="goTo('library')">View all →</button>
+    </div>
+    <div id="dashRecentList"></div>
   </div>
 
   <!-- ============ DISCOVER ============ -->
   <div class="page" id="page-discover">
     <h1 class="page-title">Discover</h1>
-    <p class="page-sub">Enter a title and author. BookNip will build a chapter-by-chapter summary using Gemini.</p>
+    <p class="page-sub">Generate a new chapter summary for any book in your collection or curiosity list.</p>
 
     <div class="card">
       <div class="field" style="position:relative;">
         <label for="inputTitle">Book title</label>
         <input id="inputTitle" type="text" placeholder="e.g. Atomic Habits" autocomplete="off"
-          role="combobox" aria-expanded="false" aria-controls="titleSuggestBox" aria-autocomplete="list" aria-haspopup="listbox"
-          oninput="onTitleInput(this.value)"
-          onkeydown="onTitleKeydown(event)"
-          onblur="scheduleCloseSuggestions()"
-          onfocus="if(this.value.trim().length>=3) onTitleInput(this.value)">
+               oninput="onTitleInput(this.value)"
+               onfocus="if(this.value.trim().length>=3) onTitleInput(this.value)">
         <div id="titleSuggestBox" class="suggest-box" role="listbox" aria-label="Title suggestions" style="display:none;"></div>
       </div>
       <div class="field">
@@ -1046,17 +1147,44 @@
   <!-- ============ LIBRARY ============ -->
   <div class="page" id="page-library">
     <h1 class="page-title">Library</h1>
-    <p class="page-sub">Every summary you've generated, saved for later reading.</p>
-    <div class="field" style="margin-bottom:18px;">
-      <input id="librarySearch" type="text" placeholder="Search your library…" oninput="renderLibrary()">
+    <p class="page-sub">Every summary and saved quote stored in your personal collection.</p>
+    
+    <div class="lib-tab-toggle">
+      <button class="lib-tab-btn active" id="libTabSummaries" onclick="setLibraryTab('summaries')">📖 Summaries</button>
+      <button class="lib-tab-btn" id="libTabQuotes" onclick="setLibraryTab('quotes')">🔖 Saved Quotes</button>
     </div>
-    <div id="libraryList"></div>
+
+    <div id="librarySummariesView">
+      <div class="field" style="margin-bottom:18px;">
+        <input id="librarySearch" type="text" placeholder="Search your library…" oninput="renderLibrary()">
+      </div>
+      <div id="libraryList"></div>
+    </div>
+
+    <div id="libraryQuotesView" style="display:none;">
+      <div class="field" style="margin-bottom:18px;">
+        <input id="quotesSearch" type="text" placeholder="Search saved quotes…" oninput="renderSavedQuotes()">
+      </div>
+      <div id="savedQuotesList"></div>
+    </div>
   </div>
 
   <!-- ============ SETTINGS ============ -->
   <div class="page" id="page-settings">
     <h1 class="page-title">Settings</h1>
     <p class="page-sub">BookNip runs entirely in your browser. Your key and summaries are stored only on this device.</p>
+
+    <div class="settings-group">
+      <div class="section-label">Appearance & Theme</div>
+      <div class="card">
+        <p class="hint" style="margin-top:0; margin-bottom:10px;">Select a comfortable reading theme for day or night.</p>
+        <div class="theme-options">
+          <button class="theme-btn" data-theme="midnight" onclick="setTheme('midnight')">🌙 Midnight</button>
+          <button class="theme-btn" data-theme="sepia" onclick="setTheme('sepia')">📜 Warm Sepia</button>
+          <button class="theme-btn" data-theme="light" onclick="setTheme('light')">☀️ Crisp Light</button>
+        </div>
+      </div>
+    </div>
 
     <div class="settings-group">
       <div class="section-label">Gemini API key</div>
@@ -1227,7 +1355,9 @@ const LS_KEYS = {
   library: 'bw_library_v1',
   fontSize: 'bw_font_size',
   syncUrl: 'bw_sync_url',
-  familyPin: 'bw_family_pin'
+  familyPin: 'bw_family_pin',
+  theme: 'bw_theme',
+  quotes: 'bw_saved_quotes_v1'
 };
 
 function getFontSize(){ return parseInt(localStorage.getItem(LS_KEYS.fontSize) || '14', 10); }
@@ -1243,6 +1373,102 @@ function openFontControl(bookId){
 function openFocusFontControl(bookId){
   const el = document.getElementById(`focusFontControl-${bookId}`);
   if(el) el.style.display = el.style.display === 'none' ? 'flex' : 'none';
+}
+
+function getTheme(){ return localStorage.getItem(LS_KEYS.theme) || 'midnight'; }
+function setTheme(t){
+  const valid = ['midnight', 'sepia', 'light'].includes(t) ? t : 'midnight';
+  localStorage.setItem(LS_KEYS.theme, valid);
+  if(valid === 'midnight'){
+    document.documentElement.removeAttribute('data-theme');
+  }else{
+    document.documentElement.setAttribute('data-theme', valid);
+  }
+  updateThemeUI();
+}
+function cycleTheme(){
+  const current = getTheme();
+  const next = current === 'midnight' ? 'sepia' : (current === 'sepia' ? 'light' : 'midnight');
+  setTheme(next);
+}
+function updateThemeUI(){
+  const t = getTheme();
+  const icons = { midnight: '🌙', sepia: '📜', light: '☀️' };
+  const btn = document.getElementById('topbarThemeBtn');
+  if(btn) btn.textContent = icons[t] || '🌙';
+  document.querySelectorAll('.theme-btn').forEach(b => {
+    const isSel = b.dataset.theme === t;
+    b.classList.toggle('active', isSel);
+    b.setAttribute('aria-pressed', isSel ? 'true' : 'false');
+  });
+}
+
+/* ---------------- Saved Quotes Collection ---------------- */
+let savedQuotes = [];
+
+async function loadSavedQuotesDB(){
+  try {
+    let data = await idbKeyval.get(LS_KEYS.quotes);
+    if(Array.isArray(data)) return data;
+    const legacy = localStorage.getItem(LS_KEYS.quotes);
+    if(legacy){
+      const parsed = JSON.parse(legacy);
+      await idbKeyval.set(LS_KEYS.quotes, parsed);
+      return parsed;
+    }
+  } catch(e){}
+  return [];
+}
+
+async function saveQuotesToDB(){
+  try {
+    await idbKeyval.set(LS_KEYS.quotes, savedQuotes);
+  } catch(e){
+    console.warn('Error saving quotes:', e);
+  }
+}
+
+function isQuoteSaved(bookId, text){
+  return savedQuotes.some(q => q.bookId === bookId && q.text === text);
+}
+
+async function toggleSaveQuote(bookId, chapterNum, chapterTitle, quoteText, type = 'quote'){
+  const book = state.library.find(b => b.id === bookId);
+  const bookTitle = book ? book.title : 'Book';
+  
+  const existingIdx = savedQuotes.findIndex(q => q.bookId === bookId && q.text === quoteText);
+  if(existingIdx >= 0){
+    savedQuotes.splice(existingIdx, 1);
+    showToast('Quote removed from collection');
+  } else {
+    savedQuotes.unshift({
+      id: 'q_' + Date.now() + '_' + Math.floor(Math.random()*1000),
+      bookId,
+      bookTitle,
+      chapterNum,
+      chapterTitle,
+      text: quoteText,
+      type,
+      savedAt: Date.now()
+    });
+    showToast('Quote saved to collection!');
+  }
+  await saveQuotesToDB();
+  
+  if(state.currentPage === 'reader' && state.activeReaderId === bookId){
+    renderReader(bookId);
+  }
+  if(state.currentPage === 'library'){
+    renderSavedQuotes();
+  }
+}
+
+function copyQuoteText(text){
+  navigator.clipboard.writeText(text).then(()=>{
+    showToast('Quote copied to clipboard!');
+  }).catch(()=>{
+    showToast('Copied text!');
+  });
 }
 
 const SPINE_COLORS = ['#8a3b2e','#2e5b47','#3d4f7a','#7a5a2e','#5b2e5f','#2e6b6e','#7a2e3f','#4f5b2e'];
@@ -2858,6 +3084,7 @@ function renderReader(id){
         <p class="hint" style="margin-top:0;">${doneCount}/${chapters.length} chapters generated${doneCount < chapters.length ? ' — ungenerated chapters will be skipped in the export' : ''}.</p>
         <div class="btn-row">
           <button class="btn btn-secondary" onclick="exportMarkdown('${book.id}')" ${doneCount===0?'disabled':''}>⬇ Markdown</button>
+          <button class="btn btn-secondary" onclick="exportEPUB('${book.id}')" ${doneCount===0?'disabled':''}>⬇ EPUB</button>
           <button class="btn btn-secondary" onclick="exportPDF('${book.id}')" ${doneCount===0?'disabled':''}>⬇ PDF</button>
         </div>
       </div>
@@ -2888,7 +3115,7 @@ function chapterBodyHTML(ch, bookId, idx){
   if(ch.status === 'done'){
     const ttsId = `tts-${bookId}-${idx}`;
     const summaryId = `summary-${bookId}-${idx}`;
-    return `<div class="chapter-summary-text" id="${summaryId}">${formatSummary(ch.summary)}</div>` + quoteCalloutHTML(ch.quote) + takeawaysCalloutHTML(ch.takeaways) +
+    return `<div class="chapter-summary-text" id="${summaryId}">${formatSummary(ch.summary)}</div>` + quoteCalloutHTML(ch.quote, bookId, ch.number || (idx+1), ch.title) + takeawaysCalloutHTML(ch.takeaways) +
       `<div class="chapter-actions">
         <button class="btn btn-secondary regen-btn" onclick="event.stopPropagation(); regenerateChapter('${bookId}', ${idx})">↻ Regenerate</button>
         <button class="btn btn-secondary regen-btn" id="${ttsId}" onclick="event.stopPropagation(); toggleListen('${bookId}', ${idx})">🔊 Listen</button>
@@ -3565,11 +3792,20 @@ function formatSummary(text){
   return html;
 }
 
-function quoteCalloutHTML(quote){
+function quoteCalloutHTML(quote, bookId, chapterNum, chapterTitle){
   if(!quote) return '';
+  const saved = isQuoteSaved(bookId, quote);
+  const safeQuote = escapeHTML(quote).replace(/'/g, "\\'");
+  const safeTitle = escapeHTML(chapterTitle || '').replace(/'/g, "\\'");
   return `<div class="callout callout-quote">
     <div class="callout-icon">❝</div>
-    <div class="callout-text">${escapeHTML(quote)}</div>
+    <div class="callout-text">${escapeHTML(quote)}
+      <div class="quote-actions">
+        <button class="save-quote-btn ${saved?'saved':''}" onclick="event.stopPropagation(); toggleSaveQuote('${bookId}', ${chapterNum || 1}, '${safeTitle}', '${safeQuote}', 'quote')">
+          ${saved ? '★ Saved' : '🔖 Save Quote'}
+        </button>
+      </div>
+    </div>
   </div>`;
 }
 
@@ -3920,6 +4156,179 @@ window.addEventListener('appinstalled', () => {
   }
   showToast('BookNip is installed');
 });
+/* ---------------- EPUB eBook Exporter ---------------- */
+async function exportEPUB(bookId){
+  const book = state.library.find(b=>b.id===bookId);
+  if(!book){ showToast('Book not found'); return; }
+  if(typeof JSZip === 'undefined'){
+    showToast('EPUB exporter loading, please try again in a moment');
+    return;
+  }
+  
+  const doneChapters = (book.chapters || []).filter(c => c && c.status === 'done');
+  if(doneChapters.length === 0){
+    showToast('No generated chapters to export');
+    return;
+  }
+
+  showToast('Generating EPUB eBook…');
+
+  try {
+    const zip = new JSZip();
+    zip.file('mimetype', 'application/epub+zip', { compression: 'STORE' });
+    
+    zip.folder('META-INF').file('container.xml', `<?xml version="1.0"?>
+<container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
+  <rootfiles>
+    <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>
+  </rootfiles>
+</container>`);
+
+    const oebps = zip.folder('OEBPS');
+    oebps.file('style.css', `body { font-family: serif; margin: 5%; line-height: 1.6; color: #222; }
+h1 { font-size: 1.8em; margin-bottom: 0.2em; color: #111; }
+h2 { font-size: 1.4em; margin-top: 1.5em; border-bottom: 1px solid #ccc; padding-bottom: 0.3em; color: #222; }
+.author { font-style: italic; color: #666; margin-bottom: 1.5em; }
+.synopsis { background: #f9f8f6; border-left: 4px solid #c9a227; padding: 10px 15px; margin: 15px 0; }
+.quote { background: #f0ede6; font-style: italic; padding: 12px; margin: 12px 0; border-radius: 6px; }
+.takeaways { background: #edf4ee; padding: 12px; margin: 12px 0; border-radius: 6px; }
+ul { padding-left: 20px; }`);
+
+    const chapterManifests = [];
+    const chapterSpines = [];
+    
+    const titleXhtml = `<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head><title>${escapeHTML(book.title)}</title><link rel="stylesheet" type="text/css" href="style.css"/></head>
+<body>
+  <h1>${escapeHTML(book.title)}</h1>
+  <div class="author">By ${escapeHTML(book.author || 'Unknown author')}</div>
+  <h2>Synopsis</h2>
+  <div class="synopsis">${escapeHTML(book.synopsis || 'No synopsis available.')}</div>
+</body>
+</html>`;
+    oebps.file('title.xhtml', titleXhtml);
+
+    doneChapters.forEach((ch, idx) => {
+      const fileName = `chapter_${idx + 1}.xhtml`;
+      chapterManifests.push(`<item id="ch_${idx + 1}" href="${fileName}" media-type="application/xhtml+xml"/>`);
+      chapterSpines.push(`<itemref idref="ch_${idx + 1}"/>`);
+      
+      const chXhtml = `<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head><title>Chapter ${ch.number || (idx + 1)}: ${escapeHTML(ch.title || '')}</title><link rel="stylesheet" type="text/css" href="style.css"/></head>
+<body>
+  <h2>Chapter ${ch.number || (idx + 1)}: ${escapeHTML(ch.title || '')}</h2>
+  <div>${formatSummary(ch.summary)}</div>
+  ${ch.quote ? `<div class="quote"><strong>Key Quote:</strong> “${escapeHTML(ch.quote)}”</div>` : ''}
+  ${Array.isArray(ch.takeaways) && ch.takeaways.length ? `<div class="takeaways"><strong>Key Takeaways:</strong><ul>${ch.takeaways.map(t=>`<li>${escapeHTML(t)}</li>`).join('')}</ul></div>` : ''}
+</body>
+</html>`;
+      oebps.file(fileName, chXhtml);
+    });
+
+    const opf = `<?xml version="1.0" encoding="UTF-8"?>
+<package xmlns="http://www.idpf.org/2007/opf" unique-identifier="BookId" version="3.0">
+  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <dc:title>${escapeHTML(book.title)}</dc:title>
+    <dc:creator>${escapeHTML(book.author || 'Unknown author')}</dc:creator>
+    <dc:language>en</dc:language>
+    <dc:identifier id="BookId">urn:uuid:${book.id}</dc:identifier>
+  </metadata>
+  <manifest>
+    <item id="style" href="style.css" media-type="text/css"/>
+    <item id="title" href="title.xhtml" media-type="application/xhtml+xml"/>
+    ${chapterManifests.join('\n    ')}
+  </manifest>
+  <spine>
+    <itemref idref="title"/>
+    ${chapterSpines.join('\n    ')}
+  </spine>
+</package>`;
+    oebps.file('content.opf', opf);
+
+    const blob = await zip.generateAsync({ type: 'blob', mimeType: 'application/epub+zip' });
+    const filename = `${slugify(book.title)}_Summary.epub`;
+    
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('EPUB eBook downloaded!');
+  } catch(e) {
+    console.error('EPUB export error:', e);
+    showToast('EPUB generation failed');
+  }
+}
+
+/* ---------------- Saved Quotes & Library Tabs ---------------- */
+function setLibraryTab(tab){
+  const btnSum = document.getElementById('libTabSummaries');
+  const btnQuo = document.getElementById('libTabQuotes');
+  const viewSum = document.getElementById('librarySummariesView');
+  const viewQuo = document.getElementById('libraryQuotesView');
+  if(!btnSum || !btnQuo || !viewSum || !viewQuo) return;
+
+  if(tab === 'quotes'){
+    btnSum.classList.remove('active');
+    btnQuo.classList.add('active');
+    viewSum.style.display = 'none';
+    viewQuo.style.display = 'block';
+    renderSavedQuotes();
+  }else{
+    btnQuo.classList.remove('active');
+    btnSum.classList.add('active');
+    viewQuo.style.display = 'none';
+    viewSum.style.display = 'block';
+    renderLibrary();
+  }
+}
+
+function renderSavedQuotes(){
+  const q = (document.getElementById('quotesSearch')?.value || '').toLowerCase();
+  const listEl = document.getElementById('savedQuotesList');
+  if(!listEl) return;
+
+  let items = [...savedQuotes];
+  if(q){
+    items = items.filter(sq => 
+      sq.text.toLowerCase().includes(q) || 
+      sq.bookTitle.toLowerCase().includes(q) || 
+      sq.chapterTitle.toLowerCase().includes(q)
+    );
+  }
+
+  if(items.length === 0){
+    listEl.innerHTML = `<div class="empty-state">
+      <div class="icon">🔖</div>
+      <p>${savedQuotes.length === 0 ? 'No saved quotes yet.' : 'No matching quotes found.'}</p>
+      ${savedQuotes.length === 0 ? '<p>Tap "🔖 Save Quote" on any chapter quote to collect it here.</p>' : ''}
+    </div>`;
+    return;
+  }
+
+  listEl.innerHTML = items.map(sq => {
+    const safeText = escapeHTML(sq.text).replace(/'/g, "\\'");
+    return `
+      <div class="quote-card">
+        <div class="quote-card-meta">
+          <span>${escapeHTML(sq.bookTitle)} • Ch. ${sq.chapterNum}</span>
+          <button class="save-quote-btn saved" onclick="toggleSaveQuote('${sq.bookId}', ${sq.chapterNum}, '', '${safeText}')" title="Remove quote">★ Saved</button>
+        </div>
+        <div class="quote-card-text">“${escapeHTML(sq.text)}”</div>
+        <div class="quote-card-actions">
+          <button class="btn btn-secondary" style="width:auto; padding:4px 10px; font-size:12px;" onclick="copyQuoteText('${safeText}')">📋 Copy</button>
+          <button class="btn btn-secondary" style="width:auto; padding:4px 10px; font-size:12px;" onclick="openReader('${sq.bookId}')">📖 Open Book</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
 /* ---------------- Service Worker Registration ---------------- */
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
@@ -3930,8 +4339,10 @@ if ('serviceWorker' in navigator) {
 }
 /* ---------------- Init (Async for IndexedDB & Shortcut Routing) ---------------- */
 async function initApp() {
+  setTheme(getTheme());
   setFontSize(getFontSize());
   state.library = await loadLibraryFromDB();
+  savedQuotes = await loadSavedQuotesDB();
   initTtsVoices();
 
   let savedPage = 'dashboard';
