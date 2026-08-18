@@ -4,10 +4,15 @@
   "short_name": "BookNip",
   "description": "Generate chapter-by-chapter book summaries using AI.",
   "start_url": "./",
+  "scope": "./",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
   "background_color": "#1B2430",
   "theme_color": "#1B2430",
   "orientation": "portrait-primary",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["books", "education"],
   "icons": [
     {
       "src": "./icon-192.png",
@@ -20,6 +25,12 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
+    },
+    {
+      "src": "./icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
     },
     {
       "src": "./icon-maskable-512.png",
