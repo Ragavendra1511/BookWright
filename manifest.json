@@ -13,6 +13,29 @@
   "lang": "en",
   "dir": "ltr",
   "categories": ["books", "education"],
+  "screenshots": [
+    {
+      "src": "./screenshots/dashboard-mobile.png",
+      "sizes": "1080x2340",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "BookNip dashboard showing recent summaries and reading stats"
+    },
+    {
+      "src": "./screenshots/discover-mobile.png",
+      "sizes": "1080x2340",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Generating a new chapter-by-chapter book summary"
+    },
+    {
+      "src": "./screenshots/library-mobile.png",
+      "sizes": "1080x2340",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Library of saved book summaries"
+    }
+  ],
   "icons": [
     {
       "src": "./icon-192.png",
