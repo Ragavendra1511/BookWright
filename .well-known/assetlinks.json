@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "dev.pages.booknip.twa",
+      "sha256_cert_fingerprints": [
+        "02:3A:61:90:71:E3:99:EE:D7:6D:0A:9E:C9:31:8A:CA:16:84:E5:5A:D4:B4:2D:D9:26:53:99:B9:D4:B6:92:E4"
+      ]
+    }
+  }
+]
