@@ -257,7 +257,7 @@
   }
   .section-label{
     font-family:var(--font-mono);
-    font-size:11px; text-transform:uppercase; letter-spacing:0.1em;
+    font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.1em;
     color: var(--gold);
     display:flex; align-items:center; gap:8px;
     margin: 26px 0 12px;
@@ -268,7 +268,7 @@
   }
 
   /* ---------- Stat row (Dashboard) ---------- */
-  .stat-row{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:8px; }
+  .stat-row{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin: 0 0 20px 0; padding: 0; list-style: none; }
   .stat{
     background: var(--ink-2);
     border:1px solid var(--line);
@@ -533,7 +533,7 @@
   .toc-header-tags{ display:flex; gap:6px; margin-top:10px; flex-wrap:wrap; }
   .tag{ font-size:10px; font-family:var(--font-mono); text-transform:uppercase; letter-spacing:0.05em; color:var(--sage-a11y); border:1px solid rgba(107,143,113,0.35); padding:3px 8px; border-radius:5px; }
 
-  .toc-list{ border:1px solid var(--line); border-radius: var(--radius); overflow:hidden; }
+  .toc-list{ list-style: none; margin: 0; padding: 0; border:1px solid var(--line); border-radius: var(--radius); overflow:hidden; }
   .toc-progress{ display:flex; align-items:center; gap:10px; margin-bottom:6px; }
   .toc-progress-track{ flex:1; height:5px; background:var(--ink-3); border-radius:3px; overflow:hidden; }
   .toc-progress-fill{ height:100%; background: linear-gradient(90deg, var(--sage), #8bb392); border-radius:3px; transition: width .3s ease; }
@@ -1072,11 +1072,50 @@
     .brand{ font-size:18px; }
     .tts-voice-group{ max-width: 130px; }
   }
+
+  /* ---------- Skip Link ---------- */
+  .skip-link {
+    position: absolute;
+    top: -100px;
+    left: 10px;
+    background: var(--gold);
+    color: #1B2430;
+    padding: 10px 16px;
+    font-weight: 700;
+    border-radius: 6px;
+    z-index: 1000;
+    transition: top 0.2s ease;
+  }
+  .skip-link:focus {
+    top: 10px;
+    outline: 3px solid var(--focus-ring);
+  }
+
+  /* ---------- Accessible List resets & Book card main button ---------- */
+  .book-list, .quotes-list, .pager-dots, .toc-list { list-style: none; margin: 0; padding: 0; }
+  .stat-row { list-style: none; margin: 0 0 20px 0; padding: 0; }
+  .chip-row { list-style: none; margin: 0 0 18px 0; padding: 0; }
+  .book-card-item { list-style: none; margin-bottom: 10px; }
+  .book-card-main {
+    display: flex; gap: 12px; flex: 1; min-width: 0; align-items: center;
+    background: none; border: none; padding: 0; text-align: left;
+    color: inherit; font: inherit; cursor: pointer; border-radius: inherit;
+  }
+  button.toc-item-head {
+    width: 100%; border: none; text-align: left; font: inherit; color: inherit;
+  }
+  button.toc-item-head:focus-visible, .book-card-main:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+
 </style>
 </head>
 <body>
+<a href="#main-content" class="skip-link">Skip to main content</a>
 
-<div id="app">  <div class="topbar">
+
+<div id="app">  <header class="topbar" role="banner">
     <div class="brand">
       <div class="brand-mark">
         <svg viewBox="0 0 24 24" fill="none"><path d="M4 4.5C4 3.7 4.7 3 5.5 3H12V21H5.5C4.7 21 4 20.3 4 19.5V4.5Z" fill="#1B2430"/><path d="M20 4.5C20 3.7 19.3 3 18.5 3H12V21H18.5C19.3 21 20 20.3 20 19.5V4.5Z" fill="#1B2430" fill-opacity="0.55"/></svg>
@@ -1084,36 +1123,37 @@
       BookNip
     </div>
     <div class="topbar-right">
-      <button class="theme-toggle-btn" id="topbarThemeBtn" onclick="cycleTheme()" title="Switch visual theme" aria-label="Switch visual theme">🌙</button>
+      <button class="theme-toggle-btn" id="topbarThemeBtn" onclick="cycleTheme()" title="Switch visual theme" aria-label="Switch visual theme"><span aria-hidden="true">🌙</span></button>
       <div class="topbar-sub" id="topbarSub">Dashboard</div>
     </div>
-  </div>
+  </header>
 
+  <main id="main-content" tabindex="-1">
   <!-- ============ DASHBOARD ============ -->
   <div class="page active" id="page-dashboard">
     <h1 class="page-title">Welcome back</h1>
     <p class="page-sub">Your reading room — pick up where you left off, or start something new.</p>
 
-    <div class="stat-row" id="statRow">
-      <div class="stat"><div class="stat-num" id="statTotal">0</div><div class="stat-label">Summaries</div></div>
-      <div class="stat"><div class="stat-num" id="statChapters">0</div><div class="stat-label">Chapters ready</div></div>
-      <div class="stat"><div class="stat-num" id="statContinue">0</div><div class="stat-label">In progress</div></div>
-    </div>
+    <ul class="stat-row" id="statRow" aria-label="Reading statistics">
+      <li class="stat"><div class="stat-num" id="statTotal">0</div><div class="stat-label">Summaries</div></li>
+      <li class="stat"><div class="stat-num" id="statChapters">0</div><div class="stat-label">Chapters ready</div></li>
+      <li class="stat"><div class="stat-num" id="statContinue">0</div><div class="stat-label">In progress</div></li>
+    </ul>
 
-    <div id="dashContinueSection" style="display:none;">
-      <div class="section-label">Continue reading</div>
+    <div id="dashContinueSection" style="display:none; margin-top:20px;">
+      <h2 class="section-label">Continue reading</h2>
       <div id="continueList"></div>
     </div>
 
     <div class="section-label" style="display:flex; justify-content:space-between; align-items:center;">
       <span>Recent summaries</span>
-      <button class="icon-btn" style="width:auto; padding:0 8px; font-size:12px;" onclick="goTo('library')">View all →</button>
+      <button class="icon-btn" style="width:auto; padding:0 8px; font-size:12px;" onclick="goTo('library')">View all <span aria-hidden="true">→</span></button>
     </div>
     <div id="recentList"></div>
 
-    <div class="section-label" style="margin-top:20px;">Quick start</div>
+    <h2 class="section-label" style="margin-top:20px;">Quick start</h2>
     <div class="btn-row">
-      <button class="btn" onclick="goTo('discover')">＋ Generate summary</button>
+      <button class="btn" onclick="goTo('discover')"><span aria-hidden="true">＋ </span>Generate summary</button>
     </div>
   </div>
 
@@ -1125,9 +1165,7 @@
     <div class="card">
       <div class="field" style="position:relative;">
         <label for="inputTitle">Book title</label>
-        <input id="inputTitle" type="text" placeholder="e.g. Atomic Habits" autocomplete="off"
-               oninput="onTitleInput(this.value)"
-               onfocus="if(this.value.trim().length>=3) onTitleInput(this.value)">
+        <input id="inputTitle" type="text" placeholder="e.g. Atomic Habits" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-haspopup="listbox" aria-controls="titleSuggestBox" oninput="onTitleInput(this.value)" onfocus="if(this.value.trim().length>=3) onTitleInput(this.value)" onkeydown="onTitleKeydown(event)">
         <div id="titleSuggestBox" class="suggest-box" role="listbox" aria-label="Title suggestions" style="display:none;"></div>
       </div>
       <div class="field">
@@ -1141,12 +1179,12 @@
           <option value="deep" selected>Deep — 80–90% knowledge transfer</option>
         </select>
       </div>
-      <button class="btn" id="generateBtn" onclick="startGeneration()">✦ Generate summary</button>
+      <button class="btn" id="generateBtn" onclick="startGeneration()"><span aria-hidden="true">✦ </span>Generate summary</button>
       <p class="hint" id="apiKeyHint"></p>
     </div>
 
-    <div class="section-label">Try one of these</div>
-    <div class="chip-row" id="suggestionChips"></div>
+    <h2 class="section-label">Try one of these</h2>
+    <ul class="chip-row" id="suggestionChips" aria-label="Suggested books"></ul>
 
     <div id="genStatusArea"></div>
   </div>
@@ -1156,25 +1194,27 @@
     <h1 class="page-title">Library</h1>
     <p class="page-sub">Every summary and saved quote stored in your personal collection.</p>
     
-    <div class="lib-tab-toggle">
-      <button class="lib-tab-btn active" id="libTabSummaries" onclick="setLibraryTab('summaries')">📖 Summaries</button>
-      <button class="lib-tab-btn" id="libTabQuotes" onclick="setLibraryTab('quotes')">🔖 Saved Quotes</button>
+    <div class="lib-tab-toggle" role="tablist" aria-label="Library sections" onkeydown="handleLibTabKeydown(event)">
+      <button class="lib-tab-btn active" id="libTabSummaries" role="tab" aria-selected="true" aria-controls="librarySummariesView" onclick="setLibraryTab('summaries')"><span aria-hidden="true">📖 </span>Summaries</button>
+      <button class="lib-tab-btn" id="libTabQuotes" role="tab" aria-selected="false" aria-controls="libraryQuotesView" tabindex="-1" onclick="setLibraryTab('quotes')"><span aria-hidden="true">🔖 </span>Saved Quotes</button>
     </div>
 
-    <div id="librarySummariesView">
-      <div class="filter-pills-row" style="display:flex; gap:6px; margin-bottom:12px;">
-        <button class="filter-pill active" id="libFilterAll" onclick="setLibraryFilter('all')">All</button>
-        <button class="filter-pill" id="libFilterInProgress" onclick="setLibraryFilter('in_progress')">In Progress</button>
-        <button class="filter-pill" id="libFilterCompleted" onclick="setLibraryFilter('completed')">Completed ✓</button>
+    <div id="librarySummariesView" role="tabpanel" aria-labelledby="libTabSummaries" tabindex="0">
+      <div class="filter-pills-row" role="group" aria-label="Filter library summaries" style="display:flex; gap:6px; margin-bottom:12px;">
+        <button class="filter-pill active" id="libFilterAll" aria-pressed="true" onclick="setLibraryFilter('all')">All</button>
+        <button class="filter-pill" id="libFilterInProgress" aria-pressed="false" onclick="setLibraryFilter('in_progress')">In Progress</button>
+        <button class="filter-pill" id="libFilterCompleted" aria-pressed="false" onclick="setLibraryFilter('completed')">Completed <span aria-hidden="true">✓</span></button>
       </div>
       <div class="field" style="margin-bottom:18px;">
+        <label for="librarySearch" class="sr-only">Search your library</label>
         <input id="librarySearch" type="text" placeholder="Search your library…" oninput="renderLibrary()">
       </div>
       <div id="libraryList"></div>
     </div>
 
-    <div id="libraryQuotesView" style="display:none;">
+    <div id="libraryQuotesView" role="tabpanel" aria-labelledby="libTabQuotes" tabindex="0" style="display:none;">
       <div class="field" style="margin-bottom:18px;">
+        <label for="quotesSearch" class="sr-only">Search saved quotes</label>
         <input id="quotesSearch" type="text" placeholder="Search saved quotes…" oninput="renderSavedQuotes()">
       </div>
       <div id="savedQuotesList"></div>
@@ -1187,19 +1227,19 @@
     <p class="page-sub">BookNip runs entirely in your browser. Your key and summaries are stored only on this device.</p>
 
     <div class="settings-group">
-      <div class="section-label">Appearance & Theme</div>
+      <h2 class="section-label">Appearance & Theme</h2>
       <div class="card">
         <p class="hint" style="margin-top:0; margin-bottom:10px;">Select a comfortable reading theme for day or night.</p>
-        <div class="theme-options">
-          <button class="theme-btn" data-theme="midnight" onclick="setTheme('midnight')">🌙 Midnight</button>
-          <button class="theme-btn" data-theme="sepia" onclick="setTheme('sepia')">📜 Warm Sepia</button>
-          <button class="theme-btn" data-theme="light" onclick="setTheme('light')">☀️ Crisp Light</button>
+        <div class="theme-options" role="group" aria-label="Appearance Theme">
+          <button class="theme-btn" data-theme="midnight" aria-pressed="true" onclick="setTheme('midnight')"><span aria-hidden="true">🌙 </span>Midnight</button>
+          <button class="theme-btn" data-theme="sepia" aria-pressed="false" onclick="setTheme('sepia')"><span aria-hidden="true">📜 </span>Warm Sepia</button>
+          <button class="theme-btn" data-theme="light" aria-pressed="false" onclick="setTheme('light')"><span aria-hidden="true">☀️ </span>Crisp Light</button>
         </div>
       </div>
     </div>
 
     <div class="settings-group">
-      <div class="section-label">Gemini API key</div>
+      <h2 class="section-label">Gemini API key</h2>
       <div class="card">
         <div class="field" style="margin-bottom:8px;">
           <label for="apiKeyInput">API key</label>
@@ -1225,7 +1265,7 @@
     </div>
 
     <div class="settings-group">
-      <div class="section-label">Data</div>
+      <h2 class="section-label">Data</h2>
       <div class="card">
         <p class="hint" style="margin-top:0; margin-bottom:14px;">All summaries and your API key live in this browser's local storage only. Nothing is sent anywhere except directly to Google's Gemini API when generating.</p>
         <div class="field" style="display:flex; flex-direction:row; align-items:center; gap:8px; margin-bottom:12px;">
@@ -1236,7 +1276,7 @@
           <button class="btn btn-secondary" onclick="exportLibrary()">Export library</button>
           <button class="btn btn-secondary" onclick="document.getElementById('importFileInput').click()">Import library</button>
         </div>
-        <input type="file" id="importFileInput" accept="application/json,.json" style="display:none;" onchange="handleImportFile(event)">
+        <input type="file" id="importFileInput" accept="application/json,.json" style="display:none;" aria-label="Import library JSON file" onchange="handleImportFile(event)">
         <div class="btn-row" style="margin-top:10px;">
           <button class="btn btn-danger" onclick="clearLibrary()">Clear all data</button>
         </div>
@@ -1244,7 +1284,7 @@
     </div>
 
     <div class="settings-group">
-      <div class="section-label">Cloud Sync (Cloudflare Worker)</div>
+      <h2 class="section-label">Cloud Sync (Cloudflare Worker)</h2>
       <div class="card">
         <p class="hint" style="margin-top:0;">Sync your book summaries automatically across your family's devices using your free Cloudflare Worker backend.</p>
         <div class="field">
@@ -1267,14 +1307,14 @@
     </div>
 
     <div class="settings-group">
-      <div class="section-label">About</div>
+      <h2 class="section-label">About</h2>
       <div class="card">
         <p class="hint" style="margin:0;">Summaries are generated by an AI model from its training knowledge of each book — it does not read an uploaded copy of the book. For very new, obscure, or niche titles, accuracy may vary. Always treat generated summaries as a study aid, not a verified replacement for the source text.</p>
       </div>
     </div>
 
     <div class="settings-group" id="installAppSection" style="display:none;">
-      <div class="section-label">App Installation</div>
+      <h2 class="section-label">App Installation</h2>
       <div class="card">
         <p class="hint" style="margin-top:0; margin-bottom:12px;">Install BookNip on your device for quick access and offline reading.</p>
         <button class="btn" id="installAppBtn" onclick="triggerPwaInstall()">Install BookNip App</button>
@@ -1286,10 +1326,12 @@
   <div class="page" id="page-reader">
     <div id="readerContent"></div>
   </div>
-
+    <footer class="sr-only" role="contentinfo">BookNip — AI-generated chapter summaries study aid</footer>
+  </main>
 </div>
 
 <div id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+<div id="statusAnnouncer" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
 <!-- ============ TTS MEDIA PLAYER BAR ============ -->
 <div id="ttsMediaPlayer" class="tts-player-bar" style="display:none;" role="region" aria-label="Audio player">
   <div class="tts-player-top">
@@ -1301,18 +1343,18 @@
       </div>
     </div>
     <div class="tts-controls">
-      <button class="tts-ctrl-btn" onclick="ttsPrevChapter()" title="Previous Chapter" aria-label="Previous Chapter">⏮</button>
-      <button class="tts-ctrl-btn" onclick="skipTts(-10)" title="Rewind 10 seconds" aria-label="Rewind 10 seconds">↺ 10s</button>
-      <button class="tts-play-btn" id="ttsPlayPauseBtn" onclick="toggleTtsPlayPause()" title="Play or Pause" aria-label="Play or Pause">▶</button>
-      <button class="tts-ctrl-btn" onclick="skipTts(10)" title="Forward 10 seconds" aria-label="Forward 10 seconds">↻ 10s</button>
-      <button class="tts-ctrl-btn" onclick="ttsNextChapter()" title="Next Chapter" aria-label="Next Chapter">⏭</button>
-      <button class="tts-ctrl-btn tts-close-btn" onclick="stopTts()" title="Close Player" aria-label="Close Player">✕</button>
+      <button class="tts-ctrl-btn" onclick="ttsPrevChapter()" title="Previous Chapter" aria-label="Previous Chapter"><span aria-hidden="true">⏮</span></button>
+      <button class="tts-ctrl-btn" onclick="skipTts(-10)" title="Rewind 10 seconds" aria-label="Rewind 10 seconds"><span aria-hidden="true">↺ 10s</span></button>
+      <button class="tts-play-btn" id="ttsPlayPauseBtn" onclick="toggleTtsPlayPause()" title="Play or Pause" aria-label="Play or Pause"><span aria-hidden="true">▶</span></button>
+      <button class="tts-ctrl-btn" onclick="skipTts(10)" title="Forward 10 seconds" aria-label="Forward 10 seconds"><span aria-hidden="true">↻ 10s</span></button>
+      <button class="tts-ctrl-btn" onclick="ttsNextChapter()" title="Next Chapter" aria-label="Next Chapter"><span aria-hidden="true">⏭</span></button>
+      <button class="tts-ctrl-btn tts-close-btn" onclick="stopTts()" title="Close Player" aria-label="Close Player"><span aria-hidden="true">✕</span></button>
     </div>
   </div>
 
   <div class="tts-player-bottom">
     <div class="tts-progress-wrap">
-      <div class="tts-progress-bar" id="ttsProgressBar" onclick="seekTtsFromClick(event)" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Playback progress">
+      <div class="tts-progress-bar" id="ttsProgressBar" onclick="seekTtsFromClick(event)" onkeydown="seekTtsFromKey(event)" role="slider" tabindex="0" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-valuetext="0 percent" aria-label="Playback progress">
         <div class="tts-progress-fill" id="ttsProgressFill"></div>
       </div>
       <div class="tts-time-text" id="ttsTimeText">0%</div>
@@ -1329,6 +1371,7 @@
       <button class="tts-rate-pill" data-rate="2.0" onclick="setTtsRate(2.0)">2.0x</button>
     </div>
     <div class="tts-voice-group">
+      <label for="ttsVoiceSelect" class="sr-only">Select Voice</label>
       <select id="ttsVoiceSelect" class="tts-voice-select" onchange="setTtsVoice(this.value)" aria-label="Select Voice">
         <option value="">Default Voice</option>
       </select>
@@ -1336,24 +1379,26 @@
   </div>
 </div>
 
-<div class="bottom-nav">
-  <button class="nav-btn active" data-page="dashboard" onclick="goTo('dashboard')">
+<nav class="bottom-nav" aria-label="Main navigation">
+  <ul class="nav-list" style="display:flex; width:100%; margin:0; padding:0; list-style:none;">
+  <li style="flex:1; display:flex;"><button class="nav-btn active" data-page="dashboard" onclick="goTo('dashboard')">
     <div class="nav-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg></div>
     Dashboard
-  </button>
-  <button class="nav-btn" data-page="discover" onclick="goTo('discover')">
+  </button></li>
+  <li style="flex:1; display:flex;"><button class="nav-btn" data-page="discover" onclick="goTo('discover')">
     <div class="nav-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></div>
     Discover
-  </button>
-  <button class="nav-btn" data-page="library" onclick="goTo('library')">
+  </button></li>
+  <li style="flex:1; display:flex;"><button class="nav-btn" data-page="library" onclick="goTo('library')">
     <div class="nav-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></div>
     Library
-  </button>
-  <button class="nav-btn" data-page="settings" onclick="goTo('settings')">
+  </button></li>
+  <li style="flex:1; display:flex;"><button class="nav-btn" data-page="settings" onclick="goTo('settings')">
     <div class="nav-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009.6 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 8.6a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9c.36.24.8.4 1.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></div>
     Settings
-  </button>
-</div>
+  </button></li>
+  </ul>
+</nav>
 
 <script>
 /* ============================================================
@@ -1407,7 +1452,7 @@ function updateThemeUI(){
   const t = getTheme();
   const icons = { midnight: '🌙', sepia: '📜', light: '☀️' };
   const btn = document.getElementById('topbarThemeBtn');
-  if(btn) btn.textContent = icons[t] || '🌙';
+  if(btn) btn.innerHTML = `<span aria-hidden="true">${icons[t] || '🌙'}</span>`;
   document.querySelectorAll('.theme-btn').forEach(b => {
     const isSel = b.dataset.theme === t;
     b.classList.toggle('active', isSel);
@@ -1768,17 +1813,17 @@ function renderDashboard(){
       continueSection.style.display = 'none';
     }else{
       continueSection.style.display = 'block';
-      continueList.innerHTML = inProgress.slice(0,4).map(bookCardHTML).join('');
+      continueList.innerHTML = `<ul class="book-list" aria-label="Books in progress">${inProgress.slice(0,4).map(bookCardHTML).join('')}</ul>`;
     }
   }
 
   const recentList = document.getElementById('recentList');
   if(recentList){
     if(lib.length===0){
-      recentList.innerHTML = `<div class="empty-state"><div class="icon">✦</div><p>No summaries yet.</p><p>Head to Discover to generate your first one.</p></div>`;
+      recentList.innerHTML = `<div class="empty-state"><div class="icon" aria-hidden="true">✦</div><p>No summaries yet.</p><p>Head to Discover to generate your first one.</p></div>`;
     }else{
       const recent = [...lib].sort((a,b)=>b.createdAt-a.createdAt).slice(0,4);
-      recentList.innerHTML = recent.map(bookCardHTML).join('');
+      recentList.innerHTML = `<ul class="book-list" aria-label="Recent summaries">${recent.map(bookCardHTML).join('')}</ul>`;
     }
   }
 }
@@ -1789,24 +1834,26 @@ function bookCardHTML(book){
   const authorText = escapeHTML(book.author||'Unknown author');
   const isCompleted = !!book.completed;
   return `
-  <div class="book-card" role="button" tabindex="0" aria-label="Open ${escapeAttr(book.title)}, ${isCompleted ? 'completed' : pct + '% generated'}"
-       onclick="openReader('${book.id}')"
-       onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault(); openReader('${book.id}');}">
-    ${coverHTML(book)}
-    <div class="book-meta">
-      <div style="display:flex; align-items:center; gap:6px;">
-        <div class="book-title">${titleText}</div>
-        ${isCompleted ? `<span class="tag" style="color:var(--sage-a11y); border-color:var(--sage); font-size:10px; padding:1px 5px; line-height:1.2;">✓ Done</span>` : ''}
-      </div>
-      <div class="book-author">${authorText}</div>
-      <div class="book-progress">
-        <div class="progress-track" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100" aria-label="Summary progress"><div class="progress-fill" style="width:${pct}%"></div></div>
-        <div class="progress-text" aria-hidden="true">${pct}%</div>
-      </div>
+  <li class="book-card-item">
+    <div class="book-card">
+      <button class="book-card-main" onclick="openReader('${book.id}')" aria-label="Open ${escapeAttr(book.title)}, by ${authorText}. ${isCompleted ? 'Completed' : pct + '% generated'}">
+        ${coverHTML(book)}
+        <div class="book-meta">
+          <div style="display:flex; align-items:center; gap:6px;">
+            <div class="book-title">${titleText}</div>
+            ${isCompleted ? `<span class="tag" style="color:var(--sage-a11y); border-color:var(--sage); font-size:10px; padding:1px 5px; line-height:1.2;"><span aria-hidden="true">✓ </span>Done</span>` : ''}
+          </div>
+          <div class="book-author">${authorText}</div>
+          <div class="book-progress">
+            <div class="progress-track" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100" aria-label="Summary progress"><div class="progress-fill" style="width:${pct}%"></div></div>
+            <div class="progress-text" aria-hidden="true">${pct}%</div>
+          </div>
+        </div>
+        <div class="book-chevron" aria-hidden="true">›</div>
+      </button>
+      <button class="fav-btn ${book.favorite?'active':''}" onclick="toggleFavorite('${book.id}')" aria-pressed="${book.favorite?'true':'false'}" aria-label="${book.favorite?'Remove ' + escapeAttr(book.title) + ' from favorites':'Add ' + escapeAttr(book.title) + ' to favorites'}"><span aria-hidden="true">${book.favorite ? '★' : '☆'}</span></button>
     </div>
-    <button class="fav-btn ${book.favorite?'active':''}" onclick="event.stopPropagation(); toggleFavorite('${book.id}')" aria-pressed="${book.favorite?'true':'false'}" aria-label="${book.favorite?'Remove from favorites':'Add to favorites'}">${book.favorite ? '★' : '☆'}</button>
-    <div class="book-chevron" aria-hidden="true">›</div>
-  </div>`;
+  </li>`;
 }
 
 function toggleFavorite(bookId){
@@ -1853,7 +1900,7 @@ function renderDiscover(){
     hint.textContent = '';
   }
   const chips = document.getElementById('suggestionChips');
-  chips.innerHTML = SUGGESTIONS.map(s=>`<div class="chip" role="button" tabindex="0" aria-label="Fill in ${escapeAttr(s.title)} by ${escapeAttr(s.author)}" onclick="fillSuggestion('${escapeAttr(s.title)}','${escapeAttr(s.author)}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault(); fillSuggestion('${escapeAttr(s.title)}','${escapeAttr(s.author)}');}">${escapeHTML(s.title)}</div>`).join('');
+  chips.innerHTML = SUGGESTIONS.map(s=>`<li><button class="chip" aria-label="Fill in ${escapeAttr(s.title)} by ${escapeAttr(s.author)}" onclick="fillSuggestion('${escapeAttr(s.title)}','${escapeAttr(s.author)}')">${escapeHTML(s.title)}</button></li>`).join('');
 }
 function fillSuggestion(title, author){
   document.getElementById('inputTitle').value = title;
@@ -2241,6 +2288,7 @@ function setLibraryFilter(filter){
       const key = filter.replace('_','').toLowerCase();
       const isSel = f.toLowerCase() === key;
       el.classList.toggle('active', isSel);
+      el.setAttribute('aria-pressed', isSel ? 'true' : 'false');
     }
   });
   renderLibrary();
@@ -2267,10 +2315,10 @@ function renderLibrary(){
     if(currentLibraryFilter === 'completed') emptyMsg = 'No completed books yet.';
     if(q) emptyMsg = 'No matches found.';
 
-    list.innerHTML = `<div class="empty-state"><div class="icon">📚</div><p>${emptyMsg}</p>${state.library.length===0 ? '<p>Generate a summary from the Discover tab to get started.</p>' : ''}</div>`;
+    list.innerHTML = `<div class="empty-state"><div class="icon" aria-hidden="true">📚</div><p>${emptyMsg}</p>${state.library.length===0 ? '<p>Generate a summary from the Discover tab to get started.</p>' : ''}</div>`;
     return;
   }
-  list.innerHTML = items.map(bookCardHTML).join('');
+  list.innerHTML = `<ul class="book-list" aria-label="Library books">${items.map(bookCardHTML).join('')}</ul>`;
 }
 
 function exportLibrary(){
@@ -2654,7 +2702,9 @@ function setTtsRate(rate){
   ttsState.rate = rate;
   localStorage.setItem(LS_TTS_KEYS.rate, rate);
   document.querySelectorAll('.tts-rate-pill').forEach(btn => {
-    btn.classList.toggle('active', parseFloat(btn.dataset.rate) === rate);
+    const isSel = parseFloat(btn.dataset.rate) === rate;
+    btn.classList.toggle('active', isSel);
+    btn.setAttribute('aria-pressed', isSel ? 'true' : 'false');
   });
   if(ttsState.isPlaying || ttsState.isPaused){
     restartTtsFromCurrentChar();
@@ -2906,6 +2956,20 @@ function skipTts(seconds){
   startUtterance(newPos);
 }
 
+function seekTtsFromKey(e){
+  if(!ttsState.bookId || !ttsState.totalChars) return;
+  let deltaSec = 0;
+  if(e.key === 'ArrowRight' || e.key === 'ArrowUp'){ deltaSec = 5; }
+  else if(e.key === 'ArrowLeft' || e.key === 'ArrowDown'){ deltaSec = -5; }
+  else if(e.key === 'PageUp'){ deltaSec = 15; }
+  else if(e.key === 'PageDown'){ deltaSec = -15; }
+  else if(e.key === 'Home'){ skipTts(-99999); return; }
+  else if(e.key === 'End'){ skipTts(99999); return; }
+  else return;
+  e.preventDefault();
+  skipTts(deltaSec);
+}
+
 function seekTtsFromClick(e){
   const bar = document.getElementById('ttsProgressBar');
   if(!bar || !ttsState.totalChars) return;
@@ -3067,14 +3131,14 @@ function renderReader(id){
 
     container.innerHTML = `
       <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:16px;">
-        <button class="btn btn-secondary" style="width:auto; padding:9px 16px;" onclick="goTo('library')">← Back to Library</button>
+        <button class="btn btn-secondary" style="width:auto; padding:9px 16px;" onclick="goTo('library')"><span aria-hidden="true">← </span>Back to Library</button>
         <div style="display:flex; gap:8px; align-items:center;">
           <button class="btn btn-secondary ${book.completed?'active':''}" style="width:auto; padding:6px 10px; font-size:12px; height:32px;" onclick="toggleBookCompletion('${book.id}')">
-            ${book.completed ? '✓ Completed' : '✓ Complete'}
+            <span aria-hidden="true">${book.completed ? '✓ ' : '✓ '}</span>${book.completed ? 'Completed' : 'Complete'}
           </button>
-          <button class="icon-btn" onclick="openFontControl('${book.id}')" aria-label="Font size">Aa</button>
-          <button class="icon-btn" onclick="openMindMap('${book.id}')" aria-label="Mind map">🕸</button>
-          <button class="icon-btn ${book.favorite?'active':''}" id="readerFavBtn2" onclick="toggleFavorite('${book.id}')" aria-label="Favorite">${book.favorite ? '★' : '☆'}</button>
+          <button class="icon-btn" onclick="openFontControl('${book.id}')" aria-label="Font size"><span aria-hidden="true">Aa</span></button>
+          <button class="icon-btn" onclick="openMindMap('${book.id}')" aria-label="Mind map"><span aria-hidden="true">🕸</span></button>
+          <button class="icon-btn ${book.favorite?'active':''}" id="readerFavBtn2" onclick="toggleFavorite('${book.id}')" aria-label="${book.favorite?'Remove from favorites':'Add to favorites'}"><span aria-hidden="true">${book.favorite ? '★' : '☆'}</span></button>
         </div>
       </div>
 
@@ -3092,58 +3156,59 @@ function renderReader(id){
 
       <div class="font-control" id="fontControl-${book.id}" style="display:none;">
         <span class="font-control-label">A</span>
-        <input type="range" min="13" max="20" step="1" value="${getFontSize()}" oninput="setFontSize(this.value)">
+        <input type="range" min="13" max="20" step="1" value="${getFontSize()}" aria-label="Font size" oninput="setFontSize(this.value)">
         <span class="font-control-label" style="font-size:18px;">A</span>
       </div>
 
-      <div class="section-label">Synopsis</div>
+      <h2 class="section-label">Synopsis</h2>
       <div class="card synopsis-box">${escapeHTML(book.synopsis || 'No synopsis available.')}</div>
 
-      <div class="section-label">Table of contents</div>
+      <h2 class="section-label">Table of contents</h2>
       <div class="toc-progress" id="tocProgress-${book.id}">
         <div class="toc-progress-track"><div class="toc-progress-fill" style="width:${progressPct}%"></div></div>
         <div class="toc-progress-text" id="tocProgressText-${book.id}">${doneCount}/${totalCount} chapters generated</div>
       </div>
 
-      <div class="view-toggle" id="viewToggle-${book.id}">
-        <button class="view-toggle-btn active" id="viewTogglePager-${book.id}" aria-pressed="true" onclick="setReaderView('${book.id}','pager')">📖 Pages</button>
-        <button class="view-toggle-btn" id="viewToggleList-${book.id}" aria-pressed="false" onclick="setReaderView('${book.id}','list')">☰ List</button>
-        <button class="view-toggle-btn" id="viewToggleMap-${book.id}" aria-pressed="false" onclick="setReaderView('${book.id}','map')">🕸 Mind map</button>
+      <div class="view-toggle" id="viewToggle-${book.id}" role="tablist" aria-label="Reader view mode" onkeydown="handleReaderViewKeydown(event, '${book.id}')">
+        <button class="view-toggle-btn active" id="viewTogglePager-${book.id}" role="tab" aria-selected="true" aria-controls="tocPagerView-${book.id}" onclick="setReaderView('${book.id}','pager')"><span aria-hidden="true">📖 </span>Pages</button>
+        <button class="view-toggle-btn" id="viewToggleList-${book.id}" role="tab" aria-selected="false" aria-controls="tocListView-${book.id}" tabindex="-1" onclick="setReaderView('${book.id}','list')"><span aria-hidden="true">☰ </span>List</button>
+        <button class="view-toggle-btn" id="viewToggleMap-${book.id}" role="tab" aria-selected="false" aria-controls="mindmapContainer-${book.id}" tabindex="-1" onclick="setReaderView('${book.id}','map')"><span aria-hidden="true">🕸 </span>Mind map</button>
       </div>
 
-      <div id="mindmapContainer-${book.id}" style="display:none;"></div>
+      <div id="mindmapContainer-${book.id}" role="tabpanel" aria-labelledby="viewToggleMap-${book.id}" tabindex="0" style="display:none;"></div>
 
-      <div id="tocPagerView-${book.id}"></div>
+      <div id="tocPagerView-${book.id}" role="tabpanel" aria-labelledby="viewTogglePager-${book.id}" tabindex="0"></div>
 
-      <div id="tocListView-${book.id}" style="display:none;">
+      <div id="tocListView-${book.id}" role="tabpanel" aria-labelledby="viewToggleList-${book.id}" tabindex="0" style="display:none;">
         <p class="hint" style="margin:0 0 12px;">Tap a chapter to generate its detailed summary.</p>
-        <div class="toc-list">
+        <ol class="toc-list" aria-label="Table of contents">
           ${chapters.map((ch,i)=>`
-            <div class="toc-item" id="toc-${book.id}-${i}">
-              <div class="toc-item-head" role="button" tabindex="0" aria-expanded="false" aria-controls="toc-body-${book.id}-${i}" id="toc-head-${book.id}-${i}"
-                   onclick="toggleChapter('${book.id}', ${i})"
-                   onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault(); toggleChapter('${book.id}', ${i});}">
-                <div class="toc-num" aria-hidden="true">${(ch && ch.number) || (i+1)}</div>
-                <div class="toc-item-title">${escapeHTML((ch && ch.title) || 'Chapter ' + (i+1))}</div>
-                ${chapterStatusBadge(ch || {})}
-                <div class="toc-caret" aria-hidden="true">▾</div>
-              </div>
+            <li class="toc-item" id="toc-${book.id}-${i}">
+              <h3 class="toc-item-header" style="margin:0;">
+                <button class="toc-item-head" aria-expanded="false" aria-controls="toc-body-${book.id}-${i}" id="toc-head-${book.id}-${i}"
+                        onclick="toggleChapter('${book.id}', ${i})">
+                  <div class="toc-num" aria-hidden="true">${(ch && ch.number) || (i+1)}</div>
+                  <div class="toc-item-title">${escapeHTML((ch && ch.title) || 'Chapter ' + (i+1))}</div>
+                  ${chapterStatusBadge(ch || {})}
+                  <div class="toc-caret" aria-hidden="true">▾</div>
+                </button>
+              </h3>
               <div class="toc-item-body">
                 <div class="toc-item-body-inner" id="toc-body-${book.id}-${i}" role="region" aria-labelledby="toc-head-${book.id}-${i}"></div>
               </div>
-            </div>
+            </li>
           `).join('')}
-        </div>
+        </ol>
       </div>
 
       <div style="height:8px;"></div>
-      <div class="section-label">Export</div>
+      <h2 class="section-label">Export</h2>
       <div class="card">
         <p class="hint" style="margin-top:0;">${doneCount}/${chapters.length} chapters generated${doneCount < chapters.length ? ' — ungenerated chapters will be skipped in the export' : ''}.</p>
         <div class="btn-row">
-          <button class="btn btn-secondary" onclick="exportMarkdown('${book.id}')" ${doneCount===0?'disabled':''}>⬇ Markdown</button>
-          <button class="btn btn-secondary" onclick="exportEPUB('${book.id}')" ${doneCount===0?'disabled':''}>⬇ EPUB</button>
-          <button class="btn btn-secondary" onclick="exportPDF('${book.id}')" ${doneCount===0?'disabled':''}>⬇ PDF</button>
+          <button class="btn btn-secondary" onclick="exportMarkdown('${book.id}')" ${doneCount===0?'disabled':''}><span aria-hidden="true">⬇ </span>Markdown</button>
+          <button class="btn btn-secondary" onclick="exportEPUB('${book.id}')" ${doneCount===0?'disabled':''}><span aria-hidden="true">⬇ </span>EPUB</button>
+          <button class="btn btn-secondary" onclick="exportPDF('${book.id}')" ${doneCount===0?'disabled':''}><span aria-hidden="true">⬇ </span>PDF</button>
         </div>
       </div>
 
@@ -3175,8 +3240,8 @@ function chapterBodyHTML(ch, bookId, idx){
     const summaryId = `summary-${bookId}-${idx}`;
     return `<div class="chapter-summary-text" id="${summaryId}">${formatSummary(ch.summary)}</div>` + quoteCalloutHTML(ch.quote, bookId, ch.number || (idx+1), ch.title) + takeawaysCalloutHTML(ch.takeaways, bookId, ch.number || (idx+1), ch.title) +
       `<div class="chapter-actions">
-        <button class="btn btn-secondary regen-btn" onclick="event.stopPropagation(); regenerateChapter('${bookId}', ${idx})">↻ Regenerate</button>
-        <button class="btn btn-secondary regen-btn" id="${ttsId}" onclick="event.stopPropagation(); toggleListen('${bookId}', ${idx})">🔊 Listen</button>
+        <button class="btn btn-secondary regen-btn" onclick="event.stopPropagation(); regenerateChapter('${bookId}', ${idx})"><span aria-hidden="true">↻ </span>Regenerate</button>
+        <button class="btn btn-secondary regen-btn" id="${ttsId}" onclick="event.stopPropagation(); toggleListen('${bookId}', ${idx})"><span aria-hidden="true">🔊 </span>Listen</button>
       </div>`;
   }
   if(ch.status === 'loading') return `<div style="display:flex;align-items:center;gap:10px;color:var(--ink-text-dim);font-size:13px;padding:6px 0;">
@@ -3190,6 +3255,36 @@ function chapterBodyHTML(ch, bookId, idx){
 function openMindMap(bookId){
   setReaderView(bookId, 'map');
   document.getElementById('mindmapContainer-'+bookId)?.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function handleReaderViewKeydown(e, bookId){
+  if(e.key === 'ArrowRight' || e.key === 'ArrowLeft'){
+    e.preventDefault();
+    const views = ['pager', 'list', 'map'];
+    const activeEl = document.activeElement;
+    let idx = views.findIndex(v => document.getElementById(`viewToggle${v.charAt(0).toUpperCase() + v.slice(1)}-${bookId}`) === activeEl);
+    if(idx < 0) idx = 0;
+    const nextIdx = e.key === 'ArrowRight' ? (idx + 1) % views.length : (idx - 1 + views.length) % views.length;
+    const nextView = views[nextIdx];
+    setReaderView(bookId, nextView);
+    const nextBtn = document.getElementById(`viewToggle${nextView.charAt(0).toUpperCase() + nextView.slice(1)}-${bookId}`);
+    if(nextBtn) nextBtn.focus();
+  }
+}
+
+function handlePagerDotsKeydown(e, bookId, currentIdx){
+  if(e.key === 'ArrowRight' || e.key === 'ArrowLeft'){
+    e.preventDefault();
+    const book = state.library.find(b=>b.id===bookId);
+    if(!book || !book.chapters) return;
+    const total = book.chapters.length;
+    const nextIdx = e.key === 'ArrowRight' ? (currentIdx + 1) % total : (currentIdx - 1 + total) % total;
+    pagerGo(bookId, nextIdx);
+    setTimeout(() => {
+      const dot = document.getElementById(`pager-dot-${bookId}-${nextIdx}`);
+      if(dot) dot.focus();
+    }, 50);
+  }
 }
 
 function setReaderView(bookId, view){
@@ -3208,17 +3303,25 @@ function setReaderView(bookId, view){
   pagerEl.style.display = 'none';
   listEl.style.display = 'none';
   mapEl.style.display = 'none';
-  [btnPager, btnList, btnMap].forEach(b=>{ b.classList.remove('active'); b.setAttribute('aria-pressed','false'); });
+  [btnPager, btnList, btnMap].forEach(b => {
+    if(b){
+      b.classList.remove('active');
+      b.setAttribute('aria-selected', 'false');
+      b.setAttribute('tabindex', '-1');
+    }
+  });
 
   if(view === 'map'){
     mapEl.style.display = 'block';
     btnMap.classList.add('active');
-    btnMap.setAttribute('aria-pressed', 'true');
+    btnMap.setAttribute('aria-selected', 'true');
+    btnMap.setAttribute('tabindex', '0');
     renderMindMapTree(bookId);
   }else if(view === 'list'){
     listEl.style.display = 'block';
     btnList.classList.add('active');
-    btnList.setAttribute('aria-pressed', 'true');
+    btnList.setAttribute('aria-selected', 'true');
+    btnList.setAttribute('tabindex', '0');
     if(book){
       const el = document.getElementById(`toc-${bookId}-${lastIdx}`);
       if(el && !el.classList.contains('open')){
@@ -3231,7 +3334,8 @@ function setReaderView(bookId, view){
   }else{
     pagerEl.style.display = 'block';
     btnPager.classList.add('active');
-    btnPager.setAttribute('aria-pressed', 'true');
+    btnPager.setAttribute('aria-selected', 'true');
+    btnPager.setAttribute('tabindex', '0');
     if(book){
       renderChapterPager(bookId, lastIdx);
       setTimeout(() => {
@@ -3276,15 +3380,15 @@ function renderChapterPager(bookId, idx){
         <div class="pager-chapter-title">${escapeHTML(ch.title || 'Chapter ' + (idx+1))}</div>
       </div>
       ${chapterStatusBadge(ch)}
-      <button class="focus-btn" onclick="openFocusMode('${bookId}', ${idx})" aria-label="Open distraction-free reading mode">⛶ Focus</button>
+      <button class="focus-btn" onclick="openFocusMode('${bookId}', ${idx})" aria-label="Open distraction-free reading mode"><span aria-hidden="true">⛶ </span>Focus</button>
     </div>
     <div class="pager-body" id="pager-body-${bookId}">${chapterBodyHTML(ch, bookId, idx)}</div>
     <div class="pager-nav">
-      <button class="btn btn-secondary" ${isFirst?'disabled':''} onclick="pagerGo('${bookId}', ${idx-1})">← Previous</button>
-      <div class="pager-dots" role="tablist" aria-label="Jump to chapter">
-        ${book.chapters.map((c,i)=>`<button class="pager-dot ${i===idx?'active':''} ${c.status==='done'?'done':''}" role="tab" aria-selected="${i===idx}" aria-label="Chapter ${i+1}${c.status==='done'?', generated':''}" onclick="pagerGo('${bookId}', ${i})"></button>`).join('')}
-      </div>
-      <button class="btn btn-secondary" ${isLast?'disabled':''} onclick="pagerGo('${bookId}', ${idx+1})">Next →</button>
+      <button class="btn btn-secondary" ${isFirst?'disabled':''} onclick="pagerGo('${bookId}', ${idx-1})"><span aria-hidden="true">← </span>Previous</button>
+      <ul class="pager-dots" role="tablist" aria-label="Jump to chapter" onkeydown="handlePagerDotsKeydown(event, '${bookId}', ${idx})">
+        ${book.chapters.map((c,i)=>`<li role="presentation" style="display:inline-block;"><button class="pager-dot ${i===idx?'active':''} ${c.status==='done'?'done':''}" role="tab" aria-selected="${i===idx}" ${i!==idx?'tabindex="-1"':''} aria-label="Chapter ${i+1}${c.status==='done'?', generated':''}" id="pager-dot-${bookId}-${i}" aria-controls="pager-body-${bookId}" onclick="pagerGo('${bookId}', ${i})"></button></li>`).join('')}
+      </ul>
+      <button class="btn btn-secondary" ${isLast?'disabled':''} onclick="pagerGo('${bookId}', ${idx+1})">Next <span aria-hidden="true"> →</span></button>
     </div>
   `;
 
@@ -3318,11 +3422,47 @@ function pagerGo(bookId, idx){
    minimal prev/next bar, like a dedicated e-reader page. */
 let focusModeState = null; // {bookId, idx}
 
+let focusPreviousActiveElement = null;
+
+function getFocusableElements(container){
+  if(!container) return [];
+  return Array.from(container.querySelectorAll(
+    'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  )).filter(el => el.offsetWidth > 0 || el.offsetHeight > 0 || el === document.activeElement);
+}
+
+function handleFocusModeTrap(e){
+  if(e.key !== 'Tab') return;
+  const overlay = document.getElementById('focusOverlay');
+  if(!overlay || overlay.style.display === 'none') return;
+  
+  const focusables = getFocusableElements(overlay);
+  if(!focusables.length){
+    e.preventDefault();
+    return;
+  }
+  const first = focusables[0];
+  const last = focusables[focusables.length - 1];
+
+  if(e.shiftKey){
+    if(document.activeElement === first || !overlay.contains(document.activeElement)){
+      e.preventDefault();
+      last.focus();
+    }
+  } else {
+    if(document.activeElement === last || !overlay.contains(document.activeElement)){
+      e.preventDefault();
+      first.focus();
+    }
+  }
+}
+
 function openFocusMode(bookId, idx){
   const book = state.library.find(b=>b.id===bookId);
   if(!book) return;
   idx = Math.max(0, Math.min(idx, book.chapters.length - 1));
   focusModeState = { bookId, idx };
+  focusPreviousActiveElement = document.activeElement;
 
   let overlay = document.getElementById('focusOverlay');
   if(!overlay){
@@ -3337,11 +3477,17 @@ function openFocusMode(bookId, idx){
   overlay.style.display = 'flex';
   document.body.style.overflow = 'hidden';
   document.addEventListener('keydown', focusModeKeyHandler);
+  document.addEventListener('keydown', handleFocusModeTrap);
 
   const pagerBody = document.getElementById(`pager-body-${bookId}`);
   if(pagerBody) pagerBody.innerHTML = '';
 
   renderFocusMode();
+
+  setTimeout(() => {
+    const heading = document.getElementById('focusChapterHeading');
+    if(heading) heading.focus({preventScroll:true});
+  }, 30);
 
   if(ttsState.isPlaying && ttsState.bookId === bookId && ttsState.chapterIdx === idx){
     ensureHighlightableSummary(bookId, idx);
@@ -3353,6 +3499,7 @@ function closeFocusMode(){
   if(overlay) overlay.style.display = 'none';
   document.body.style.overflow = '';
   document.removeEventListener('keydown', focusModeKeyHandler);
+  document.removeEventListener('keydown', handleFocusModeTrap);
 
   if(focusModeState){
     const { bookId, idx } = focusModeState;
@@ -3362,6 +3509,9 @@ function closeFocusMode(){
     }
   }
   focusModeState = null;
+  if(focusPreviousActiveElement && typeof focusPreviousActiveElement.focus === 'function'){
+    focusPreviousActiveElement.focus();
+  }
 }
 
 function focusModeKeyHandler(e){
@@ -3406,18 +3556,18 @@ function renderFocusMode(){
 
   overlay.innerHTML = `
     <div class="focus-topbar">
-      <button class="focus-exit-btn" onclick="closeFocusMode()" aria-label="Exit distraction-free mode">✕</button>
+      <button class="focus-exit-btn" onclick="closeFocusMode()" aria-label="Exit distraction-free mode"><span aria-hidden="true">✕</span></button>
       <div class="focus-topbar-meta">
         <div class="focus-chapter-of">Chapter ${idx+1} of ${total}</div>
         <div class="focus-chapter-title">${escapeHTML(book.title)}</div>
       </div>
-      <button class="focus-icon-btn" onclick="openFocusFontControl('${bookId}')" aria-label="Font size">Aa</button>
+      <button class="focus-icon-btn" onclick="openFocusFontControl('${bookId}')" aria-label="Font size"><span aria-hidden="true">Aa</span></button>
     </div>
     <div class="focus-body-scroll" id="focusBodyScroll" tabindex="-1">
-      <h2 class="focus-chapter-heading" id="focusChapterHeading">${escapeHTML(ch.title || 'Chapter ' + (idx+1))}</h2>
+      <h2 class="focus-chapter-heading" id="focusChapterHeading" tabindex="-1">${escapeHTML(ch.title || 'Chapter ' + (idx+1))}</h2>
       <div class="font-control" id="focusFontControl-${bookId}" style="display:none;">
         <span class="font-control-label">A</span>
-        <input type="range" min="13" max="20" step="1" value="${getFontSize()}" oninput="setFontSize(this.value)">
+        <input type="range" min="13" max="20" step="1" value="${getFontSize()}" aria-label="Font size" oninput="setFontSize(this.value)">
         <span class="font-control-label" style="font-size:18px;">A</span>
       </div>
       ${chapterBodyHTML(ch, bookId, idx)}
@@ -3455,6 +3605,70 @@ function mmSetExpanded(bookId, path, val){
   mmTreeState[mmNodeKey(bookId, path)] = val;
 }
 
+function handleTreeKeydown(e, bookId){
+  const tree = e.currentTarget;
+  if(!tree) return;
+  const items = Array.from(tree.querySelectorAll('[role="treeitem"]')).filter(el => {
+    return el.offsetParent !== null && el.style.display !== 'none';
+  });
+  if(!items.length) return;
+
+  let current = document.activeElement;
+  if(!items.includes(current)){
+    current = items[0];
+  }
+  const index = items.indexOf(current);
+
+  if(e.key === 'ArrowDown'){
+    e.preventDefault();
+    const next = items[Math.min(index + 1, items.length - 1)];
+    if(next) next.focus();
+  } else if(e.key === 'ArrowUp'){
+    e.preventDefault();
+    const prev = items[Math.max(index - 1, 0)];
+    if(prev) prev.focus();
+  } else if(e.key === 'ArrowRight'){
+    e.preventDefault();
+    if(current.hasAttribute('aria-expanded')){
+      if(current.getAttribute('aria-expanded') === 'false'){
+        const path = current.id.replace(`mm-item-${bookId}-`, '');
+        mmSetExpanded(bookId, path, true);
+        renderMindMapTree(bookId);
+        setTimeout(() => document.getElementById(current.id)?.focus(), 50);
+      } else {
+        const next = items[index + 1];
+        if(next) next.focus();
+      }
+    }
+  } else if(e.key === 'ArrowLeft'){
+    e.preventDefault();
+    if(current.hasAttribute('aria-expanded') && current.getAttribute('aria-expanded') === 'true'){
+      const path = current.id.replace(`mm-item-${bookId}-`, '');
+      mmSetExpanded(bookId, path, false);
+      renderMindMapTree(bookId);
+      setTimeout(() => document.getElementById(current.id)?.focus(), 50);
+    } else {
+      const parentItem = current.parentElement.closest('[role="treeitem"]');
+      if(parentItem) parentItem.focus();
+    }
+  } else if(e.key === 'Home'){
+    e.preventDefault();
+    items[0].focus();
+  } else if(e.key === 'End'){
+    e.preventDefault();
+    items[items.length - 1].focus();
+  } else if(e.key === 'Enter' || e.key === ' '){
+    e.preventDefault();
+    const path = current.id ? current.id.replace(`mm-item-${bookId}-`, '') : '';
+    if(current.hasAttribute('aria-expanded')){
+      mmToggleNode(bookId, path);
+    } else if(path.startsWith('ch')){
+      const idx = parseInt(path.replace('ch',''), 10);
+      jumpToChapterFromMap(bookId, idx);
+    }
+  }
+}
+
 function renderMindMapTree(bookId){
   const book = state.library.find(b=>b.id===bookId);
   const container = document.getElementById('mindmapContainer-'+bookId);
@@ -3483,7 +3697,7 @@ function renderMindMapTree(bookId){
     if(expandable){
       if(hasQuote){
         childrenHTML += `
-          <li class="mm-tree-node mm-leaf mm-quote-leaf">
+          <li class="mm-tree-node mm-leaf mm-quote-leaf" role="treeitem" id="mm-item-${bookId}-${path}-quote" aria-level="3" tabindex="-1">
             <div class="mm-tree-row">
               <span class="mm-leaf-icon" aria-hidden="true">❝</span>
               <span class="mm-leaf-text">${escapeHTML(ch.quote)}</span>
@@ -3491,9 +3705,9 @@ function renderMindMapTree(bookId){
           </li>`;
       }
       if(hasTakeaways){
-        ch.takeaways.forEach((tk)=>{
+        ch.takeaways.forEach((tk, tkIdx)=>{
           childrenHTML += `
-            <li class="mm-tree-node mm-leaf">
+            <li class="mm-tree-node mm-leaf" role="treeitem" id="mm-item-${bookId}-${path}-tk-${tkIdx}" aria-level="3" tabindex="-1">
               <div class="mm-tree-row">
                 <span class="mm-leaf-icon" aria-hidden="true">›</span>
                 <span class="mm-leaf-text">${escapeHTML(tk)}</span>
@@ -3503,42 +3717,42 @@ function renderMindMapTree(bookId){
       }
     }
 
-    const rowId = `mm-row-${bookId}-${path}`;
+    const itemId = `mm-item-${bookId}-${path}`;
     const childrenId = `mm-children-${bookId}-${path}`;
     chaptersHTML += `
-      <li class="mm-tree-node ${isLast ? 'mm-last' : ''}">
+      <li class="mm-tree-node ${isLast ? 'mm-last' : ''}" role="treeitem" id="${itemId}" aria-level="2"
+          ${expandable ? `aria-expanded="${expanded?'true':'false'}" aria-controls="${childrenId}"` : ''} tabindex="-1">
         <div class="mm-tree-row ${expandable ? 'mm-clickable' : ''}"
-             ${expandable ? `role="button" tabindex="0" id="${rowId}" aria-expanded="${expanded?'true':'false'}" aria-controls="${childrenId}" onclick="mmToggleNode('${bookId}','${path}')" onkeydown="if(event.target===this && (event.key==='Enter'||event.key===' ')){event.preventDefault(); mmToggleNode('${bookId}','${path}');}"` : ''}>
+             ${expandable ? `onclick="mmToggleNode('${bookId}','${path}')"` : ''}>
           ${expandable ? `<span class="mm-caret ${expanded?'open':''}" aria-hidden="true">▸</span>` : `<span class="mm-caret-spacer" aria-hidden="true"></span>`}
           <span class="mm-chapter-num" aria-hidden="true">${num}</span>
-          <span class="mm-chapter-title" role="button" tabindex="0" aria-label="Jump to chapter: ${escapeAttr(ch.title || 'Chapter '+num)}" onclick="event.stopPropagation(); jumpToChapterFromMap('${bookId}', ${i})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault(); event.stopPropagation(); jumpToChapterFromMap('${bookId}', ${i});}">${escapeHTML(ch.title || 'Chapter '+num)}</span>
+          <span class="mm-chapter-title" role="button" tabindex="-1" aria-label="Jump to chapter: ${escapeAttr(ch.title || 'Chapter '+num)}" onclick="event.stopPropagation(); jumpToChapterFromMap('${bookId}', ${i})">${escapeHTML(ch.title || 'Chapter '+num)}</span>
           <span class="mm-status-tag mm-status-${st.cls}">${st.label}</span>
         </div>
-        ${expandable ? `<ul class="mm-tree-children" id="${childrenId}" style="display:${expanded?'block':'none'}">${childrenHTML}</ul>` : ''}
+        ${expandable ? `<ul class="mm-tree-children" role="group" id="${childrenId}" style="display:${expanded?'block':'none'}">${childrenHTML}</ul>` : ''}
       </li>`;
   });
 
   container.innerHTML = `
     <div class="mm-tree-toolbar">
-      <button class="btn btn-secondary mm-tree-toolbar-btn" onclick="mmExpandAll('${bookId}')">⊞ Expand all</button>
-      <button class="btn btn-secondary mm-tree-toolbar-btn" onclick="mmCollapseAll('${bookId}')">⊟ Collapse all</button>
-      <button class="btn btn-secondary mm-tree-toolbar-btn" onclick="shareMindMap('${bookId}')" aria-label="Share mind map">➦ Share</button>
+      <button class="btn btn-secondary mm-tree-toolbar-btn" onclick="mmExpandAll('${bookId}')"><span aria-hidden="true">⊞ </span>Expand all</button>
+      <button class="btn btn-secondary mm-tree-toolbar-btn" onclick="mmCollapseAll('${bookId}')"><span aria-hidden="true">⊟ </span>Collapse all</button>
+      <button class="btn btn-secondary mm-tree-toolbar-btn" onclick="shareMindMap('${bookId}')" aria-label="Share mind map"><span aria-hidden="true">➦ </span>Share</button>
     </div>
     <div class="mm-tree-wrap" id="mmTreeWrap-${bookId}">
-      <ul class="mm-tree-root">
-        <li class="mm-tree-node mm-root-node">
-          <div class="mm-tree-row mm-clickable" role="button" tabindex="0" id="mm-row-${bookId}-root" aria-expanded="${rootExpanded?'true':'false'}" aria-controls="mm-children-${bookId}-root"
-               onclick="mmToggleNode('${bookId}','root')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault(); mmToggleNode('${bookId}','root');}">
+      <ul class="mm-tree-root" role="tree" aria-label="${escapeAttr(book.title)} Mind Map" onkeydown="handleTreeKeydown(event, '${bookId}')">
+        <li class="mm-tree-node mm-root-node" role="treeitem" id="mm-item-${bookId}-root" aria-level="1" aria-expanded="${rootExpanded?'true':'false'}" aria-controls="mm-children-${bookId}-root" tabindex="0">
+          <div class="mm-tree-row mm-clickable" onclick="mmToggleNode('${bookId}','root')">
             <span class="mm-caret ${rootExpanded?'open':''}" aria-hidden="true">▸</span>
             <span class="mm-book-title">${escapeHTML(book.title)}</span>
           </div>
-          <ul class="mm-tree-children mm-chapters-list" id="mm-children-${bookId}-root" style="display:${rootExpanded?'block':'none'}">
+          <ul class="mm-tree-children mm-chapters-list" role="group" id="mm-children-${bookId}-root" style="display:${rootExpanded?'block':'none'}">
             ${chaptersHTML}
           </ul>
         </li>
       </ul>
     </div>
-    <p class="hint" style="margin:10px 0 18px;">Tap a chapter title to jump to it. Tap the row to expand its takeaways.</p>
+    <p class="hint" style="margin:10px 0 18px;">Tap a chapter title to jump to it. Use Arrow keys to navigate the tree.</p>
   `;
 }
 
@@ -3546,8 +3760,8 @@ function mmToggleNode(bookId, path){
   const current = mmIsExpanded(bookId, path, path==='root');
   mmSetExpanded(bookId, path, !current);
   renderMindMapTree(bookId);
-  const rowEl = document.getElementById(`mm-row-${bookId}-${path}`);
-  if(rowEl) rowEl.focus();
+  const itemEl = document.getElementById(`mm-item-${bookId}-${path}`);
+  if(itemEl) itemEl.focus();
 }
 
 function mmExpandAll(bookId){
@@ -3860,7 +4074,7 @@ function quoteCalloutHTML(quote, bookId, chapterNum, chapterTitle){
     <div class="callout-text">${escapeHTML(quote)}
       <div class="quote-actions">
         <button class="save-quote-btn ${saved?'saved':''}" onclick="event.stopPropagation(); toggleSaveQuote('${bookId}', ${chapterNum || 1}, '${safeTitle}', '${safeQuote}', 'quote')">
-          ${saved ? '★ Saved' : '🔖 Save Quote'}
+          <span aria-hidden="true">${saved ? '★ ' : '🔖 '}</span>${saved ? 'Saved' : 'Save Quote'}
         </button>
       </div>
     </div>
@@ -3879,7 +4093,7 @@ function takeawaysCalloutHTML(takeaways, bookId, chapterNum, chapterTitle){
         return `<li style="margin-bottom:6px; display:flex; align-items:flex-start; justify-content:space-between; gap:8px;">
           <span>${escapeHTML(t)}</span>
           <button class="save-quote-btn ${saved?'saved':''}" style="margin-left:4px; font-size:11px; flex-shrink:0;" onclick="event.stopPropagation(); toggleSaveQuote('${bookId}', ${chapterNum || 1}, '${safeTitle}', '${safeText}', 'takeaway')">
-            ${saved ? '★ Saved' : '🔖 Save'}
+            <span aria-hidden="true">${saved ? '★ ' : '🔖 '}</span>${saved ? 'Saved' : 'Save'}
           </button>
         </li>`;
       }).join('')}
@@ -4334,6 +4548,16 @@ ul { padding-left: 20px; }`);
 }
 
 /* ---------------- Saved Quotes & Library Tabs ---------------- */
+function handleLibTabKeydown(e){
+  if(e.key === 'ArrowRight' || e.key === 'ArrowLeft'){
+    e.preventDefault();
+    const targetTab = e.key === 'ArrowRight' ? 'quotes' : 'summaries';
+    setLibraryTab(targetTab);
+    const btn = document.getElementById(targetTab === 'quotes' ? 'libTabQuotes' : 'libTabSummaries');
+    if(btn) btn.focus();
+  }
+}
+
 function setLibraryTab(tab){
   const btnSum = document.getElementById('libTabSummaries');
   const btnQuo = document.getElementById('libTabQuotes');
@@ -4343,13 +4567,21 @@ function setLibraryTab(tab){
 
   if(tab === 'quotes'){
     btnSum.classList.remove('active');
+    btnSum.setAttribute('aria-selected', 'false');
+    btnSum.setAttribute('tabindex', '-1');
     btnQuo.classList.add('active');
+    btnQuo.setAttribute('aria-selected', 'true');
+    btnQuo.setAttribute('tabindex', '0');
     viewSum.style.display = 'none';
     viewQuo.style.display = 'block';
     renderSavedQuotes();
   }else{
     btnQuo.classList.remove('active');
+    btnQuo.setAttribute('aria-selected', 'false');
+    btnQuo.setAttribute('tabindex', '-1');
     btnSum.classList.add('active');
+    btnSum.setAttribute('aria-selected', 'true');
+    btnSum.setAttribute('tabindex', '0');
     viewQuo.style.display = 'none';
     viewSum.style.display = 'block';
     renderLibrary();
@@ -4372,7 +4604,7 @@ function renderSavedQuotes(){
 
   if(items.length === 0){
     listEl.innerHTML = `<div class="empty-state">
-      <div class="icon">🔖</div>
+      <div class="icon" aria-hidden="true">🔖</div>
       <p>${savedQuotes.length === 0 ? 'No saved highlights or quotes yet.' : 'No matching highlights found.'}</p>
       ${savedQuotes.length === 0 ? '<p>Tap "🔖 Save" on any chapter quote or key takeaway to collect it here.</p>' : ''}
     </div>`;
